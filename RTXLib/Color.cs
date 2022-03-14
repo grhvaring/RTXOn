@@ -24,28 +24,28 @@ public struct Color
     // *** Math operations *** //
     
     // (left) product with a scalar
-    public static Color operator *(double a, Color c)
+    public static Color operator *(double scalar, Color c)
     {
-        return new Color(a * c.R, a * c.G, a *c.B);
+        return new Color(scalar * c.R, scalar * c.G, scalar *c.B);
     }
     
     // (right) product with a scalar
-    public static Color operator *(Color c, double a)
+    public static Color operator *(Color c, double scalar)
     {
-        return new Color(a * c.R, a * c.G, a *c.B);
+        return scalar * c;
     }
 
     // division by a scalar
-    public static Color operator /(Color c, double a)
+    public static Color operator /(Color c, double scalar)
     {
-        if (a == 0) throw new DivideByZeroException();
-        return new Color( c.R / a ,  c.G / a, c.B / a);
+        if (scalar == 0) throw new DivideByZeroException();
+        return new Color( c.R / scalar ,  c.G / scalar, c.B / scalar);
     }
     
     // product of two colors (component-wise)
-    public static Color operator*(Color a, Color b)
+    public static Color operator*(Color c1, Color c2)
     {
-        return new Color(a.R * b.R, a.G * b.G, a.B * b.B);
+        return new Color(c1.R * c2.R, c1.G * c2.G, c1.B * c2.B);
     }
 
     // Unary operator plus
@@ -57,26 +57,27 @@ public struct Color
     // Unary operator minus
     public static Color operator -(Color a)
     {
+        // WHAT TO DO WHEN a - b < 0 ????
         return new Color(-a.R, -a.G, -a.B);
     }
     
     // Sum of two colors
-    public static Color operator +(Color a, Color b)
+    public static Color operator +(Color c1, Color c2)
     {
-        return new Color(a.R + b.R, a.G + b.G, a.B + b.B);
+        return new Color(c1.R + c2.R, c1.G + c2.G, c1.B + c2.B);
     }
 
     // Difference of two colors
-    public static Color operator -(Color a, Color b)
+    public static Color operator -(Color c1, Color c2)
     {
-        return a + (-b);
+        return c1 + (-c2);
     }
     
     // *** Other methods *** //
     
-    public bool is_close(Color a, double epsilon = 1e-5)
+    public bool is_close(Color otherColor, double epsilon = 1e-5)
     {
-        return (Math.Abs(R - a.R) < epsilon) && (Math.Abs(G - a.G) < epsilon) && (Math.Abs(B - a.B) < epsilon);
+        return (Math.Abs(R - otherColor.R) < epsilon) && (Math.Abs(G - otherColor.G) < epsilon) && (Math.Abs(B - otherColor.B) < epsilon);
     }
     
     public string to_string()
