@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RTXLib", "RTXLib\RTXLib.csproj", "{C46A1B7E-ACB1-4FF9-8106-93800604B754}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RTXOn", "RTXOn\RTXOn.csproj", "{7AAF7975-7DA1-4867-957D-E127E535F5B1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RTXLib.Tests", "RTXLib.Tests\RTXLib.Tests.csproj", "{63EF33F1-DF2B-4BC1-A7A6-7D74D91B9263}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C46A1B7E-ACB1-4FF9-8106-93800604B754}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C46A1B7E-ACB1-4FF9-8106-93800604B754}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C46A1B7E-ACB1-4FF9-8106-93800604B754}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C46A1B7E-ACB1-4FF9-8106-93800604B754}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AAF7975-7DA1-4867-957D-E127E535F5B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AAF7975-7DA1-4867-957D-E127E535F5B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AAF7975-7DA1-4867-957D-E127E535F5B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AAF7975-7DA1-4867-957D-E127E535F5B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63EF33F1-DF2B-4BC1-A7A6-7D74D91B9263}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63EF33F1-DF2B-4BC1-A7A6-7D74D91B9263}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63EF33F1-DF2B-4BC1-A7A6-7D74D91B9263}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63EF33F1-DF2B-4BC1-A7A6-7D74D91B9263}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
