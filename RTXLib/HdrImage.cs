@@ -1,4 +1,4 @@
-// This file implement the class HdrImage, which is use to save an image of a given dimension (width * height)
+// This file implements the class HdrImage, which is use to save an image of a given dimension (width * height)
 // The image is implemented as a monodimensional array of the struct Color.
 // Each element of the array represents the color of a pixel.
 
@@ -20,6 +20,7 @@ public class HdrImage
 		Width = w;
 		Height = h;
 		NPixels = w * h;
+		Pixels = new Color[NPixels];
 
 		// Creation of a default color (with all 0 entries)
 		Color defaultColor = new Color();
@@ -36,6 +37,7 @@ public class HdrImage
 		Width = w;
 		Height = h;
 		NPixels = w * h;
+		Pixels = new Color[NPixels];
 
 		for (int i = 0; i < NPixels; i++)
         {
@@ -47,22 +49,24 @@ public class HdrImage
 	// *** Other function and methods *** //
 
 	// validate_coordinates checks if the coordinates (x,y) of a pixel are compatible with the dimension of HdrImage
-	// If they are not compatible the function gives an error message
+	// If they are not compatible the function returns false, else returns true
 
-	public void  validate_coordinates(int x, int y)
+	public bool  validate_coordinates(int x, int y)
     {
 		if ((x < 0) || (x> Width) || (y < 0) || (y > Height))
         {
-			throw new InvalidOperationException("Invalid coordinates");
-
+			return false;
 		}
+		else
+        {
+			return true;
+        }
 	}
 
 	// pixel_offset converts the coordinates (x,y) of a pixel in a positional index
 
 	public int pixel_offset(int x, int y)
     {
-		validate_coordinates(x,y);
 		return y * Width + x;
     }
 
