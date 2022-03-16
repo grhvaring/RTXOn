@@ -4,6 +4,14 @@ namespace RTXLib.Tests
 {
     public class ColorTests
     {
+
+        [Fact]
+        public void TestDefaultConstructor()
+        {
+            Color c = new Color();
+            Assert.True(c.is_close(new Color(0.0f, 0.0f, 0.0f)));
+        }
+        
         [Fact]
         public void TestLeftProductWithScalar()
         {
@@ -12,14 +20,14 @@ namespace RTXLib.Tests
             double a = 2.0f;
             Assert.True((a * c).is_close(new Color()));
 
-            c = new Color(1.0f, 5.0f, 3.0f);
+            c = new Color(1.0f, 2.0f, 3.0f);
             a = 0.0f;
             Assert.True((a * c).is_close(new Color()));
 
             // General case
-            c = new Color(10.0f, 55.0f, 33.0f);
+            c = new Color(1.0f, 2.0f, 3.0f);
             a = 1.5f;
-            Assert.True((a * c).is_close(new Color(15.0f, 82.5f, 49.5f)));
+            Assert.True((a * c).is_close(new Color(1.5f, 3.0f, 4.5f)));
         }
 
         [Fact]
@@ -31,14 +39,14 @@ namespace RTXLib.Tests
             double a = 2.0f;
             Assert.True((c * a).is_close(new Color()));
 
-            c = new Color(1.0f, 5.0f, 3.0f);
+            c = new Color(1.0f, 2.0f, 3.0f);
             a = 0.0f;
             Assert.True((c * a).is_close(new Color()));
 
             // General case
-            c = new Color(102.0f, 59.0f, 133.0f);
+            c = new Color(3.0f, 2.0f, 1.0f);
             a = 0.5f;
-            Assert.True((c * a).is_close(new Color(51.0f, 29.5f, 66.5f)));
+            Assert.True((c * a).is_close(new Color(1.5f, 1.0f, 0.5f)));
         }
 
         [Fact]
@@ -50,9 +58,9 @@ namespace RTXLib.Tests
             Assert.True((c / a).is_close(new Color()));
 
             // General case
-            c = new Color(152.0f, 259.0f, 3.0f);
-            a = 10.0f;
-            Assert.True((c / a).is_close(new Color(15.2f, 25.9f, 0.3f)));
+            c = new Color(1.0f, 2.0f, 3.0f);
+            a = 4.0f;
+            Assert.True((c / a).is_close(new Color(0.25f, 0.5f, 0.75f)));
         }
 
         [Fact]
@@ -63,7 +71,7 @@ namespace RTXLib.Tests
             Color b = new Color();
             Assert.True((a * b).is_close(new Color()));
 
-            a = new Color(1.0f, 5.0f, 3.0f);
+            a = new Color(1.0f, 2.0f, 3.0f);
             b = new Color();
             Assert.True((a * b).is_close(new Color()));
 
@@ -72,9 +80,9 @@ namespace RTXLib.Tests
             Assert.True((a * b).is_close(new Color()));
 
             // General case
-            a = new Color(2.0f, 5.0f, 10.0f);
-            b = new Color(3.0f, 7.0f, 12.0f);
-            Assert.True((a * b).is_close(new Color(6.0f, 35.0f, 120.0f)));
+            a = new Color(1.0f, 2.0f, 1.0f);
+            b = new Color(3.0f, 2.0f, 4.0f);
+            Assert.True((a * b).is_close(new Color(3.0f, 4.0f, 4.0f)));
         }
 
         [Fact]
@@ -118,9 +126,9 @@ namespace RTXLib.Tests
             Assert.True((a + b).is_close(new Color(3.0f, 2.0f, 1.0f)));
 
             // General case
-            a = new Color(2.0f, 5.0f, 10.0f);
-            b = new Color(3.2f, 2.1f, 5.6f);
-            Assert.True((a + b).is_close(new Color(5.2f, 7.1f, 15.6f)));
+            a = new Color(1.0f, 5.0f, 10.0f);
+            b = new Color(3.3f, 2.2f, 1.1f);
+            Assert.True((a + b).is_close(new Color(4.3f, 7.2f, 11.1f)));
         }
 
         [Fact]
@@ -140,8 +148,8 @@ namespace RTXLib.Tests
             Assert.True((a - b).is_close(new Color(3.0f, 2.0f, 1.0f)));
 
             // General case
-            a = new Color(3.9f, 5.5f, 10.1f);
-            b = new Color(3.2f, 2.7f, 5.2f);
+            a = new Color(4.0f, 5.0f, 6.0f);
+            b = new Color(3.3f, 2.2f, 1.1f);
             Assert.True((a - b).is_close(new Color(0.7f, 2.8f, 4.9f)));
         }
     }
