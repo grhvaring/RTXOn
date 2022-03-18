@@ -76,5 +76,16 @@ public class HdrImage
     {
 		return Pixels[pixel_offset(x, y)];
     }
+}
 
+public class InvalidPfmFileFormat : FormatException
+{
+	public InvalidPfmFileFormat()
+	{
+	}
+
+	public InvalidPfmFileFormat(string message)
+		: base($"{message}")
+	{
+	}
 }
