@@ -51,16 +51,9 @@ public class HdrImage
 	// validate_coordinates checks if the coordinates (x,y) of a pixel are compatible with the dimension of HdrImage
 	// If they are not compatible the function returns false, else returns true
 
-	public bool  validate_coordinates(int x, int y)
-    {
-		if ((x < 0) || (x> Width) || (y < 0) || (y > Height))
-        {
-			return false;
-		}
-		else
-        {
-			return true;
-        }
+	public bool  valid_coordinates(int x, int y)
+	{
+		return ((x < 0) || (x > Width) || (y < 0) || (y > Height));
 	}
 
 	// pixel_offset converts the coordinates (x,y) of a pixel in a positional index

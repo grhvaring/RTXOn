@@ -39,23 +39,23 @@ namespace RTXLib.Tests
             HdrImage test_image = new HdrImage(10, 5);
 
             // Check correct coordinates
-            Assert.True(test_image.validate_coordinates(0, 0));     // Check correct extremal coordinates
-            Assert.True(test_image.validate_coordinates(10, 0));    // Check correct extremal coordinates
-            Assert.True(test_image.validate_coordinates(0, 5));     // Check correct extremal coordinates
-            Assert.True(test_image.validate_coordinates(10, 5));    // Check correct extremal coordinates
-            Assert.True(test_image.validate_coordinates(1, 2));     // Check correct not extremal coordinates
+            Assert.True(test_image.valid_coordinates(0, 0));     // Check correct extremal coordinates
+            Assert.True(test_image.valid_coordinates(10, 0));    // Check correct extremal coordinates
+            Assert.True(test_image.valid_coordinates(0, 5));     // Check correct extremal coordinates
+            Assert.True(test_image.valid_coordinates(10, 5));    // Check correct extremal coordinates
+            Assert.True(test_image.valid_coordinates(1, 2));     // Check correct not extremal coordinates
 
             // Check one coordinate correct and other coordinate wrong
-            Assert.False(test_image.validate_coordinates(-1, 2));   // Check wrong coordinates (x negative, y correct)
-            Assert.False(test_image.validate_coordinates(11, 2));   // Check wrong coordinates (x too high, y correct)
-            Assert.False(test_image.validate_coordinates(2, -1));   // Check wrong coordinates (x correct, y negative)
-            Assert.False(test_image.validate_coordinates(2, 6));    // Check wrong coordinates (x correct, y too high)
+            Assert.False(test_image.valid_coordinates(-1, 2));   // Check wrong coordinates (x negative, y correct)
+            Assert.False(test_image.valid_coordinates(11, 2));   // Check wrong coordinates (x too high, y correct)
+            Assert.False(test_image.valid_coordinates(2, -1));   // Check wrong coordinates (x correct, y negative)
+            Assert.False(test_image.valid_coordinates(2, 6));    // Check wrong coordinates (x correct, y too high)
 
             // Check both coordinates wrong
-            Assert.False(test_image.validate_coordinates(-1, -2));  // Check wrong coordinates (x negative, y negative)
-            Assert.False(test_image.validate_coordinates(11, 6));   // Check wrong coordinates (x too high, y too high)
-            Assert.False(test_image.validate_coordinates(-1, 6));   // Check wrong coordinates (x negative, y too high)
-            Assert.False(test_image.validate_coordinates(11, -2));  // Check wrong coordinates (x too high, y negative)
+            Assert.False(test_image.valid_coordinates(-1, -2));  // Check wrong coordinates (x negative, y negative)
+            Assert.False(test_image.valid_coordinates(11, 6));   // Check wrong coordinates (x too high, y too high)
+            Assert.False(test_image.valid_coordinates(-1, 6));   // Check wrong coordinates (x negative, y too high)
+            Assert.False(test_image.valid_coordinates(11, -2));  // Check wrong coordinates (x too high, y negative)
         }
 
         // This test checks if the function that set a coordinate to a color and get the color linked to a given coordinate work correctly.
