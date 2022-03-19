@@ -3,7 +3,7 @@ namespace RTXLib;
 public struct Color
 {
     // Fields of the struct
-    public double R, G, B;
+    public float R, G, B;
     
     // Default Constructor (set all fields to 0)
     public Color()
