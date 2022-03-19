@@ -17,7 +17,7 @@ namespace RTXLib.Tests
         {
             // Base cases
             Color c = new Color();
-            double a = 2.0f;
+            float a = 2.0f;
             Assert.True((a * c).is_close(new Color()));
 
             c = new Color(1.0f, 2.0f, 3.0f);
@@ -36,7 +36,7 @@ namespace RTXLib.Tests
 
             // Base cases
             Color c = new Color();
-            double a = 2.0f;
+            float a = 2.0f;
             Assert.True((c * a).is_close(new Color()));
 
             c = new Color(1.0f, 2.0f, 3.0f);
@@ -54,7 +54,7 @@ namespace RTXLib.Tests
         {
             // Base case
             Color c = new Color();
-            double a = 2.0f;
+            float a = 2.0f;
             Assert.True((c / a).is_close(new Color()));
 
             // General case

@@ -14,7 +14,7 @@ public struct Color
     }
 
     // Constructor
-    public Color(double r, double g, double b)
+    public Color(float r, float g, float b)
     {
         R = r;
         G = g;
@@ -24,19 +24,19 @@ public struct Color
     // *** Math operations *** //
     
     // (left) product with a scalar
-    public static Color operator *(double scalar, Color c)
+    public static Color operator *(float scalar, Color c)
     {
         return new Color(scalar * c.R, scalar * c.G, scalar *c.B);
     }
     
     // (right) product with a scalar
-    public static Color operator *(Color c, double scalar)
+    public static Color operator *(Color c, float scalar)
     {
         return scalar * c;
     }
 
     // division by a scalar
-    public static Color operator /(Color c, double scalar)
+    public static Color operator /(Color c, float scalar)
     {
         if (scalar == 0) throw new DivideByZeroException();
         return new Color( c.R / scalar ,  c.G / scalar, c.B / scalar);
