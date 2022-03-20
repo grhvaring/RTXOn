@@ -53,6 +53,9 @@ public class HdrImage
 	// validate_coordinates checks if the coordinates (x,y) of a pixel are compatible with the dimension of HdrImage
 	// If they are not compatible the function returns false, else returns true
 
+	// According to the C# "style"
+	// this should be called
+	// ValidCoordinates
 	public bool  valid_coordinates(int x, int y)
 	{
 		return ((x >= 0) && (x <= Width) && (y >= 0) && (y <= Height));
@@ -60,6 +63,7 @@ public class HdrImage
 
 	// pixel_offset converts the coordinates (x,y) of a pixel in a positional index
 
+	// PixelOffset
 	public int pixel_offset(int x, int y)
     {
 		return y * Width + x;
@@ -67,6 +71,7 @@ public class HdrImage
 
 	// set_pixel sets the color of the pixel in position (x,y)
 
+	// SetPixel
 	public void set_pixel(int x, int y, Color newColor)
     {
 		Pixels[pixel_offset(x,y)] = newColor;
@@ -74,6 +79,7 @@ public class HdrImage
 
 	// get_pixel gets the color of the pixel in position (x,y)
 
+	// GetPixel
 	public Color get_pixel(int x, int y)
     {
 		return Pixels[pixel_offset(x, y)];

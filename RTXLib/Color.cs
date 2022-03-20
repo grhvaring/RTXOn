@@ -75,12 +75,12 @@ public struct Color
     
     // *** Other methods *** //
     
-    public bool is_close(Color otherColor, double epsilon = 1e-5)
+    public bool IsClose(Color otherColor, double epsilon = 1e-5)
     {
         return (Math.Abs(R - otherColor.R) < epsilon) && (Math.Abs(G - otherColor.G) < epsilon) && (Math.Abs(B - otherColor.B) < epsilon);
     }
     
-    public string to_string()
+    public string ToString()
     {
         return $"<r: {R}, g: {G}, b: {B}>";
     }

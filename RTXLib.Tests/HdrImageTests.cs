@@ -21,52 +21,52 @@ namespace RTXLib.Tests
         [Fact]
         public void TestCreationHdrImage()
         {
-            HdrImage test_image = new HdrImage(10, 5);
+            HdrImage testImage = new HdrImage(10, 5);
 
-            Assert.True(test_image.Width == 10);        // Check correct width
-            Assert.True(test_image.Height == 5);        // Check correct height
-            Assert.True(test_image.NPixels == 10 * 5);  // Check correct number of pixel
+            Assert.True(testImage.Width == 10);        // Check correct width
+            Assert.True(testImage.Height == 5);        // Check correct height
+            Assert.True(testImage.NPixels == 10 * 5);  // Check correct number of pixel
         }
 
         // This test checks if the offset linked to a given coordinate is calculated correctly
         [Fact]
         public void TestPixelOffset()
         {
-            HdrImage test_image = new HdrImage(10, 5);
+            HdrImage testImage = new HdrImage(10, 5);
 
             // Check correct offsets
-            Assert.True(test_image.pixel_offset(0, 0) == 0);                 // Check first pixel
-            Assert.True(test_image.pixel_offset(10, 5) == (5 * 10 + 10));      // Check last pixel
-            Assert.True(test_image.pixel_offset(1, 2) == (2 * 10 + 1));        // Check correct offset for pixel (1,2)
+            Assert.True(testImage.pixel_offset(0, 0) == 0);                 // Check first pixel
+            Assert.True(testImage.pixel_offset(10, 5) == (5 * 10 + 10));      // Check last pixel
+            Assert.True(testImage.pixel_offset(1, 2) == (2 * 10 + 1));        // Check correct offset for pixel (1,2)
 
             // Check wrong offset
-            Assert.False(test_image.pixel_offset(1, 2) == 3);                // Check wrong offset for pixel (1,2)
+            Assert.False(testImage.pixel_offset(1, 2) == 3);                // Check wrong offset for pixel (1,2)
         }
 
         // This test checks if the test that validates the correctness of a given coordinate works correctly
         [Fact]
         public void TestValidateCoordinates()
         {
-            HdrImage test_image = new HdrImage(10, 5);
+            HdrImage testImage = new HdrImage(10, 5);
 
             // Check correct coordinates
-            Assert.True(test_image.valid_coordinates(0, 0));     // Check correct extremal coordinates
-            Assert.True(test_image.valid_coordinates(10, 0));    // Check correct extremal coordinates
-            Assert.True(test_image.valid_coordinates(0, 5));     // Check correct extremal coordinates
-            Assert.True(test_image.valid_coordinates(10, 5));    // Check correct extremal coordinates
-            Assert.True(test_image.valid_coordinates(1, 2));     // Check correct not extremal coordinates
+            Assert.True(testImage.valid_coordinates(0, 0));     // Check correct extremal coordinates
+            Assert.True(testImage.valid_coordinates(10, 0));    // Check correct extremal coordinates
+            Assert.True(testImage.valid_coordinates(0, 5));     // Check correct extremal coordinates
+            Assert.True(testImage.valid_coordinates(10, 5));    // Check correct extremal coordinates
+            Assert.True(testImage.valid_coordinates(1, 2));     // Check correct not extremal coordinates
 
             // Check one coordinate correct and other coordinate wrong
-            Assert.False(test_image.valid_coordinates(-1, 2));   // Check wrong coordinates (x negative, y correct)
-            Assert.False(test_image.valid_coordinates(11, 2));   // Check wrong coordinates (x too high, y correct)
-            Assert.False(test_image.valid_coordinates(2, -1));   // Check wrong coordinates (x correct, y negative)
-            Assert.False(test_image.valid_coordinates(2, 6));    // Check wrong coordinates (x correct, y too high)
+            Assert.False(testImage.valid_coordinates(-1, 2));   // Check wrong coordinates (x negative, y correct)
+            Assert.False(testImage.valid_coordinates(11, 2));   // Check wrong coordinates (x too high, y correct)
+            Assert.False(testImage.valid_coordinates(2, -1));   // Check wrong coordinates (x correct, y negative)
+            Assert.False(testImage.valid_coordinates(2, 6));    // Check wrong coordinates (x correct, y too high)
 
             // Check both coordinates wrong
-            Assert.False(test_image.valid_coordinates(-1, -2));  // Check wrong coordinates (x negative, y negative)
-            Assert.False(test_image.valid_coordinates(11, 6));   // Check wrong coordinates (x too high, y too high)
-            Assert.False(test_image.valid_coordinates(-1, 6));   // Check wrong coordinates (x negative, y too high)
-            Assert.False(test_image.valid_coordinates(11, -2));  // Check wrong coordinates (x too high, y negative)
+            Assert.False(testImage.valid_coordinates(-1, -2));  // Check wrong coordinates (x negative, y negative)
+            Assert.False(testImage.valid_coordinates(11, 6));   // Check wrong coordinates (x too high, y too high)
+            Assert.False(testImage.valid_coordinates(-1, 6));   // Check wrong coordinates (x negative, y too high)
+            Assert.False(testImage.valid_coordinates(11, -2));  // Check wrong coordinates (x too high, y negative)
         }
 
         // This test checks if the function that set a coordinate to a color and get the color linked to a given coordinate work correctly.
@@ -74,41 +74,41 @@ namespace RTXLib.Tests
         [Fact]
         public void TestSetGetPixel()
         {
-            HdrImage test_image = new HdrImage(10, 5);
-            Color reference_color_1 = new Color(1.0f, 2.0f, 3.0f);
-            Color reference_color_2 = new Color(2.0f, 4.0f, 6.0f);
-            Color default_color = new Color(0.0f, 0.0f, 0.0f);
+            HdrImage testImage = new HdrImage(10, 5);
+            Color referenceColor1 = new Color(1.0f, 2.0f, 3.0f);
+            Color referenceColor2 = new Color(2.0f, 4.0f, 6.0f);
+            Color defaultColor = new Color(0.0f, 0.0f, 0.0f);
 
-            test_image.set_pixel(2, 3, reference_color_1);
-            test_image.set_pixel(3, 4, reference_color_2);
+            testImage.set_pixel(2, 3, referenceColor1);
+            testImage.set_pixel(3, 4, referenceColor2);
 
             // Check correct color
-            Assert.True((test_image.get_pixel(2, 3)).is_close(reference_color_1));  // Check if color in position (2,3) is correct
-            Assert.True((test_image.get_pixel(3, 4)).is_close(reference_color_2));  // Check if color in position (3,4) is correct
-            Assert.True((test_image.get_pixel(1, 2)).is_close(default_color));      // Check if color in unassigned position (1,2) is the default color
+            Assert.True((testImage.get_pixel(2, 3)).IsClose(referenceColor1));  // Check if color in position (2,3) is correct
+            Assert.True((testImage.get_pixel(3, 4)).IsClose(referenceColor2));  // Check if color in position (3,4) is correct
+            Assert.True((testImage.get_pixel(1, 2)).IsClose(defaultColor));      // Check if color in unassigned position (1,2) is the default color
 
             // Check wrong color
-            Assert.False((test_image.get_pixel(3, 4)).is_close(reference_color_1)); // Check if color in position (3,4) is different from color set in position (2,3)
+            Assert.False((testImage.get_pixel(3, 4)).IsClose(referenceColor1)); // Check if color in position (3,4) is different from color set in position (2,3)
         }
 
         [Fact]
         public void TestParseImgSize()
         {
-            HdrImage test_image = new HdrImage(2, 1);
+            HdrImage testImage = new HdrImage(2, 1);
             
             // Correct format
-            test_image.ParseImgSize("3 2");
-            Assert.True(test_image.Width == 3 && test_image.Height == 2);
+            testImage.ParseImgSize("3 2");
+            Assert.True(testImage.Width == 3 && testImage.Height == 2);
             
             // Incorrect formats
-            Assert.Throws<InvalidPfmFileFormat>(() => test_image.ParseImgSize("-1 2"));
-            Assert.Throws<InvalidPfmFileFormat>(() => test_image.ParseImgSize("1 -2"));
-            Assert.Throws<InvalidPfmFileFormat>(() => test_image.ParseImgSize("-1 -2"));
-            Assert.Throws<InvalidPfmFileFormat>(() => test_image.ParseImgSize("2"));
-            Assert.Throws<InvalidPfmFileFormat>(() => test_image.ParseImgSize(""));
-            Assert.Throws<InvalidPfmFileFormat>(() => test_image.ParseImgSize("-1"));
-            Assert.Throws<InvalidPfmFileFormat>(() => test_image.ParseImgSize("1 2 3"));
-            Assert.Throws<InvalidPfmFileFormat>(() => test_image.ParseImgSize("abc"));
+            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("-1 2"));
+            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("1 -2"));
+            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("-1 -2"));
+            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("2"));
+            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize(""));
+            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("-1"));
+            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("1 2 3"));
+            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("abc"));
 
 
         }
@@ -116,16 +116,16 @@ namespace RTXLib.Tests
         [Fact]
         public void TestParseEndianness()
         {
-            HdrImage test_image = new HdrImage(2, 1);
+            HdrImage testImage = new HdrImage(2, 1);
 
-            float endianness = test_image.ParseEndianness("1.0");
+            float endianness = testImage.ParseEndianness("1.0");
             Assert.True(endianness == 1.0f);
             
-            endianness = test_image.ParseEndianness("-1.0");
+            endianness = testImage.ParseEndianness("-1.0");
             Assert.True(endianness == -1.0f);
             
-            Assert.Throws<InvalidPfmFileFormat>(() => test_image.ParseEndianness("0"));
-            Assert.Throws<InvalidPfmFileFormat>(() => test_image.ParseEndianness("abc"));
+            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseEndianness("0"));
+            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseEndianness("abc"));
         }
 
         [Fact]
@@ -151,18 +151,18 @@ namespace RTXLib.Tests
             testImage.set_pixel(2,1, new Color(700.0f, 800.0f, 900.0f));
 
             // Long way (useful for debugging)
-            using (MemoryStream memStream = new MemoryStream(referenceBytesLe.Length))
+            using (MemoryStream memoryStream = new MemoryStream(referenceBytesLe.Length))
             {
                 // Write the content of testImage to the memStream buffer as a PFM image
-                testImage.WritePfm(memStream, -1.0);
+                testImage.WritePfm(memoryStream, -1.0);
                 
                 // Set the position to the beginning of the stream.
-                memStream.Seek(0, SeekOrigin.Begin);
+                memoryStream.Seek(0, SeekOrigin.Begin);
                 
                 // Scan the buffer to find inconsistencies with the reference
                 for (int i = 0; i < referenceBytesLe.Length; ++i)
                 {
-                    byte b = (byte)memStream.ReadByte();
+                    byte b = (byte)memoryStream.ReadByte();
                     //_testOutputHelper.WriteLine($"{b} =? {referenceBytes[i]}");
                     Assert.True(b == referenceBytesLe[i]);
                 }
@@ -196,10 +196,10 @@ namespace RTXLib.Tests
                 // Write the content of testImage to the memoryStream buffer as a PFM image
                 testImage.WritePfm(memoryStream, +1.0);
                 
-                // Convert buffer into Array (discarding non-used elements)
+                // Convert buffer into Array of bytes (discarding non-used elements)
                 byte[] myBytesBe = memoryStream.ToArray();
                 
-                // Test equality with reference
+                // Test equality with the reference bytes
                 Assert.True(myBytesBe.SequenceEqual(referenceBytesBe));
             }
         }
