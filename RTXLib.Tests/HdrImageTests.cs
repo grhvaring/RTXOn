@@ -35,38 +35,38 @@ namespace RTXLib.Tests
             HdrImage testImage = new HdrImage(10, 5);
 
             // Check correct offsets
-            Assert.True(testImage.pixel_offset(0, 0) == 0);                 // Check first pixel
-            Assert.True(testImage.pixel_offset(10, 5) == (5 * 10 + 10));      // Check last pixel
-            Assert.True(testImage.pixel_offset(1, 2) == (2 * 10 + 1));        // Check correct offset for pixel (1,2)
+            Assert.True(testImage.PixelOffset(0, 0) == 0);                 // Check first pixel
+            Assert.True(testImage.PixelOffset(10, 5) == (5 * 10 + 10));      // Check last pixel
+            Assert.True(testImage.PixelOffset(1, 2) == (2 * 10 + 1));        // Check correct offset for pixel (1,2)
 
             // Check wrong offset
-            Assert.False(testImage.pixel_offset(1, 2) == 3);                // Check wrong offset for pixel (1,2)
+            Assert.False(testImage.PixelOffset(1, 2) == 3);                // Check wrong offset for pixel (1,2)
         }
 
         // This test checks if the test that validates the correctness of a given coordinate works correctly
         [Fact]
-        public void TestValidateCoordinates()
+        public void TestValidCoordinates()
         {
             HdrImage testImage = new HdrImage(10, 5);
 
             // Check correct coordinates
-            Assert.True(testImage.valid_coordinates(0, 0));     // Check correct extremal coordinates
-            Assert.True(testImage.valid_coordinates(10, 0));    // Check correct extremal coordinates
-            Assert.True(testImage.valid_coordinates(0, 5));     // Check correct extremal coordinates
-            Assert.True(testImage.valid_coordinates(10, 5));    // Check correct extremal coordinates
-            Assert.True(testImage.valid_coordinates(1, 2));     // Check correct not extremal coordinates
+            Assert.True(testImage.ValidCoordinates(0, 0));     // Check correct extremal coordinates
+            Assert.True(testImage.ValidCoordinates(10, 0));    // Check correct extremal coordinates
+            Assert.True(testImage.ValidCoordinates(0, 5));     // Check correct extremal coordinates
+            Assert.True(testImage.ValidCoordinates(10, 5));    // Check correct extremal coordinates
+            Assert.True(testImage.ValidCoordinates(1, 2));     // Check correct not extremal coordinates
 
             // Check one coordinate correct and other coordinate wrong
-            Assert.False(testImage.valid_coordinates(-1, 2));   // Check wrong coordinates (x negative, y correct)
-            Assert.False(testImage.valid_coordinates(11, 2));   // Check wrong coordinates (x too high, y correct)
-            Assert.False(testImage.valid_coordinates(2, -1));   // Check wrong coordinates (x correct, y negative)
-            Assert.False(testImage.valid_coordinates(2, 6));    // Check wrong coordinates (x correct, y too high)
+            Assert.False(testImage.ValidCoordinates(-1, 2));   // Check wrong coordinates (x negative, y correct)
+            Assert.False(testImage.ValidCoordinates(11, 2));   // Check wrong coordinates (x too high, y correct)
+            Assert.False(testImage.ValidCoordinates(2, -1));   // Check wrong coordinates (x correct, y negative)
+            Assert.False(testImage.ValidCoordinates(2, 6));    // Check wrong coordinates (x correct, y too high)
 
             // Check both coordinates wrong
-            Assert.False(testImage.valid_coordinates(-1, -2));  // Check wrong coordinates (x negative, y negative)
-            Assert.False(testImage.valid_coordinates(11, 6));   // Check wrong coordinates (x too high, y too high)
-            Assert.False(testImage.valid_coordinates(-1, 6));   // Check wrong coordinates (x negative, y too high)
-            Assert.False(testImage.valid_coordinates(11, -2));  // Check wrong coordinates (x too high, y negative)
+            Assert.False(testImage.ValidCoordinates(-1, -2));  // Check wrong coordinates (x negative, y negative)
+            Assert.False(testImage.ValidCoordinates(11, 6));   // Check wrong coordinates (x too high, y too high)
+            Assert.False(testImage.ValidCoordinates(-1, 6));   // Check wrong coordinates (x negative, y too high)
+            Assert.False(testImage.ValidCoordinates(11, -2));  // Check wrong coordinates (x too high, y negative)
         }
 
         // This test checks if the function that set a coordinate to a color and get the color linked to a given coordinate work correctly.
@@ -79,16 +79,16 @@ namespace RTXLib.Tests
             Color referenceColor2 = new Color(2.0f, 4.0f, 6.0f);
             Color defaultColor = new Color(0.0f, 0.0f, 0.0f);
 
-            testImage.set_pixel(2, 3, referenceColor1);
-            testImage.set_pixel(3, 4, referenceColor2);
+            testImage.SetPixel(2, 3, referenceColor1);
+            testImage.SetPixel(3, 4, referenceColor2);
 
             // Check correct color
-            Assert.True((testImage.get_pixel(2, 3)).IsClose(referenceColor1));  // Check if color in position (2,3) is correct
-            Assert.True((testImage.get_pixel(3, 4)).IsClose(referenceColor2));  // Check if color in position (3,4) is correct
-            Assert.True((testImage.get_pixel(1, 2)).IsClose(defaultColor));      // Check if color in unassigned position (1,2) is the default color
+            Assert.True((testImage.GetPixel(2, 3)).IsClose(referenceColor1));  // Check if color in position (2,3) is correct
+            Assert.True((testImage.GetPixel(3, 4)).IsClose(referenceColor2));  // Check if color in position (3,4) is correct
+            Assert.True((testImage.GetPixel(1, 2)).IsClose(defaultColor));      // Check if color in unassigned position (1,2) is the default color
 
             // Check wrong color
-            Assert.False((testImage.get_pixel(3, 4)).IsClose(referenceColor1)); // Check if color in position (3,4) is different from color set in position (2,3)
+            Assert.False((testImage.GetPixel(3, 4)).IsClose(referenceColor1)); // Check if color in position (3,4) is different from color set in position (2,3)
         }
 
         [Fact]
@@ -143,12 +143,12 @@ namespace RTXLib.Tests
             
             HdrImage testImage = new HdrImage(3, 2);
             
-            testImage.set_pixel(0,0, new Color(10.0f, 20.0f, 30.0f));
-            testImage.set_pixel(1,0, new Color(40.0f, 50.0f, 60.0f));
-            testImage.set_pixel(2,0, new Color(70.0f, 80.0f, 90.0f));
-            testImage.set_pixel(0,1, new Color(100.0f, 200.0f, 300.0f));
-            testImage.set_pixel(1,1, new Color(400.0f, 500.0f, 600.0f));
-            testImage.set_pixel(2,1, new Color(700.0f, 800.0f, 900.0f));
+            testImage.SetPixel(0,0, new Color(10.0f, 20.0f, 30.0f));
+            testImage.SetPixel(1,0, new Color(40.0f, 50.0f, 60.0f));
+            testImage.SetPixel(2,0, new Color(70.0f, 80.0f, 90.0f));
+            testImage.SetPixel(0,1, new Color(100.0f, 200.0f, 300.0f));
+            testImage.SetPixel(1,1, new Color(400.0f, 500.0f, 600.0f));
+            testImage.SetPixel(2,1, new Color(700.0f, 800.0f, 900.0f));
 
             // Long way (useful for debugging)
             using (MemoryStream memoryStream = new MemoryStream(referenceBytesLe.Length))
@@ -184,12 +184,12 @@ namespace RTXLib.Tests
 
             HdrImage testImage = new HdrImage(3, 2);
             
-            testImage.set_pixel(0,0, new Color(10.0f, 20.0f, 30.0f));
-            testImage.set_pixel(1,0, new Color(40.0f, 50.0f, 60.0f));
-            testImage.set_pixel(2,0, new Color(70.0f, 80.0f, 90.0f));
-            testImage.set_pixel(0,1, new Color(100.0f, 200.0f, 300.0f));
-            testImage.set_pixel(1,1, new Color(400.0f, 500.0f, 600.0f));
-            testImage.set_pixel(2,1, new Color(700.0f, 800.0f, 900.0f));
+            testImage.SetPixel(0,0, new Color(10.0f, 20.0f, 30.0f));
+            testImage.SetPixel(1,0, new Color(40.0f, 50.0f, 60.0f));
+            testImage.SetPixel(2,0, new Color(70.0f, 80.0f, 90.0f));
+            testImage.SetPixel(0,1, new Color(100.0f, 200.0f, 300.0f));
+            testImage.SetPixel(1,1, new Color(400.0f, 500.0f, 600.0f));
+            testImage.SetPixel(2,1, new Color(700.0f, 800.0f, 900.0f));
 
             using (MemoryStream memoryStream = new MemoryStream(referenceBytesBe.Length))
             {

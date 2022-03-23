@@ -1,5 +1,9 @@
 namespace RTXLib;
 
+/// <summary>
+/// Color as combination of a <i>red</i> (R), <i>green</i> (G), and <i>blue</i> (B) value with range 0-255.
+/// </summary>
+
 public struct Color
 {
     // Fields of the struct
@@ -80,7 +84,7 @@ public struct Color
         return (Math.Abs(R - otherColor.R) < epsilon) && (Math.Abs(G - otherColor.G) < epsilon) && (Math.Abs(B - otherColor.B) < epsilon);
     }
     
-    public string ToString()
+    public override string ToString()
     {
         return $"<r: {R}, g: {G}, b: {B}>";
     }

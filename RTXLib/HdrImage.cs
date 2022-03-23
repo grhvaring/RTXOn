@@ -56,7 +56,7 @@ public class HdrImage
 	// According to the C# "style"
 	// this should be called
 	// ValidCoordinates
-	public bool  valid_coordinates(int x, int y)
+	public bool  ValidCoordinates(int x, int y)
 	{
 		return ((x >= 0) && (x <= Width) && (y >= 0) && (y <= Height));
 	}
@@ -64,7 +64,7 @@ public class HdrImage
 	// pixel_offset converts the coordinates (x,y) of a pixel in a positional index
 
 	// PixelOffset
-	public int pixel_offset(int x, int y)
+	public int PixelOffset(int x, int y)
     {
 		return y * Width + x;
     }
@@ -72,17 +72,17 @@ public class HdrImage
 	// set_pixel sets the color of the pixel in position (x,y)
 
 	// SetPixel
-	public void set_pixel(int x, int y, Color newColor)
+	public void SetPixel(int x, int y, Color newColor)
     {
-		Pixels[pixel_offset(x,y)] = newColor;
+		Pixels[PixelOffset(x,y)] = newColor;
     }
 
 	// get_pixel gets the color of the pixel in position (x,y)
 
 	// GetPixel
-	public Color get_pixel(int x, int y)
+	public Color GetPixel(int x, int y)
     {
-		return Pixels[pixel_offset(x, y)];
+		return Pixels[PixelOffset(x, y)];
     }
 	
 	// Read the dimention of a PFM image from a string
@@ -165,7 +165,7 @@ public class HdrImage
 		{
 			for (int x = 0; x < Width; ++x)
 			{
-				Color color = get_pixel(x, y);
+				Color color = GetPixel(x, y);
 				WriteFloat(outputStream, color.R, endianness);
 				WriteFloat(outputStream, color.G, endianness);
 				WriteFloat(outputStream, color.B, endianness);
