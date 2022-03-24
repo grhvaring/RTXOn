@@ -1,7 +1,7 @@
 // This file implements the class HdrImage, which is use to save an image of a given dimension (width * height)
 // The image is implemented as a monodimensional array of the struct Color.
 // Each element of the array represents the color of a pixel.
-
+using System.IO;
 using System.Text;
 
 namespace RTXLib;
@@ -140,7 +140,8 @@ public class HdrImage
 		}
 	}
 	
-	private static void WriteFloat(Stream outputStream, float value, double endianness = -1.0)
+	//to change in private static void when all test are executed
+	public void WriteFloat(Stream outputStream, float value, double endianness = -1.0)
 	{
 		var sequence = BitConverter.GetBytes(value);
 		
@@ -172,6 +173,113 @@ public class HdrImage
 			}
 		}
 	}
+
+	// ReadFloat reads 4 bytes from a stream and converts them to a float.
+	// The endianness of the bytes can be specified; if not specified little endianness is assumed
+	public float ReadFloat(Stream fileStream, double fileEndianness = -1)
+	{
+
+		int numBytesToRead = 4;                         // Number of bytes to be read (1 float = 4 bytes)
+		int intBuffer;									// Temporay buffer
+		byte[] bytesBuffer = new byte[numBytesToRead];  // Buffer for the bytes
+		double pcEndianness;                            // PC endianness to be checked
+
+		// Check pc endianness
+		if (BitConverter.IsLittleEndian == true)
+			pcEndianness = -1;
+		else
+			pcEndianness = 1;
+
+		// Read the bytes and convert to a float
+		try
+		{
+			for (int i = 0; i < numBytesToRead; i++)
+			{
+				intBuffer = fileStream.ReadByte();
+
+				// Check if end of file is reached before than 4 bytes are read
+				if (intBuffer == -1)
+					throw new InvalidDataException();
+				else
+					bytesBuffer[i] = (byte)intBuffer;
+			}
+		}
+
+		catch
+        {
+			throw new InvalidPfmFileFormat("Invalid bytes format. A float should be represented by 4 bytes.");
+		}
+
+		// If pc and file endianness are not the same, revers the order of the bytes
+		if (fileEndianness != pcEndianness)
+			Array.Reverse(bytesBuffer);
+
+		return BitConverter.ToSingle(bytesBuffer, 0);
+	}
+
+	// ReadPfmLine reads a line of bytes from a stream before a end of line (\n) character and converts them to a string (using ASCII)
+	// The maximun number of bytes that can be read is 31 + \n character
+	// If the \n character is not found the function returns an error message
+	public string ReadPfmLine(Stream fileStream, double fileEndianness = -1)
+	{
+		int numMaxBytesToRead = 32;							// Maximum expected number of bytes
+		int numSignificativeBytesRead = 0;					// Counter of effectively read bytes (different from \n)
+		int intBuffer;										// Temporary buffer for int number
+		byte[] bytesBuffer = new byte[numMaxBytesToRead];	// Temporary buffer array for bytes
+		string controlCharacter = "\n";						// Control end of line character
+		double pcEndianness;								// PC endianness to be checked
+
+		// Check pc endianness
+		if (BitConverter.IsLittleEndian == true)
+			pcEndianness = -1;
+		else
+			pcEndianness = 1;
+
+		try
+		{
+			for (int i = 0; i < numMaxBytesToRead; i++)
+			{
+				intBuffer = fileStream.ReadByte();
+
+				// Trow exception if the end of the stream is reached withoud finding a \n
+				if (intBuffer == -1)
+					throw new InvalidDataException();
+				else
+				{
+					bytesBuffer[i] = (byte)intBuffer;
+
+					// If the \n character is read than break the reading
+					// NOTE: GetString requires strictly an array and an iterval in order to work
+					if (Encoding.ASCII.GetString(bytesBuffer, i, 1) == controlCharacter)
+						break;
+
+					numSignificativeBytesRead++;
+				}
+			}
+		}
+
+		catch
+		{
+			throw new InvalidPfmFileFormat("Invalid data format. The end of line character has not been found.");
+		}
+
+		// Check if maximum expected number of bytes has been reached without finding the \n character
+		if (numSignificativeBytesRead == numMaxBytesToRead)
+        {
+			throw new InvalidPfmFileFormat("Invalid data format. The number of bytes in the line is longer than expected");
+		}
+
+		// Resize of the baffer to the effective number of bytes read; the byte of the \n character will be cut
+		Array.Resize(ref bytesBuffer, numSignificativeBytesRead);
+
+		// If pc and file endianness are not the same, revers the order of the bytes
+		if (fileEndianness != pcEndianness)
+			Array.Reverse(bytesBuffer);
+
+		// Conversion to string
+		return Encoding.ASCII.GetString(bytesBuffer);
+	}
+
 }
 
 public class InvalidPfmFileFormat : FormatException
