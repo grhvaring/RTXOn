@@ -52,34 +52,24 @@ public class HdrImage
 
 	// validate_coordinates checks if the coordinates (x,y) of a pixel are compatible with the dimension of HdrImage
 	// If they are not compatible the function returns false, else returns true
-
-	// According to the C# "style"
-	// this should be called
-	// ValidCoordinates
 	public bool  ValidCoordinates(int x, int y)
 	{
 		return ((x >= 0) && (x <= Width) && (y >= 0) && (y <= Height));
 	}
 
 	// pixel_offset converts the coordinates (x,y) of a pixel in a positional index
-
-	// PixelOffset
 	public int PixelOffset(int x, int y)
     {
 		return y * Width + x;
     }
 
 	// set_pixel sets the color of the pixel in position (x,y)
-
-	// SetPixel
 	public void SetPixel(int x, int y, Color newColor)
     {
 		Pixels[PixelOffset(x,y)] = newColor;
     }
 
 	// get_pixel gets the color of the pixel in position (x,y)
-
-	// GetPixel
 	public Color GetPixel(int x, int y)
     {
 		return Pixels[PixelOffset(x, y)];
@@ -116,7 +106,7 @@ public class HdrImage
 	public float ParseEndianness(string line)
 	{
 		float value;
-		string message = "Invalid endianness specification. Should be a single non-zero number.";
+		string message = "Invalid endianness specification. Should be a non-zero number.";
 		try
 		{
 			value = float.Parse(line);
@@ -144,7 +134,7 @@ public class HdrImage
 	{
 		var sequence = BitConverter.GetBytes(value);
 		
-		// If the machine is not little-endianness, reverse the sequence of bytes
+		// If the machine is not little-endian, reverse the sequence of bytes
 		if (endianness == 1.0 && BitConverter.IsLittleEndian)
 		{
 			Array.Reverse(sequence);
@@ -172,6 +162,36 @@ public class HdrImage
 			}
 		}
 	}
+	
+	public float AverageLuminosity(float delta = 1e-10f)
+	{
+		float sum = 0;
+		foreach (Color pixel in Pixels)
+		{
+			sum += (float)Math.Log10(delta + pixel.Luminosity());
+		}
+
+		return (float)Math.Pow(10, sum / (float)NPixels);
+	}
+
+	public void NormalizeImage(float factor, float? avgLuminosity = null)
+	{
+		var luminosity = avgLuminosity ?? AverageLuminosity();
+		for (int i = 0; i < NPixels; ++i)
+		{
+			Pixels[i] *= factor / luminosity;
+		}
+	}
+
+	public void ClampImage()
+	{
+		for (int i = 0; i < NPixels; ++i)
+		{
+			Pixels[i].Clamp();
+		}
+	}
+	
+	
 }
 
 public class InvalidPfmFileFormat : FormatException

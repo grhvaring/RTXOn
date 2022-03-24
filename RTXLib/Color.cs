@@ -30,7 +30,7 @@ public struct Color
     // (left) product with a scalar
     public static Color operator *(float scalar, Color c)
     {
-        return new Color(scalar * c.R, scalar * c.G, scalar *c.B);
+        return new Color(scalar * c.R, scalar * c.G, scalar * c.B);
     }
     
     // (right) product with a scalar
@@ -47,7 +47,7 @@ public struct Color
     }
     
     // product of two colors (component-wise)
-    public static Color operator*(Color c1, Color c2)
+    public static Color operator *(Color c1, Color c2)
     {
         return new Color(c1.R * c2.R, c1.G * c2.G, c1.B * c2.B);
     }
@@ -61,7 +61,6 @@ public struct Color
     // Unary operator minus
     public static Color operator -(Color a)
     {
-        // WHAT TO DO WHEN a - b < 0 ????
         return new Color(-a.R, -a.G, -a.B);
     }
     
@@ -74,6 +73,7 @@ public struct Color
     // Difference of two colors
     public static Color operator -(Color c1, Color c2)
     {
+        // WHAT TO DO WHEN a - b < 0 ????
         return c1 + (-c2);
     }
     
@@ -89,4 +89,22 @@ public struct Color
         return $"<r: {R}, g: {G}, b: {B}>";
     }
 
+    public float Luminosity()
+    {
+        float max = Math.Max(R, Math.Max(G, B));
+        float min = Math.Min(R, Math.Min(G, B));
+        return 0.5f * (max + min);
+    }
+
+    private static float Clamp(float x)
+    {
+        return x / (1 + x);
+    }
+    
+    public void Clamp()
+    {
+        R = Clamp(R);
+        G = Clamp(G);
+        B = Clamp(B);
+    }
 }

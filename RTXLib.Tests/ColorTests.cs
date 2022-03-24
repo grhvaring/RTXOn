@@ -152,5 +152,14 @@ namespace RTXLib.Tests
             b = new Color(3.3f, 2.2f, 1.1f);
             Assert.True((a - b).IsClose(new Color(0.7f, 2.8f, 4.9f)));
         }
+        
+        [Fact]
+        public void TestLuminosity()
+        {
+            Color color1 = new Color(1.0f, 2.0f, 3.0f);
+            Color color2 = new Color(5.0f, 8.0f, 11.0f);
+            Assert.True(2.0f == color1.Luminosity());
+            Assert.True(8.0f == color2.Luminosity());
+        } 
     }
 }
