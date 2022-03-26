@@ -1,4 +1,4 @@
-﻿// This file implements the test for the class HdrImage
+﻿// This file implements the automated tests for the class HdrImage
 
 using System.IO;          // Streams
 using System.Linq;        // Necessary for SequenceEqual()

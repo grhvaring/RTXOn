@@ -6,14 +6,17 @@ using System.Text;
 
 namespace RTXLib;
 
+/// <summary>
+/// Image of size (<c>Height</c> x <c>Width</c>), stored in a 1D array of RGB colors.
+/// </summary>
+
 public class HdrImage
 {
-	// *** Fields and constructors *** //
 
-	public int Width;			// Width of the image
-	public int Height;			// Height of the image
-	public int NPixels;			// Number of pixels in the image
-	public Color[] Pixels;		// Array of the pixels
+	public int Width;
+	public int Height;
+	public int NPixels;
+	public Color[] Pixels;
 	
 	// Constructor that creates an image with specified width and height but with unspecified colors.
 	// All pixel are set to color black (0,0,0) that is the default for color class

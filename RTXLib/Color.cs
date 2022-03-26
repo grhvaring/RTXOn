@@ -1,7 +1,8 @@
 namespace RTXLib;
 
 /// <summary>
-/// Color as combination of a <i>red</i> (R), <i>green</i> (G), and <i>blue</i> (B) value with range 0-255.
+/// Representation of an RGB color with floating point fields R (<i>red</i>), G (<i>green</i>) and B (<i>blue</i>)
+/// ought to take values in 0-255.
 /// </summary>
 
 public struct Color
