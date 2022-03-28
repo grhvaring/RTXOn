@@ -3,6 +3,9 @@
 // Each element of the array represents the color of a pixel.
 using System.IO;
 using System.Text;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Formats.Png;
 
 namespace RTXLib;
 
@@ -302,6 +305,25 @@ public class HdrImage
 		return Encoding.ASCII.GetString(bytesBuffer);
 	}
 
+	// SaveAsPNG saves the image as a PNG file with a specified name.
+	// For coerence the name of the PNG file should end with ".png" extension
+	public void SaveAsPNG(string fileName)
+    {
+		var bitmap = new Image<Rgb24>(Configuration.Default, Width, Height);
+
+		for (int i = 0; i < Width; i++)
+		{
+			for (int j = 0; j < Height; j++)
+			{
+				bitmap[i,j] = new Rgb24((byte)GetPixel(i, j).R, (byte)GetPixel(i, j).G, (byte)GetPixel(i, j).B);
+			}
+		}
+
+		using (Stream fileStream = File.OpenWrite(fileName))
+		{
+			bitmap.Save(fileStream, new PngEncoder());
+		}
+	}
 }
 
 public class InvalidPfmFileFormat : FormatException
