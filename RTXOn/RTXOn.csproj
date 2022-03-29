@@ -4,6 +4,10 @@
     <ProjectReference Include="..\RTXLib\RTXLib.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.0" />
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
