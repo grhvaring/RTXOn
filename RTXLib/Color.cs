@@ -108,4 +108,16 @@ public struct Color
         G = Clamp(G);
         B = Clamp(B);
     }
+
+    private static int AdjustPowerLaw(float rgbComponent, float gamma)
+    {
+        return (int)(255 * Math.Pow(rgbComponent, 1.0f / gamma));
+    }
+
+    public void AdjustPowerLaw(float gamma)
+    {
+        R = AdjustPowerLaw(R, gamma);
+        G = AdjustPowerLaw(G, gamma);
+        B = AdjustPowerLaw(B, gamma);
+    }
 }
