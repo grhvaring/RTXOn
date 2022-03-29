@@ -110,8 +110,6 @@ namespace RTXLib.Tests
             Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("-1"));
             Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("1 2 3"));
             Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("abc"));
-
-
         }
 
         [Fact]
@@ -204,6 +202,43 @@ namespace RTXLib.Tests
                 // Test equality with the reference bytes
                 Assert.True(myBytesBe.SequenceEqual(referenceBytesBe));
             }
+        }
+
+
+        [Fact]
+        public void TestReadPfmFile()
+        {
+            HdrImage image = new HdrImage("reference_be.pfm");
+
+            Assert.True(image.Width == 3);
+            Assert.True(image.Height == 2);
+
+            /*
+            _testOutputHelper.WriteLine($"(0, 0) = {image.GetPixel(0, 0).ToString()}");
+            _testOutputHelper.WriteLine($"(1, 0) = {image.GetPixel(1, 0).ToString()}");
+            _testOutputHelper.WriteLine($"(2, 0) = {image.GetPixel(2, 0).ToString()}");
+            _testOutputHelper.WriteLine($"(0, 1) = {image.GetPixel(0, 1).ToString()}");
+            _testOutputHelper.WriteLine($"(1, 2) = {image.GetPixel(1, 1).ToString()}");
+            _testOutputHelper.WriteLine($"(2, 1) = {image.GetPixel(2, 1).ToString()}");
+            */
+            Assert.True(image.GetPixel(0, 0).IsClose(new Color(10.0f, 20.0f, 30.0f)));
+            Assert.True(image.GetPixel(1, 0).IsClose(new Color(40.0f, 50.0f, 60.0f)));
+            Assert.True(image.GetPixel(2, 0).IsClose(new Color(70.0f, 80.0f, 90.0f)));
+            Assert.True(image.GetPixel(0, 1).IsClose(new Color(100.0f, 200.0f, 300.0f)));
+            Assert.True(image.GetPixel(1, 1).IsClose(new Color(400.0f, 500.0f, 600.0f)));
+            Assert.True(image.GetPixel(2, 1).IsClose(new Color(700.0f, 800.0f, 900.0f)));
+            
+            image = new HdrImage("reference_le.pfm");
+
+            Assert.True(image.Width == 3);
+            Assert.True(image.Height == 2);
+
+            Assert.True(image.GetPixel(0, 0).IsClose(new Color(10.0f, 20.0f, 30.0f)));
+            Assert.True(image.GetPixel(1, 0).IsClose(new Color(40.0f, 50.0f, 60.0f)));
+            Assert.True(image.GetPixel(2, 0).IsClose(new Color(70.0f, 80.0f, 90.0f)));
+            Assert.True(image.GetPixel(0, 1).IsClose(new Color(100.0f, 200.0f, 300.0f)));
+            Assert.True(image.GetPixel(1, 1).IsClose(new Color(400.0f, 500.0f, 600.0f)));
+            Assert.True(image.GetPixel(2, 1).IsClose(new Color(700.0f, 800.0f, 900.0f)));
         }
 
         [Fact]

@@ -54,6 +54,47 @@ public class HdrImage
 
     }
 
+	public HdrImage(Stream stream)
+	{
+		ReadPfmFile(stream);
+	}
+
+	public HdrImage(string inputFile)
+	{
+		using (FileStream fileStream = File.OpenRead(inputFile))
+		{
+			ReadPfmFile(fileStream);
+		}
+	}
+
+	private void ReadPfmFile(Stream stream)
+	{
+		string magic = ReadPfmLine(stream);
+		if (magic != "PF")
+			throw new InvalidPfmFileFormat("Invalid magic in PFM file.");
+
+		string img_size = ReadPfmLine(stream);
+		ParseImgSize(img_size);
+
+		Pixels = new Color[(int)(Width * Height)];
+
+		string endiannessLine = ReadPfmLine(stream);
+		double endianness = ParseEndianness(endiannessLine);
+
+		// Write the image bottom-to-up and left-to-right
+		for (int y = Height - 1; y >= 0; --y)
+		{
+			for (int x = 0; x < Width; ++x)
+			{
+				float r = ReadFloat(stream, endianness);
+				float g = ReadFloat(stream, endianness);
+				float b = ReadFloat(stream, endianness);
+				Color color = new Color(r, g, b);
+				SetPixel(x, y, color);
+			}
+		}
+	}
+
 	// *** Other function and methods *** //
 
 	// validate_coordinates checks if the coordinates (x,y) of a pixel are compatible with the dimension of HdrImage
@@ -306,7 +347,7 @@ public class HdrImage
 	}
 
 	// SaveAsPNG saves the image as a PNG file with a specified name.
-	// For coerence the name of the PNG file should end with ".png" extension
+	// For coherence the name of the PNG file should end with ".png" extension
 	public void SaveAsPNG(string fileName)
     {
 		var bitmap = new Image<Rgb24>(Configuration.Default, Width, Height);
@@ -315,7 +356,8 @@ public class HdrImage
 		{
 			for (int j = 0; j < Height; j++)
 			{
-				bitmap[i,j] = new Rgb24((byte)GetPixel(i, j).R, (byte)GetPixel(i, j).G, (byte)GetPixel(i, j).B);
+				Color currentPixel = GetPixel(i, j);
+				bitmap[i,j] = new Rgb24( (byte)currentPixel.R, (byte)currentPixel.G, (byte)currentPixel.B);
 			}
 		}
 
