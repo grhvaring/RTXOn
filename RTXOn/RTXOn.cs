@@ -14,7 +14,10 @@ class RTXOn
     {
         Console.WriteLine("Hello, World!");
         Parameters parameters = new Parameters(args);
-        Console.WriteLine($"Parameters: {parameters.InputPfmFileName}, {parameters.Factor}, {parameters.Gamma}, {parameters.OnputPngFileName}");
+        HdrImage image = new HdrImage(parameters.InputPfmFileName);
+        image.NormalizeImage(parameters.Factor);
+        image.ClampImage();
+        image.SaveAsPNG(parameters.OnputPngFileName, parameters.Gamma);
     }
 }
 
