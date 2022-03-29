@@ -348,7 +348,7 @@ public class HdrImage
 
 	// SaveAsPNG saves the image as a PNG file with a specified name.
 	// For coherence the name of the PNG file should end with ".png" extension
-	public void SaveAsPNG(string fileName)
+	public void SaveAsPNG(string fileName, float gamma)
     {
 		var bitmap = new Image<Rgb24>(Configuration.Default, Width, Height);
 
@@ -357,6 +357,7 @@ public class HdrImage
 			for (int j = 0; j < Height; j++)
 			{
 				Color currentPixel = GetPixel(i, j);
+				currentPixel.AdjustPowerLaw(gamma);
 				bitmap[i,j] = new Rgb24( (byte)currentPixel.R, (byte)currentPixel.G, (byte)currentPixel.B);
 			}
 		}
@@ -365,7 +366,7 @@ public class HdrImage
 		{
 			bitmap.Save(fileStream, new PngEncoder());
 		}
-	}
+    }
 }
 
 public class InvalidPfmFileFormat : FormatException
