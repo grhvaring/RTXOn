@@ -7,10 +7,21 @@ public struct Normal
 {
 	private Vector3 normal;
 
-	// Only for reading the variable
-	public readonly float X => normal.X;
-	public readonly float Y => normal.Y;
-	public readonly float Z => normal.Z;
+	public float X
+	{
+		get => normal.X;
+		set => normal.X = value;
+	}
+	public float Y
+	{
+		get => normal.Y;
+		set => normal.Y = value;
+	}
+	public float Z
+	{
+		get => normal.Z;
+		set => normal.Z = value;
+	}
 
 	// Creating a new normal with all componenents set to 0
 	public Normal()

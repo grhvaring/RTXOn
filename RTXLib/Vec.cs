@@ -7,10 +7,22 @@ public struct Vec
 {
 	private Vector3 vec;
 
-	// Only for reading the variable
-	public readonly float X => vec.X;
-	public readonly float Y => vec.Y;
-	public readonly float Z => vec.Z;
+	// Methods for reading and modifing the coordinates
+	public float X
+    {
+		get => vec.X;
+		set => vec.X = value;
+    }
+	public float Y
+	{
+		get => vec.Y;
+		set => vec.Y = value;
+	}
+	public float Z
+	{
+		get => vec.Z;
+		set => vec.Z = value;
+	}
 
 	// Creating a new 3d vector with all componenents set to 0
 	public Vec()
