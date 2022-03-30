@@ -138,6 +138,8 @@ public class HdrImage
 		{
 			Width = int.Parse(dimentions[0]);
 			Height = int.Parse(dimentions[1]);
+			NPixels = Width * Height;
+
 			if (Width < 0 || Height < 0)
 			{
 				throw new InvalidDataException();
