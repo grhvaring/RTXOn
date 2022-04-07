@@ -86,24 +86,32 @@ public struct Transformation
         return Translation(v.X, v.Y, v.Z);
     }
 
-    public static Transformation RotationX(float thetaRad = DefaultAngle)
+    private static float ToRadians(float angleDeg)
     {
-        var R = Matrix4x4.CreateRotationX(thetaRad);
-        var invR = Matrix4x4.CreateRotationX(-thetaRad);
+        return (float) (angleDeg * Math.PI / 180);
+    }
+
+    public static Transformation RotationX(float angleDeg = DefaultAngle)
+    {
+        float angleRad = ToRadians(angleDeg);
+        var R = Matrix4x4.CreateRotationX(angleRad);
+        var invR = Matrix4x4.CreateRotationX(-angleRad);
         return new Transformation(R, invR);
     }
     
-    public static Transformation RotationY(float thetaRad = DefaultAngle)
+    public static Transformation RotationY(float angleDeg = DefaultAngle)
     {
-        var R = Matrix4x4.CreateRotationY(thetaRad);
-        var invR = Matrix4x4.CreateRotationY(-thetaRad);
+        float angleRad = ToRadians(angleDeg);
+        var R = Matrix4x4.CreateRotationY(angleRad);
+        var invR = Matrix4x4.CreateRotationY(-angleRad);
         return new Transformation(R, invR);
     }
     
-    public static Transformation RotationZ(float thetaRad = DefaultAngle)
+    public static Transformation RotationZ(float angleDeg = DefaultAngle)
     {
-        var R = Matrix4x4.CreateRotationZ(thetaRad);
-        var invR = Matrix4x4.CreateRotationZ(-thetaRad);
+        float angleRad = ToRadians(angleDeg);
+        var R = Matrix4x4.CreateRotationZ(angleRad);
+        var invR = Matrix4x4.CreateRotationZ(-angleRad);
         return new Transformation(R, invR);
 
     }
@@ -154,10 +162,9 @@ public struct Transformation
     
     public static Normal operator *(Transformation t, Normal n)
     {
-        Transformation tInv = t.Inverse();
-        float newX = t.M.M11 * n.X + t.M.M21 * n.Y + t.M.M31 * n.Z;
-        float newY = t.M.M12 * n.X + t.M.M22 * n.Y + t.M.M32 * n.Z;
-        float newZ = t.M.M13 * n.X + t.M.M23 * n.Y + t.M.M33 * n.Z;
+        float newX = t.InvM.M11 * n.X + t.InvM.M21 * n.Y + t.InvM.M31 * n.Z;
+        float newY = t.InvM.M12 * n.X + t.InvM.M22 * n.Y + t.InvM.M32 * n.Z;
+        float newZ = t.InvM.M13 * n.X + t.InvM.M23 * n.Y + t.InvM.M33 * n.Z;
         return new Normal(newX, newY, newZ);
     }
     
