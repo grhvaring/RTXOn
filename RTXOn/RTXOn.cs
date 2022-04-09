@@ -12,21 +12,17 @@ class RTXOn
         HdrImage image = new HdrImage(parameters.InputPfmFileName);
         image.NormalizeImage(parameters.Factor);
         image.ClampImage();
-        image.SaveAsPng(parameters.OnputPngFileName, parameters.Gamma);
+        image.SaveAsPng(parameters.OutputPngFileName, parameters.Gamma);
     }
 }
 
 
-public struct Parameters
+public readonly struct Parameters
 {
-    private readonly string inputFile, outputFile;
-    private readonly float factor, gamma;
-
-    public string InputPfmFileName => inputFile;
-    public string OnputPngFileName => outputFile;
-
-    public float Factor => factor;
-    public float Gamma => gamma;
+    public string InputPfmFileName { get; }
+    public string OutputPngFileName { get; }
+    public float Factor { get; }
+    public float Gamma { get; }
 
     public Parameters(string[] args)
     {
@@ -35,11 +31,11 @@ public struct Parameters
             throw new InvalidEnumArgumentException("Usage: <program> <pfmFile> <a> <gamma> <otuputFile>");
         }
 
-        inputFile = args[0];
+        InputPfmFileName = args[0];
 
         try
         {
-            factor = float.Parse(args[1]);
+            Factor = float.Parse(args[1]);
         }
         catch
         {
@@ -48,13 +44,13 @@ public struct Parameters
         
         try
         {
-            gamma = float.Parse(args[2]);
+            Gamma = float.Parse(args[2]);
         }
         catch
         {
             throw new TypeLoadException($"Invalid gamma ('{args[2]}'), it must be a floating-point number.");
         }
 
-        outputFile = args[3];
+        OutputPngFileName = args[3];
     }
 }
