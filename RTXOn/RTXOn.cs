@@ -1,13 +1,8 @@
-using System;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using RTXLib;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
 
 namespace RTXOn;
 
-// file PFM da leggere, a, γ, nome file PNG/JPEG/etc. da creare
 class RTXOn
 {
     static void Main(string[] args)
@@ -17,7 +12,7 @@ class RTXOn
         HdrImage image = new HdrImage(parameters.InputPfmFileName);
         image.NormalizeImage(parameters.Factor);
         image.ClampImage();
-        image.SaveAsPNG(parameters.OnputPngFileName, parameters.Gamma);
+        image.SaveAsPng(parameters.OnputPngFileName, parameters.Gamma);
     }
 }
 
