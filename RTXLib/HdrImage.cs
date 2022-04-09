@@ -20,6 +20,8 @@ public class HdrImage
 	public int Height;
 	public int NPixels;
 	public Color[] Pixels;
+	public const double LittleEndian = -1.0;
+	public const double BigEndian = +1.0;
 	
 	// Constructor that creates an image with specified width and height but with unspecified colors.
 	// All pixel are set to color black (0,0,0) that is the default for color class
@@ -40,7 +42,7 @@ public class HdrImage
 	}
 
 	// Constructor that creates an image with specified width, height and color of each pixel
-	public HdrImage(int w, int h, Color[] colors)
+	public HdrImage(int w, int h, Color[] pixels)
     {
 		Width = w;
 		Height = h;
@@ -49,7 +51,7 @@ public class HdrImage
 
 		for (int i = 0; i < NPixels; i++)
         {
-			Pixels[i] = colors[i];
+			Pixels[i] = pixels[i];
         }
 
     }
@@ -67,29 +69,28 @@ public class HdrImage
 		}
 	}
 
-	private void ReadPfmFile(Stream stream)
+	public void ReadPfmFile(Stream stream)
 	{
-		string magic = ReadPfmLine(stream);
-		if (magic != "PF")
-			throw new InvalidPfmFileFormat("Invalid magic in PFM file.");
+		var magic = ReadPfmLine(stream);
+		if (magic != "PF") throw new InvalidPfmFileFormat("Invalid magic in PFM file.");
 
-		string img_size = ReadPfmLine(stream);
-		ParseImgSize(img_size);
+		var imgSize = ReadPfmLine(stream);
+		ParseImgSize(imgSize);
 
 		Pixels = new Color[(int)(Width * Height)];
 
-		string endiannessLine = ReadPfmLine(stream);
+		var endiannessLine = ReadPfmLine(stream);
 		double endianness = ParseEndianness(endiannessLine);
 
 		// Write the image bottom-to-up and left-to-right
-		for (int y = Height - 1; y >= 0; --y)
+		for (var y = Height - 1; y >= 0; --y)
 		{
-			for (int x = 0; x < Width; ++x)
+			for (var x = 0; x < Width; ++x)
 			{
-				float r = ReadFloat(stream, endianness);
-				float g = ReadFloat(stream, endianness);
-				float b = ReadFloat(stream, endianness);
-				Color color = new Color(r, g, b);
+				var r = ReadFloat(stream, endianness);
+				var g = ReadFloat(stream, endianness);
+				var b = ReadFloat(stream, endianness);
+				var color = new Color(r, g, b);
 				SetPixel(x, y, color);
 			}
 		}
@@ -99,7 +100,7 @@ public class HdrImage
 
 	// validate_coordinates checks if the coordinates (x,y) of a pixel are compatible with the dimension of HdrImage
 	// If they are not compatible the function returns false, else returns true
-	public bool  ValidCoordinates(int x, int y)
+	public bool ValidCoordinates(int x, int y)
 	{
 		return ((x >= 0) && (x <= Width) && (y >= 0) && (y <= Height));
 	}
@@ -122,12 +123,12 @@ public class HdrImage
 		return Pixels[PixelOffset(x, y)];
     }
 	
-	// Read the dimention of a PFM image from a string
+	// Read the dimension of a PFM image from a string
 
 	public void ParseImgSize(string line)
 	{
 		char[] delimiterChars = { ' ', '\t' };
-		string[] dimentions = line.Split(delimiterChars);
+		var dimentions = line.Split(delimiterChars);
 
 		if (dimentions.Length != 2)
 		{
@@ -147,15 +148,16 @@ public class HdrImage
 		}
 		catch
 		{
-			throw new InvalidPfmFileFormat("Invalid width or height. Should be two int separated by a whitespace.");
+			throw new InvalidPfmFileFormat("Invalid width or height. Should be two integers separated by a whitespace.");
 		}
 	} 
 	
 	// Decode endianness of from a string
-	public float ParseEndianness(string line)
+	public static float ParseEndianness(string line)
 	{
 		float value;
-		string message = "Invalid endianness specification. Should be a non-zero number.";
+		var message = "Invalid endianness specification. Should be a non-zero number.";
+		
 		try
 		{
 			value = float.Parse(line);
@@ -165,35 +167,26 @@ public class HdrImage
 			throw new InvalidPfmFileFormat(message);
 		}
 
-		if (value > 0)
-		{
-			return +1.0f;
-		}
-		else if (value < 0)
-		{
-			return -1.0f;
-		}
-		else
-		{
-			throw new InvalidPfmFileFormat(message);
-		}
+		if (value == 0) throw new InvalidPfmFileFormat(message);
+		
+		return (value > 0) ? (float)BigEndian : (float) LittleEndian;
 	}
 	
-	private static void WriteFloat(Stream outputStream, float value, double endianness = -1.0)
+	public static void WriteFloat(Stream outputStream, float value, double endianness = LittleEndian)
 	{
 		var sequence = BitConverter.GetBytes(value);
 		
-		// If the machine is not little-endianness, reverse the sequence of bytes
-		if (endianness == 1.0 && BitConverter.IsLittleEndian)
+		double machineEndianness = BitConverter.IsLittleEndian ? LittleEndian : BigEndian;
+		if (endianness != machineEndianness)
 		{
 			Array.Reverse(sequence);
 		}
 		outputStream.Write(sequence, 0, sequence.Length);
 	}
 
-	public void WritePfm(Stream outputStream, double endianness = -1.0)
+	public void WritePfm(Stream outputStream, double endianness = LittleEndian)
 	{
-		string endiannessString = (endianness == -1.0) ? "-1.0" : "+1.0";
+		string endiannessString = (endianness == LittleEndian) ? "-1.0" : "+1.0";
 		
 		// Write the PFM file header (ascii -> does not change with endianness)
 		var header = Encoding.ASCII.GetBytes($"PF\n{Width} {Height}\n{endiannessString}\n");
@@ -241,35 +234,26 @@ public class HdrImage
 	}
 	
 	
-
 	// ReadFloat reads 4 bytes from a stream and converts them to a float.
 	// The endianness of the bytes can be specified; if not specified little endianness is assumed
-	public float ReadFloat(Stream fileStream, double fileEndianness = -1)
+	public static float ReadFloat(Stream fileStream, double fileEndianness = LittleEndian)
 	{
 
-		int numBytesToRead = 4;                         // Number of bytes to be read (1 float = 4 bytes)
-		int intBuffer;									// Temporay buffer
-		byte[] bytesBuffer = new byte[numBytesToRead];  // Buffer for the bytes
-		double pcEndianness;                            // PC endianness to be checked
-
-		// Check pc endianness
-		if (BitConverter.IsLittleEndian == true)
-			pcEndianness = -1;
-		else
-			pcEndianness = 1;
-
+		const int numBytesToRead = 4;                   // 1 float = 4 bytes
+		byte[] bytesBuffer = new byte[numBytesToRead];
+		var pcEndianness = BitConverter.IsLittleEndian ? LittleEndian : BigEndian;               
+		
 		// Read the bytes and convert to a float
 		try
 		{
-			for (int i = 0; i < numBytesToRead; i++)
+			for (var i = 0; i < numBytesToRead; i++)
 			{
-				intBuffer = fileStream.ReadByte();
+				var intBuffer = fileStream.ReadByte();
 
 				// Check if end of file is reached before than 4 bytes are read
-				if (intBuffer == -1)
-					throw new InvalidDataException();
-				else
-					bytesBuffer[i] = (byte)intBuffer;
+				if (intBuffer == -1) throw new InvalidDataException();
+				
+				bytesBuffer[i] = (byte)intBuffer;
 			}
 		}
 
@@ -278,9 +262,8 @@ public class HdrImage
 			throw new InvalidPfmFileFormat("Invalid bytes format. A float should be represented by 4 bytes.");
 		}
 
-		// If pc and file endianness are not the same, revers the order of the bytes
-		if (fileEndianness != pcEndianness)
-			Array.Reverse(bytesBuffer);
+		// If pc and file endianness are not the same, reverse the order of the bytes
+		if (fileEndianness != pcEndianness) Array.Reverse(bytesBuffer);
 
 		return BitConverter.ToSingle(bytesBuffer, 0);
 	}
@@ -288,41 +271,32 @@ public class HdrImage
 	// ReadPfmLine reads a line of bytes from a stream before a end of line (\n) character and converts them to a string (using ASCII)
 	// The maximun number of bytes that can be read is 31 + \n character
 	// If the \n character is not found the function returns an error message
-	public string ReadPfmLine(Stream fileStream, double fileEndianness = -1)
+	public static string ReadPfmLine(Stream fileStream, double fileEndianness = LittleEndian)
 	{
-		int numMaxBytesToRead = 32;							// Maximum expected number of bytes
+		int numMaxBytesToRead = 32;
 		int numSignificativeBytesRead = 0;					// Counter of effectively read bytes (different from \n)
 		int intBuffer;										// Temporary buffer for int number
 		byte[] bytesBuffer = new byte[numMaxBytesToRead];	// Temporary buffer array for bytes
 		string controlCharacter = "\n";						// Control end of line character
-		double pcEndianness;								// PC endianness to be checked
-
-		// Check pc endianness
-		if (BitConverter.IsLittleEndian == true)
-			pcEndianness = -1;
-		else
-			pcEndianness = 1;
-
+		var pcEndianness = BitConverter.IsLittleEndian ? LittleEndian : BigEndian;
+		
 		try
 		{
-			for (int i = 0; i < numMaxBytesToRead; i++)
+			for (var i = 0; i < numMaxBytesToRead; i++)
 			{
 				intBuffer = fileStream.ReadByte();
 
 				// Trow exception if the end of the stream is reached withoud finding a \n
 				if (intBuffer == -1)
 					throw new InvalidDataException();
-				else
-				{
-					bytesBuffer[i] = (byte)intBuffer;
 
-					// If the \n character is read than break the reading
-					// NOTE: GetString requires strictly an array and an iterval in order to work
-					if (Encoding.ASCII.GetString(bytesBuffer, i, 1) == controlCharacter)
-						break;
+				bytesBuffer[i] = (byte) intBuffer;
 
-					numSignificativeBytesRead++;
-				}
+				// If the \n character is read than break the reading
+				// NOTE: GetString requires strictly an array and an iterval in order to work
+				if (Encoding.ASCII.GetString(bytesBuffer, i, 1) == controlCharacter) break;
+
+				numSignificativeBytesRead++;
 			}
 		}
 
@@ -337,12 +311,11 @@ public class HdrImage
 			throw new InvalidPfmFileFormat("Invalid data format. The number of bytes in the line is longer than expected");
 		}
 
-		// Resize of the baffer to the effective number of bytes read; the byte of the \n character will be cut
+		// Resize of the buffer to the effective number of bytes read; the byte of the \n character will be cut out
 		Array.Resize(ref bytesBuffer, numSignificativeBytesRead);
 
-		// If pc and file endianness are not the same, revers the order of the bytes
-		if (fileEndianness != pcEndianness)
-			Array.Reverse(bytesBuffer);
+		// If pc and file endianness are not the same, reverse the order of the bytes
+		if (fileEndianness != pcEndianness) Array.Reverse(bytesBuffer);
 
 		// Conversion to string
 		return Encoding.ASCII.GetString(bytesBuffer);
@@ -350,7 +323,7 @@ public class HdrImage
 
 	// SaveAsPNG saves the image as a PNG file with a specified name.
 	// For coherence the name of the PNG file should end with ".png" extension
-	public void SaveAsPNG(string fileName, float gamma)
+	public void SaveAsPng(string fileName, float gamma)
     {
 		var bitmap = new Image<Rgb24>(Configuration.Default, Width, Height);
 
@@ -358,16 +331,14 @@ public class HdrImage
 		{
 			for (int j = 0; j < Height; j++)
 			{
-				Color currentPixel = GetPixel(i, j);
+				var currentPixel = GetPixel(i, j);
 				currentPixel.AdjustPowerLaw(gamma);
 				bitmap[i,j] = new Rgb24( (byte)currentPixel.R, (byte)currentPixel.G, (byte)currentPixel.B);
 			}
 		}
 
-		using (Stream fileStream = File.OpenWrite(fileName))
-		{
-			bitmap.Save(fileStream, new PngEncoder());
-		}
+		using Stream fileStream = File.OpenWrite(fileName);
+		bitmap.Save(fileStream, new PngEncoder());
     }
 }
 
