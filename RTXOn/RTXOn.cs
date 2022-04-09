@@ -9,10 +9,17 @@ class RTXOn
     {
         Console.WriteLine("Hello, World!");
         Parameters parameters = new Parameters(args);
-        HdrImage image = new HdrImage(parameters.InputPfmFileName);
-        image.NormalizeImage(parameters.Factor);
-        image.ClampImage();
-        image.SaveAsPng(parameters.OutputPngFileName, parameters.Gamma);
+        try
+        {
+            HdrImage image = new HdrImage(parameters.InputPfmFileName);
+            image.NormalizeImage(parameters.Factor);
+            image.ClampImage();
+            image.SaveAsPng(parameters.OutputPngFileName, parameters.Gamma);
+        }
+        catch (FileNotFoundException)
+        {
+            Console.WriteLine($"File {parameters.InputPfmFileName} not found.");
+        }
     }
 }
 
