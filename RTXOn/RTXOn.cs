@@ -8,7 +8,7 @@ class RTXOn
     static void Main(string[] args)
     {
         Console.WriteLine("Hello, World!");
-        Parameters parameters = new Parameters(args);
+        var parameters = new Parameters(args);
         try
         {
             HdrImage image = new HdrImage(parameters.InputPfmFileName);
