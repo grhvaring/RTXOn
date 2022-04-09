@@ -63,11 +63,8 @@ public class HdrImage
 
 	public HdrImage(string inputFile)
 	{
-		try
-		{
-			using FileStream fileStream = File.OpenRead(inputFile);
+		using FileStream fileStream = File.OpenRead(inputFile);
 			ReadPfmFile(fileStream);
-		}
 	}
 
 	public void ReadPfmFile(Stream stream)
