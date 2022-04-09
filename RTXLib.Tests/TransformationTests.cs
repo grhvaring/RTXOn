@@ -68,7 +68,7 @@ public class TransformationTests
                 m.M41, m.M42, m.M43, m.M44
             );
         
-        Transformation TWrongCopy = new Transformation(mWrongCopy, mInvCopy);
+        var TWrongCopy = new Transformation(mWrongCopy, mInvCopy);
 
         Assert.False(TWrongCopy.IsConsistent());
         Assert.False(T.IsClose(TWrongCopy));
@@ -78,7 +78,7 @@ public class TransformationTests
                                                 mInv.M31, mInv.M32, mInv.M33, mInv.M34, 
                                                 mInv.M41, mInv.M42, mInv.M43, mInv.M44);
 
-        Transformation TWrongInvCopy = new Transformation(mCopy, mInvWrongCopy);
+        var TWrongInvCopy = new Transformation(mCopy, mInvWrongCopy);
         
         Assert.False(TWrongInvCopy.IsConsistent());
         Assert.False(T.IsClose(TWrongInvCopy));
@@ -87,9 +87,9 @@ public class TransformationTests
     [Fact]
     void TestMultiplication()
     {
-        Transformation T1 = new Transformation(m, mInv);
+        var T1 = new Transformation(m, mInv);
         
-        Transformation T2 = new Transformation(
+        var T2 = new Transformation(
             new Matrix4x4
             (
                 3.0f, 5.0f, 2.0f, 4.0f,
@@ -108,7 +108,7 @@ public class TransformationTests
         
         Assert.True(T2.IsConsistent());
 
-        Transformation T1T2 = new Transformation(
+        var T1T2 = new Transformation(
             new Matrix4x4
             (
                 33.0f, 32.0f, 16.0f, 18.0f, 
@@ -132,7 +132,7 @@ public class TransformationTests
     [Fact]
     public void TestVecPointNormalMultiplication()
     {
-        Transformation T = new Transformation
+        var T = new Transformation
         (
             new Matrix4x4
             (
@@ -151,22 +151,26 @@ public class TransformationTests
         );
 
         Assert.True(T.IsConsistent());
-        Vec expectedVec = new(14.0f, 38.0f, 51.0f);
+        
+        var expectedVec = new Vec(14.0f, 38.0f, 51.0f);
         Assert.True(expectedVec.IsClose(T * new Vec(1.0f, 2.0f, 3.0f)));
-        Point expectedPoint = new(18.0f, 46.0f, 58.0f);
+        
+        var expectedPoint = new Point(18.0f, 46.0f, 58.0f);
         //_testOutputHelper.WriteLine((T * new Point(1.0f, 2.0f, 3.0f)).ToString());
         Assert.True(expectedPoint.IsClose(T * new Point(1.0f, 2.0f, 3.0f)));
-        Normal expectedNormal = new(-8.75f, 7.75f, -3.0f);
+        
+        var expectedNormal = new Normal(-8.75f, 7.75f, -3.0f);
         Assert.True(expectedNormal.IsClose(T * new Normal(3.0f, 2.0f, 4.0f)));
     }
 
     [Fact]
     public void TestInverse()
     {
-        Transformation T = new(m, mInv);
-        Transformation InvT = T.Inverse();
+        var T = new Transformation(m, mInv);
+        var InvT = T.Inverse();
         Assert.True(InvT.IsConsistent());
-        Transformation product = T * InvT;
+        
+        var product = T * InvT;
         Assert.True(product.IsConsistent());
         Assert.True(product.IsClose(new Transformation()));
     }
@@ -174,13 +178,13 @@ public class TransformationTests
     [Fact]
     public void TestTranslations()
     {
-        Transformation tr1 = Transformation.Translation(1, 2, 3);
+        var tr1 = Transformation.Translation(1, 2, 3);
         Assert.True(tr1.IsConsistent());
 
-        Transformation tr2 = Transformation.Translation(4, 6, 8);
+        var tr2 = Transformation.Translation(4, 6, 8);
         Assert.True(tr2.IsConsistent());
 
-        Transformation tr12 = tr1 * tr2;
+        var tr12 = tr1 * tr2;
         Assert.True(tr12.IsConsistent());
         Assert.True(tr12.IsClose(Transformation.Translation(5, 8, 11)));
     }
@@ -192,9 +196,9 @@ public class TransformationTests
         Assert.True(Transformation.RotationX(4).IsConsistent());
         Assert.True(Transformation.RotationX(20).IsConsistent());
 
-        Vec eX = new(1,0,0);
-        Vec eY = new(0,1,0);
-        Vec eZ = new(0,0,1);
+        var eX = new Vec(1,0,0);
+        var eY = new Vec(0,1,0);
+        var eZ = new Vec(0,0,1);
         
         Assert.True((Transformation.RotationX(90) * eY).IsClose(eZ));
         Assert.True((Transformation.RotationY(90) * eZ).IsClose(eX));
@@ -204,13 +208,13 @@ public class TransformationTests
     [Fact]
     public void TestScalings()
     {
-        Transformation s1 = Transformation.Scaling(2, 5, 10);
+        var s1 = Transformation.Scaling(2, 5, 10);
         Assert.True(s1.IsConsistent());
 
-        Transformation s2 = Transformation.Scaling(3, 2, 4);
+        var s2 = Transformation.Scaling(3, 2, 4);
         Assert.True(s2.IsConsistent());
-
-        Transformation s12 = Transformation.Scaling(6, 10, 40);
+        
+        var s12 = Transformation.Scaling(6, 10, 40);
         Assert.True(s12.IsClose(s1 * s2));
     }
 }
