@@ -93,7 +93,10 @@ public struct Transformation
 
     public static Transformation RotationX(float angleDeg = DefaultAngle)
     {
-        float angleRad = ToRadians(angleDeg);
+        // The implementation in Matrix4x4 uses a notation with the angle flipped
+        // The angle is corrected to be consistent with the Right-Hand Rule
+        // and matrix - vector multiplication
+        var angleRad = ToRadians(-angleDeg);
         var R = Matrix4x4.CreateRotationX(angleRad);
         var invR = Matrix4x4.CreateRotationX(-angleRad);
         return new Transformation(R, invR);
@@ -101,7 +104,7 @@ public struct Transformation
     
     public static Transformation RotationY(float angleDeg = DefaultAngle)
     {
-        float angleRad = ToRadians(angleDeg);
+        float angleRad = ToRadians(-angleDeg);
         var R = Matrix4x4.CreateRotationY(angleRad);
         var invR = Matrix4x4.CreateRotationY(-angleRad);
         return new Transformation(R, invR);
@@ -109,7 +112,8 @@ public struct Transformation
     
     public static Transformation RotationZ(float angleDeg = DefaultAngle)
     {
-        float angleRad = ToRadians(angleDeg);
+        // The angle is corrected to be consistent with the Right-Hand Rule
+        float angleRad = ToRadians(-angleDeg);
         var R = Matrix4x4.CreateRotationZ(angleRad);
         var invR = Matrix4x4.CreateRotationZ(-angleRad);
         return new Transformation(R, invR);
@@ -123,6 +127,13 @@ public struct Transformation
         return new Transformation(S, invS);
     }
 
+    public static Transformation Scaling(float xFactor, float yFactor, float zFactor)
+    {
+        var S = Matrix4x4.CreateScale(xFactor, yFactor, zFactor);
+        var invS = Matrix4x4.CreateScale(1 / xFactor, 1 / yFactor, 1 / zFactor);
+        return new Transformation(S, invS);
+    }
+    
     public Transformation Inverse()
     {
         return new Transformation(InvM, M);
@@ -171,7 +182,7 @@ public struct Transformation
     public bool IsConsistent(double e = 1e-5)
     {
         Transformation supposedIdentity = new(M * InvM, InvM * M);
-        Transformation identity = new(I, I);
+        Transformation identity = new Transformation();
         return supposedIdentity.IsClose(identity, e);
     }
 
