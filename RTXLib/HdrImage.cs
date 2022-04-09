@@ -1,7 +1,7 @@
 // This file implements the class HdrImage, which is use to save an image of a given dimension (width * height)
-// The image is implemented as a monodimensional array of the struct Color.
+// The image is implemented as a 1D array of the struct Color.
 // Each element of the array represents the color of a pixel.
-using System.IO;
+
 using System.Text;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -63,8 +63,9 @@ public class HdrImage
 
 	public HdrImage(string inputFile)
 	{
-		using (FileStream fileStream = File.OpenRead(inputFile))
+		try
 		{
+			using FileStream fileStream = File.OpenRead(inputFile);
 			ReadPfmFile(fileStream);
 		}
 	}
@@ -77,7 +78,7 @@ public class HdrImage
 		var imgSize = ReadPfmLine(stream);
 		ParseImgSize(imgSize);
 
-		Pixels = new Color[(int)(Width * Height)];
+		Pixels = new Color[Width * Height];
 
 		var endiannessLine = ReadPfmLine(stream);
 		double endianness = ParseEndianness(endiannessLine);
@@ -128,17 +129,17 @@ public class HdrImage
 	public void ParseImgSize(string line)
 	{
 		char[] delimiterChars = { ' ', '\t' };
-		var dimentions = line.Split(delimiterChars);
+		var dimensions = line.Split(delimiterChars);
 
-		if (dimentions.Length != 2)
+		if (dimensions.Length != 2)
 		{
 			throw new InvalidPfmFileFormat("Invalid image size specification: it should be <width> <height>.");
 		}
 
 		try
 		{
-			Width = int.Parse(dimentions[0]);
-			Height = int.Parse(dimentions[1]);
+			Width = int.Parse(dimensions[0]);
+			Height = int.Parse(dimensions[1]);
 			NPixels = Width * Height;
 
 			if (Width < 0 || Height < 0)
@@ -213,7 +214,7 @@ public class HdrImage
 			sum += (float)Math.Log10(delta + pixel.Luminosity());
 		}
 
-		return (float)Math.Pow(10, sum / (float)NPixels);
+		return (float)Math.Pow(10, sum / NPixels);
 	}
 
 	public void NormalizeImage(float factor, float? avgLuminosity = null)
@@ -269,12 +270,12 @@ public class HdrImage
 	}
 
 	// ReadPfmLine reads a line of bytes from a stream before a end of line (\n) character and converts them to a string (using ASCII)
-	// The maximun number of bytes that can be read is 31 + \n character
+	// The maximum number of bytes that can be read is 31 + \n character
 	// If the \n character is not found the function returns an error message
 	public static string ReadPfmLine(Stream fileStream, double fileEndianness = LittleEndian)
 	{
 		int numMaxBytesToRead = 32;
-		int numSignificativeBytesRead = 0;					// Counter of effectively read bytes (different from \n)
+		int numSignificantBytesRead = 0;					// Counter of effectively read bytes (different from \n)
 		int intBuffer;										// Temporary buffer for int number
 		byte[] bytesBuffer = new byte[numMaxBytesToRead];	// Temporary buffer array for bytes
 		string controlCharacter = "\n";						// Control end of line character
@@ -286,17 +287,17 @@ public class HdrImage
 			{
 				intBuffer = fileStream.ReadByte();
 
-				// Trow exception if the end of the stream is reached withoud finding a \n
+				// Trow exception if the end of the stream is reached without finding a \n
 				if (intBuffer == -1)
 					throw new InvalidDataException();
 
 				bytesBuffer[i] = (byte) intBuffer;
 
 				// If the \n character is read than break the reading
-				// NOTE: GetString requires strictly an array and an iterval in order to work
+				// NOTE: GetString requires strictly an array and an interval in order to work
 				if (Encoding.ASCII.GetString(bytesBuffer, i, 1) == controlCharacter) break;
 
-				numSignificativeBytesRead++;
+				numSignificantBytesRead++;
 			}
 		}
 
@@ -306,13 +307,13 @@ public class HdrImage
 		}
 
 		// Check if maximum expected number of bytes has been reached without finding the \n character
-		if (numSignificativeBytesRead == numMaxBytesToRead)
+		if (numSignificantBytesRead == numMaxBytesToRead)
         {
 			throw new InvalidPfmFileFormat("Invalid data format. The number of bytes in the line is longer than expected");
 		}
 
 		// Resize of the buffer to the effective number of bytes read; the byte of the \n character will be cut out
-		Array.Resize(ref bytesBuffer, numSignificativeBytesRead);
+		Array.Resize(ref bytesBuffer, numSignificantBytesRead);
 
 		// If pc and file endianness are not the same, reverse the order of the bytes
 		if (fileEndianness != pcEndianness) Array.Reverse(bytesBuffer);
