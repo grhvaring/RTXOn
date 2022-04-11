@@ -8,17 +8,18 @@ class RTXOn
     static void Main(string[] args)
     {
         Console.WriteLine("Hello, World!");
-        var parameters = new Parameters(args);
         try
         {
-            HdrImage image = new HdrImage(parameters.InputPfmFileName);
-            image.NormalizeImage(parameters.Factor);
+            var parameters = new Parameters(args);
+            var image = new HdrImage(parameters.InputPfmFileName);
+            image.NormalizeImage(parameters.Factor); 
             image.ClampImage();
             image.SaveAsPng(parameters.OutputPngFileName, parameters.Gamma);
         }
-        catch (FileNotFoundException)
+        catch (Exception e)
         {
-            Console.WriteLine($"File {parameters.InputPfmFileName} not found.");
+            Console.WriteLine("Something went wrong, see below for the details.");
+            Console.WriteLine(e.Message);
         }
     }
 }
@@ -35,7 +36,7 @@ public readonly struct Parameters
     {
         if (args.Length != 4)
         {
-            throw new InvalidEnumArgumentException("Usage: <program> <pfmFile> <a> <gamma> <otuputFile>");
+            throw new InvalidEnumArgumentException("Usage: <program> <pfmFile> <a> <gamma> <outputFile>");
         }
 
         InputPfmFileName = args[0];
