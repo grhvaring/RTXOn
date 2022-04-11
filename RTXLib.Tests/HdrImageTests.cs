@@ -95,21 +95,19 @@ namespace RTXLib.Tests
         [Fact]
         public void TestParseImgSize()
         {
-            HdrImage testImage = new HdrImage(2, 1);
-            
             // Correct format
-            testImage.ParseImgSize("3 2");
-            Assert.True(testImage.Width == 3 && testImage.Height == 2);
+            HdrImage.ParseImgSize("3 2", out var width, out var height);
+            Assert.True(width == 3 && height == 2);
             
             // Incorrect formats
-            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("-1 2"));
-            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("1 -2"));
-            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("-1 -2"));
-            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("2"));
-            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize(""));
-            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("-1"));
-            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("1 2 3"));
-            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("abc"));
+            Assert.Throws<InvalidPfmFileFormat>(() => HdrImage.ParseImgSize("-1 2"));
+            Assert.Throws<InvalidPfmFileFormat>(() => HdrImage.ParseImgSize("1 -2"));
+            Assert.Throws<InvalidPfmFileFormat>(() => HdrImage.ParseImgSize("-1 -2"));
+            Assert.Throws<InvalidPfmFileFormat>(() => HdrImage.ParseImgSize("2"));
+            Assert.Throws<InvalidPfmFileFormat>(() => HdrImage.ParseImgSize(""));
+            Assert.Throws<InvalidPfmFileFormat>(() => HdrImage.ParseImgSize("-1"));
+            Assert.Throws<InvalidPfmFileFormat>(() => HdrImage.ParseImgSize("1 2 3"));
+            Assert.Throws<InvalidPfmFileFormat>(() => HdrImage.ParseImgSize("abc"));
         }
 
         [Fact]

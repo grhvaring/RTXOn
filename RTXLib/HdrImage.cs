@@ -63,8 +63,8 @@ public class HdrImage
 
 	public HdrImage(string inputFile)
 	{
-		using FileStream fileStream = File.OpenRead(inputFile);
-			ReadPfmFile(fileStream);
+		using var fileStream = File.OpenRead(inputFile);
+		ReadPfmFile(fileStream);
 	}
 
 	public void ReadPfmFile(Stream stream)
@@ -73,9 +73,9 @@ public class HdrImage
 		if (magic != "PF") throw new InvalidPfmFileFormat("Invalid magic in PFM file.");
 
 		var imgSize = ReadPfmLine(stream);
-		ParseImgSize(imgSize);
-
-		Pixels = new Color[Width * Height];
+		ParseImgSize(imgSize, out Width, out Height);
+		NPixels = Width * Height;
+		Pixels = new Color[NPixels];
 
 		var endiannessLine = ReadPfmLine(stream);
 		double endianness = ParseEndianness(endiannessLine);
@@ -121,9 +121,9 @@ public class HdrImage
 		return Pixels[PixelOffset(x, y)];
     }
 	
-	// Read the dimension of a PFM image from a string
+	// Read the dimensions of a PFM image from a string
 
-	public void ParseImgSize(string line)
+	public static void ParseImgSize(string line, out int width, out int height)
 	{
 		char[] delimiterChars = { ' ', '\t' };
 		var dimensions = line.Split(delimiterChars);
@@ -135,20 +135,28 @@ public class HdrImage
 
 		try
 		{
-			Width = int.Parse(dimensions[0]);
-			Height = int.Parse(dimensions[1]);
-			NPixels = Width * Height;
+			width = int.Parse(dimensions[0]);
+			height = int.Parse(dimensions[1]);
 
-			if (Width < 0 || Height < 0)
+			if (width < 0 || height < 0)
 			{
 				throw new InvalidDataException();
 			}
 		}
 		catch
 		{
-			throw new InvalidPfmFileFormat("Invalid width or height. Should be two integers separated by a whitespace.");
+			throw new InvalidPfmFileFormat("Invalid width or height. Should be two positive integers separated by a whitespace.");
 		}
-	} 
+	}
+	
+	/// <summary>
+	/// This method makes the test for the InvalidPfmFileFormat exception more readable
+	/// </summary>
+	/// <param name="line">String containing &lt;width&gt; &lt;height&gt;</param>
+	public static void ParseImgSize(string line)
+	{
+		ParseImgSize(line, out var width, out var height);
+	}
 	
 	// Decode endianness of from a string
 	public static float ParseEndianness(string line)
