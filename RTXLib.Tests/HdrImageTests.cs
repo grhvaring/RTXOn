@@ -22,7 +22,7 @@ namespace RTXLib.Tests
         [Fact]
         public void TestCreationHdrImage()
         {
-            HdrImage testImage = new HdrImage(10, 5);
+            var testImage = new HdrImage(10, 5);
 
             Assert.True(testImage.Width == 10);        // Check correct width
             Assert.True(testImage.Height == 5);        // Check correct height
@@ -33,7 +33,7 @@ namespace RTXLib.Tests
         [Fact]
         public void TestPixelOffset()
         {
-            HdrImage testImage = new HdrImage(10, 5);
+            var testImage = new HdrImage(10, 5);
 
             // Check correct offsets
             Assert.True(testImage.PixelOffset(0, 0) == 0);                   // Check first pixel
@@ -48,7 +48,7 @@ namespace RTXLib.Tests
         [Fact]
         public void TestValidCoordinates()
         {
-            HdrImage testImage = new HdrImage(10, 5);
+            var testImage = new HdrImage(10, 5);
 
             // Check correct coordinates
             Assert.True(testImage.ValidCoordinates(0, 0));     // Check correct extremal coordinates
@@ -75,21 +75,21 @@ namespace RTXLib.Tests
         [Fact]
         public void TestSetGetPixel()
         {
-            HdrImage testImage = new HdrImage(10, 5);
-            Color referenceColor1 = new Color(1.0f, 2.0f, 3.0f);
-            Color referenceColor2 = new Color(2.0f, 4.0f, 6.0f);
-            Color defaultColor = new Color(0.0f, 0.0f, 0.0f);
+            var testImage = new HdrImage(10, 5);
+            var referenceColor1 = new Color(1.0f, 2.0f, 3.0f);
+            var referenceColor2 = new Color(2.0f, 4.0f, 6.0f);
+            var defaultColor = new Color(0.0f, 0.0f, 0.0f);
 
             testImage.SetPixel(2, 3, referenceColor1);
             testImage.SetPixel(3, 4, referenceColor2);
 
-            // Check correct color
-            Assert.True((testImage.GetPixel(2, 3)).IsClose(referenceColor1));  // Check if color in position (2,3) is correct
-            Assert.True((testImage.GetPixel(3, 4)).IsClose(referenceColor2));  // Check if color in position (3,4) is correct
-            Assert.True((testImage.GetPixel(1, 2)).IsClose(defaultColor));      // Check if color in unassigned position (1,2) is the default color
+            // Check correct colors
+            Assert.True((testImage.GetPixel(2, 3)).IsClose(referenceColor1));
+            Assert.True((testImage.GetPixel(3, 4)).IsClose(referenceColor2));
+            Assert.True((testImage.GetPixel(1, 2)).IsClose(defaultColor));
 
             // Check wrong color
-            Assert.False((testImage.GetPixel(3, 4)).IsClose(referenceColor1)); // Check if color in position (3,4) is different from color set in position (2,3)
+            Assert.False((testImage.GetPixel(3, 4)).IsClose(referenceColor1));
         }
 
         [Fact]
@@ -136,7 +136,7 @@ namespace RTXLib.Tests
                 0x00, 0x00, 0x8c, 0x42, 0x00, 0x00, 0xa0, 0x42, 0x00, 0x00, 0xb4, 0x42
             };
             
-            HdrImage testImage = new HdrImage(3, 2);
+            var testImage = new HdrImage(3, 2);
             
             testImage.SetPixel(0,0, new Color(10.0f, 20.0f, 30.0f));
             testImage.SetPixel(1,0, new Color(40.0f, 50.0f, 60.0f));
@@ -146,7 +146,7 @@ namespace RTXLib.Tests
             testImage.SetPixel(2,1, new Color(700.0f, 800.0f, 900.0f));
 
             // Long way (useful for debugging)
-            using (MemoryStream memoryStream = new MemoryStream(referenceBytesLe.Length))
+            using (var memoryStream = new MemoryStream(referenceBytesLe.Length))
             {
                 // Write the content of testImage to the memStream buffer as a PFM image
                 testImage.WritePfm(memoryStream, HdrImage.LittleEndian);
@@ -187,7 +187,7 @@ namespace RTXLib.Tests
             testImage.SetPixel(1,1, new Color(400.0f, 500.0f, 600.0f));
             testImage.SetPixel(2,1, new Color(700.0f, 800.0f, 900.0f));
 
-            using MemoryStream memoryStream = new MemoryStream(referenceBytesBe.Length);
+            using var memoryStream = new MemoryStream(referenceBytesBe.Length);
             testImage.WritePfm(memoryStream, HdrImage.BigEndian);
             var myBytesBe = memoryStream.ToArray();
                 
@@ -198,7 +198,7 @@ namespace RTXLib.Tests
         [Fact]
         public void TestReadPfmFile()
         {
-            HdrImage image = new HdrImage("reference_be.pfm");
+            var image = new HdrImage("reference_be.pfm");
 
             Assert.True(image.Width == 3);
             Assert.True(image.Height == 2);
@@ -234,18 +234,18 @@ namespace RTXLib.Tests
         [Fact]
         public void TestAverageLuminosity()
         {
-            HdrImage testImage = new HdrImage(2, 1);
+            var testImage = new HdrImage(2, 1);
             testImage.SetPixel(0, 0, new Color(5.0f, 10.0f, 15.0f)); // Luminosity = 10
             testImage.SetPixel(1, 0, new Color(500.0f, 1000.0f, 1500.0f)); // Luminosity = 1000
             
-            _testOutputHelper.WriteLine($"Average luminosity = {testImage.AverageLuminosity()}");
+            // _testOutputHelper.WriteLine($"Average luminosity = {testImage.AverageLuminosity()}");
             Assert.True(100.0f == testImage.AverageLuminosity());
         }
 
         [Fact]
         public void TestNormalizeImage()
         {
-            HdrImage testImage = new HdrImage(2, 1);
+            var testImage = new HdrImage(2, 1);
             testImage.SetPixel(0, 0, new Color(5.0f, 10.0f, 15.0f)); // Luminosity = 10
             testImage.SetPixel(1, 0, new Color(500.0f, 1000.0f, 1500.0f)); // Luminosity = 1000
             
@@ -257,7 +257,7 @@ namespace RTXLib.Tests
         [Fact]
         public void TestClampImage()
         {
-            HdrImage testImage = new HdrImage(2, 1);
+            var testImage = new HdrImage(2, 1);
             testImage.SetPixel(0, 0, new Color(5.0f, 10.0f, 15.0f)); 
             testImage.SetPixel(1, 0, new Color(500.0f, 1000.0f, 1500.0f));
             
