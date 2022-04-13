@@ -187,7 +187,17 @@ public class TransformationTests
         var tr12 = tr1 * tr2;
         Assert.True(tr12.IsConsistent());
         Assert.True(tr12.IsClose(Transformation.Translation(5, 8, 11)));
-    }
+
+        var p = new Point(1, 1, 1);
+        //_testOutputHelper.WriteLine(tr1.InvM.ToString());
+        //_testOutputHelper.WriteLine(tr1.M.ToString());
+        Assert.True((tr1 * p).IsClose(new Point(2, 3, 4)));
+
+        var v = new Vec(1, 2, 3);
+        Assert.True((tr1 * v).IsClose(new Vec(1, 2, 3)));
+    
+        var n = new Normal(1, 2, 3);
+        Assert.True((tr1 * n).IsClose(new Normal(1, 2, 3)));}
 
     [Fact]
     public void TestRotations()
@@ -201,6 +211,7 @@ public class TransformationTests
         var eZ = Vec.Ez;
         
         Assert.True((Transformation.RotationX(90) * eY).IsClose(eZ));
+        //_testOutputHelper.WriteLine((Transformation.RotationY(90).M).ToString());
         Assert.True((Transformation.RotationY(90) * eZ).IsClose(eX));
         Assert.True((Transformation.RotationZ(90) * eX).IsClose(eY));
     }
