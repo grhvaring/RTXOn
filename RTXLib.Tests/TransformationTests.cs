@@ -196,9 +196,9 @@ public class TransformationTests
         Assert.True(Transformation.RotationX(4).IsConsistent());
         Assert.True(Transformation.RotationX(20).IsConsistent());
 
-        var eX = new Vec(1,0,0);
-        var eY = new Vec(0,1,0);
-        var eZ = new Vec(0,0,1);
+        var eX = Vec.Ex;
+        var eY = Vec.Ey;
+        var eZ = Vec.Ez;
         
         Assert.True((Transformation.RotationX(90) * eY).IsClose(eZ));
         Assert.True((Transformation.RotationY(90) * eZ).IsClose(eX));
