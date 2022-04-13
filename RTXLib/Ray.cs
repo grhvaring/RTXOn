@@ -42,6 +42,13 @@ public struct Ray
 	// At calculates the point reached from a ray for a given t
 	public Point At(float t)
     {
-		return new Point(Origin + t*Dir);
+		return Origin + t * Dir;
     }
+
+	public Ray Transform(Transformation transformation)
+	{
+		// QUESTION: Why don't we just change the current ray?
+		return new Ray(transformation * Origin, transformation * Dir, TMin, TMax, Depth);
+	}
+	
 }
