@@ -6,6 +6,7 @@ on:
 
 jobs:
   tests:
+    name: (windows-latest, 6.0)
 
     runs-on: windows-latest
 
