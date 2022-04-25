@@ -19,18 +19,18 @@ public struct Ray
 		Origin = new Point();
 		Dir = new Vec();
 		TMin = 1e-5f;
-		TMax = Single.PositiveInfinity;
+		TMax = float.PositiveInfinity;
 		Depth = 0;
 	}
 
 	// Constructor with arguments
-	public Ray(Point originPoint, Vec directionVector, float minimumDistance = 1e-5f, float maximumDistance = Single.PositiveInfinity, int numReflection = 0)
+	public Ray(Point origin, Vec dir, float tMin = 1e-5f, float tMax = float.PositiveInfinity, int depth = 0)
     {
-		Origin = originPoint;
-		Dir = directionVector;
-		TMin = minimumDistance;
-		TMax = maximumDistance;
-		Depth = numReflection;
+		Origin = origin;
+		Dir = dir;
+		TMin = tMin;
+		TMax = tMax;
+		Depth = depth;
 	}
 
 	public bool IsClose(Ray otherRay, double epsilon = 1e-5)
@@ -38,7 +38,6 @@ public struct Ray
 		return (Origin.IsClose(otherRay.Origin, epsilon) && Dir.IsClose(otherRay.Dir, epsilon));
     }
 
-	// At calculates the point reached from a ray for a given t
 	/// <summary>
 	/// Convert parametrization into 3D position
 	/// </summary>
