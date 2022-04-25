@@ -113,7 +113,7 @@ public struct Transformation
     public static Transformation RotationZ(float angleDeg = DefaultAngle)
     {
         // The angle is corrected to be consistent with the Right-Hand Rule
-        float angleRad = ToRadians(-angleDeg);
+        var angleRad = ToRadians(-angleDeg);
         var R = Matrix4x4.CreateRotationZ(angleRad);
         var invR = Matrix4x4.CreateRotationZ(-angleRad);
         return new Transformation(R, invR);
