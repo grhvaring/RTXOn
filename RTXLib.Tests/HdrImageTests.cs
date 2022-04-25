@@ -208,7 +208,7 @@ namespace RTXLib.Tests
         [Fact]
         public void TestReadPfmFile()
         {
-            HdrImage image = new HdrImage("reference_be.pfm");
+            HdrImage image = new HdrImage("../../../reference_be.pfm");
 
             Assert.True(image.Width == 3);
             Assert.True(image.Height == 2);
@@ -228,7 +228,7 @@ namespace RTXLib.Tests
             Assert.True(image.GetPixel(1, 1).IsClose(new Color(400.0f, 500.0f, 600.0f)));
             Assert.True(image.GetPixel(2, 1).IsClose(new Color(700.0f, 800.0f, 900.0f)));
             
-            image = new HdrImage("reference_le.pfm");
+            image = new HdrImage("../../../reference_le.pfm");
 
             Assert.True(image.Width == 3);
             Assert.True(image.Height == 2);
