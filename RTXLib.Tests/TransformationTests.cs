@@ -85,7 +85,7 @@ public class TransformationTests
     }
 
     [Fact]
-    void TestMultiplication()
+    public void TestMultiplication()
     {
         var T1 = new Transformation(m, mInv);
         
@@ -124,8 +124,9 @@ public class TransformationTests
                 4.825f, -4.325f, 2.5f, -1.1f
             )
         );
-        //_testOutputHelper.WriteLine((T1 * T2).InvM.ToString());
-        Assert.True((T1 * T2).IsConsistent(1e-3)); // the test fails when the error is smaller than 0.001
+        
+        Assert.True(T1T2.IsConsistent(1e-4));       // 1e-4 for rounding errors
+        Assert.True((T1 * T2).IsConsistent(1e-4));
         Assert.True((T1 * T2).IsClose(T1T2));
     }
 

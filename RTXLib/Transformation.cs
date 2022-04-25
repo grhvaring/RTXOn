@@ -22,7 +22,7 @@ public struct Transformation
         InvM = invM;
     }
     
-    public static Transformation Identity => new Transformation();
+    public static Transformation Identity => new();
 
     public Transformation
     (
@@ -189,7 +189,7 @@ public struct Transformation
             1/xFactor, 0, 0, 0,
             0, 1/yFactor, 0, 0,
             0, 0, 1/zFactor, 0,
-            0, 0, 0, 1
+            0, 0, 0,         1
         );
         return new Transformation(S, invS);
     }
@@ -246,9 +246,8 @@ public struct Transformation
     
     public bool IsConsistent(double e = 1e-5)
     {
-        var supposedIdentity = new Transformation(M * InvM, InvM * M);
-        var identity = new Transformation();
-        return supposedIdentity.IsClose(identity, e);
+        var supposedIdentity = this * Inverse();
+        return supposedIdentity.IsClose(Identity, e);
     }
 
     public bool IsClose(Transformation otherT, double e = 1e-5)
@@ -259,9 +258,9 @@ public struct Transformation
     public static bool AreMatricesClose(Matrix4x4 M1, Matrix4x4 M2, double e = 1e-5)
     {
         Matrix4x4 diff = M1 - M2;
-        return MyLibrary.IsZero(diff.M11) && MyLibrary.IsZero(diff.M12) && MyLibrary.IsZero(diff.M13) && MyLibrary.IsZero(diff.M14) && 
-               MyLibrary.IsZero(diff.M21) && MyLibrary.IsZero(diff.M22) && MyLibrary.IsZero(diff.M23) && MyLibrary.IsZero(diff.M24) && 
-               MyLibrary.IsZero(diff.M31) && MyLibrary.IsZero(diff.M32) && MyLibrary.IsZero(diff.M33) && MyLibrary.IsZero(diff.M34) && 
-               MyLibrary.IsZero(diff.M41) && MyLibrary.IsZero(diff.M42) && MyLibrary.IsZero(diff.M43) && MyLibrary.IsZero(diff.M44);
+        return MyLibrary.IsZero(diff.M11, e) && MyLibrary.IsZero(diff.M12, e) && MyLibrary.IsZero(diff.M13, e) && MyLibrary.IsZero(diff.M14, e) && 
+               MyLibrary.IsZero(diff.M21, e) && MyLibrary.IsZero(diff.M22, e) && MyLibrary.IsZero(diff.M23, e) && MyLibrary.IsZero(diff.M24, e) && 
+               MyLibrary.IsZero(diff.M31, e) && MyLibrary.IsZero(diff.M32, e) && MyLibrary.IsZero(diff.M33, e) && MyLibrary.IsZero(diff.M34, e) && 
+               MyLibrary.IsZero(diff.M41, e) && MyLibrary.IsZero(diff.M42, e) && MyLibrary.IsZero(diff.M43, e) && MyLibrary.IsZero(diff.M44, e);
     }
 }
