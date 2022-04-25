@@ -1,19 +1,13 @@
-﻿using System;
-//using System.Numerics;
-
-namespace RTXLib;
+﻿namespace RTXLib;
 
 public struct Ray
 {
-	// Fields
 	public Point Origin;
 	public Vec Dir;
 	public readonly float TMin;
 	public readonly float TMax;
 	public int Depth;
 
-
-	// Default constructor
 	public Ray()
     {
 		Origin = new Point();
@@ -23,7 +17,6 @@ public struct Ray
 		Depth = 0;
 	}
 
-	// Constructor with arguments
 	public Ray(Point origin, Vec dir, float tMin = 1e-5f, float tMax = float.PositiveInfinity, int depth = 0)
     {
 		Origin = origin;
@@ -53,5 +46,4 @@ public struct Ray
 		// QUESTION: Why don't we just change the current ray?
 		return new Ray(transformation * Origin, transformation * Dir, TMin, TMax, Depth);
 	}
-	
 }

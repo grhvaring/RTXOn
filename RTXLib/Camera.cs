@@ -34,7 +34,7 @@ public class OrthogonalCamera : ICamera
 
 public class PerspectiveCamera : ICamera
 {
-    public PerspectiveCamera(float distance, float aspectRatio)
+    public PerspectiveCamera(float distance = 1, float aspectRatio = 1)
     {
         Distance = distance;
         AspectRatio = aspectRatio;
