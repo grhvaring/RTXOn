@@ -1,11 +1,11 @@
-name: windows
+name: Tests
 
 on:
   push:
     branches: [ geometry ]
 
 jobs:
-  build:
+  tests:
 
     runs-on: windows-latest
 

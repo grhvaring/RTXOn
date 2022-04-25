@@ -1,11 +1,11 @@
-name: macOS
+name: Test
 
 on:
   push:
     branches: [ geometry ]
 
 jobs:
-  build:
+  tests:
 
     runs-on: macos-latest
 

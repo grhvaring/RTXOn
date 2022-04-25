@@ -1,11 +1,11 @@
-name: ubuntu
+name: Tests
 
 on:
   push:
     branches: [ geometry ]
 
 jobs:
-  build:
+  tests:
 
     runs-on: ubuntu-latest
 
