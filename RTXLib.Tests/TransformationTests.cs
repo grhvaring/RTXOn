@@ -188,7 +188,8 @@ public class TransformationTests
         var tr12 = tr1 * tr2;
         Assert.True(tr12.IsConsistent());
         Assert.True(tr12.IsClose(Transformation.Translation(5, 8, 11)));
-
+      
+        // check that translations act correctly
         var p = new Point(1, 1, 1);
         //_testOutputHelper.WriteLine(tr1.InvM.ToString());
         //_testOutputHelper.WriteLine(tr1.M.ToString());
@@ -199,6 +200,7 @@ public class TransformationTests
     
         var n = new Normal(1, 2, 3);
         Assert.True((tr1 * n).IsClose(new Normal(1, 2, 3)));}
+    }
 
     [Fact]
     public void TestRotations()

@@ -110,6 +110,7 @@ public struct Transformation
         // The implementation in Matrix4x4 uses a notation with the angle flipped
         // The angle is corrected to be consistent with the Right-Hand Rule
         // and matrix - vector multiplication
+      
         var angleRad = ToRadians(angleDeg);
         var s = (float)Math.Sin(angleRad);
         var c = (float)Math.Cos(angleRad);
@@ -171,8 +172,8 @@ public struct Transformation
             0, 0, 1, 0,
             0, 0, 0, 1
         );
+      
         return new Transformation(R, invR);
-
     }
 
     public static Transformation Scaling(float xFactor, float yFactor, float zFactor)
@@ -182,7 +183,7 @@ public struct Transformation
             xFactor, 0, 0, 0,
             0, yFactor, 0, 0,
             0, 0, zFactor, 0,
-            0, 0, 0, 1
+            0, 0, 0,       1
         );
         var invS = new Matrix4x4
         (
