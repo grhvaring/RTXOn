@@ -199,7 +199,7 @@ public class TransformationTests
         Assert.True((tr1 * v).IsClose(new Vec(1, 2, 3)));
     
         var n = new Normal(1, 2, 3);
-        Assert.True((tr1 * n).IsClose(new Normal(1, 2, 3)));}
+        Assert.True((tr1 * n).IsClose(new Normal(1, 2, 3)));
     }
 
     [Fact]
