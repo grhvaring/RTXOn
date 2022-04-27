@@ -21,6 +21,8 @@ public struct Transformation
         M = m;
         InvM = invM;
     }
+    
+    public static Transformation Identity => new();
 
     public Transformation
     (
@@ -76,8 +78,20 @@ public struct Transformation
 
     public static Transformation Translation(float x=0, float y=0, float z=0)
     {
-        var T = Matrix4x4.CreateTranslation(x ,y, z);
-        var invT = Matrix4x4.CreateTranslation(-x, -y, -z);
+        var T = new Matrix4x4
+        (
+            1, 0, 0, x,
+            0, 1, 0, y,
+            0, 0, 1, z,
+            0, 0, 0, 1
+        );
+        var invT = new Matrix4x4
+        (
+            1, 0, 0, -x,
+            0, 1, 0, -y,
+            0, 0, 1, -z,
+            0, 0, 0, 1
+        );
         return new Transformation(T, invT);
     }
 
@@ -96,42 +110,94 @@ public struct Transformation
         // The implementation in Matrix4x4 uses a notation with the angle flipped
         // The angle is corrected to be consistent with the Right-Hand Rule
         // and matrix - vector multiplication
-        var angleRad = ToRadians(-angleDeg);
-        var R = Matrix4x4.CreateRotationX(angleRad);
-        var invR = Matrix4x4.CreateRotationX(-angleRad);
+      
+        var angleRad = ToRadians(angleDeg);
+        var s = (float)Math.Sin(angleRad);
+        var c = (float)Math.Cos(angleRad);
+        var R = new Matrix4x4
+        (
+            1, 0, 0, 0,
+            0, c, -s, 0,
+            0, s, c, 0,
+            0, 0, 0, 1
+        );
+        var invR = new Matrix4x4
+        (
+            1, 0, 0, 0,
+            0, c, s, 0,
+            0, -s, c, 0,
+            0, 0, 0, 1
+        );
         return new Transformation(R, invR);
     }
     
     public static Transformation RotationY(float angleDeg = DefaultAngle)
     {
-        float angleRad = ToRadians(-angleDeg);
-        var R = Matrix4x4.CreateRotationY(angleRad);
-        var invR = Matrix4x4.CreateRotationY(-angleRad);
+        float angleRad = ToRadians(angleDeg);
+        var s = (float)Math.Sin(angleRad);
+        var c = (float)Math.Cos(angleRad);
+        var R = new Matrix4x4
+        (
+            c, 0, s, 0,
+            0, 1, 0, 0,
+            -s, 0, c, 0,
+            0, 0, 0, 1
+        );
+        var invR = new Matrix4x4
+        (
+            c, 0, -s, 0,
+            0, 1, 0, 0,
+            s, 0, c, 0,
+            0, 0, 0, 1
+        );
         return new Transformation(R, invR);
     }
     
     public static Transformation RotationZ(float angleDeg = DefaultAngle)
     {
-        // The angle is corrected to be consistent with the Right-Hand Rule
-        var angleRad = ToRadians(-angleDeg);
-        var R = Matrix4x4.CreateRotationZ(angleRad);
-        var invR = Matrix4x4.CreateRotationZ(-angleRad);
+        var angleRad = ToRadians(angleDeg);
+        var s = (float)Math.Sin(angleRad);
+        var c = (float)Math.Cos(angleRad);
+        var R = new Matrix4x4
+        (
+            c, -s, 0, 0,
+            s, c, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        );
+        var invR = new Matrix4x4
+        (
+            c, s, 0, 0,
+            -s, c, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        );
+      
         return new Transformation(R, invR);
-
-    }
-
-    public static Transformation Scaling(float factor = 1)
-    {
-        var S = Matrix4x4.CreateScale(factor);
-        var invS = Matrix4x4.CreateScale(1 / factor);
-        return new Transformation(S, invS);
     }
 
     public static Transformation Scaling(float xFactor, float yFactor, float zFactor)
     {
-        var S = Matrix4x4.CreateScale(xFactor, yFactor, zFactor);
-        var invS = Matrix4x4.CreateScale(1 / xFactor, 1 / yFactor, 1 / zFactor);
+        var S = new Matrix4x4
+        (
+            xFactor, 0, 0, 0,
+            0, yFactor, 0, 0,
+            0, 0, zFactor, 0,
+            0, 0, 0,       1
+        );
+        var invS = new Matrix4x4
+        (
+            1/xFactor, 0, 0, 0,
+            0, 1/yFactor, 0, 0,
+            0, 0, 1/zFactor, 0,
+            0, 0, 0,         1
+        );
         return new Transformation(S, invS);
+    }
+    
+    public static Transformation Scaling(float factor = 1)
+    {
+        return Scaling(factor, factor, factor);
     }
     
     public Transformation Inverse()
@@ -151,12 +217,12 @@ public struct Transformation
     
     public static Point operator *(Transformation t, Point p)
     {
-        float newX = t.M.M11 * p.X + t.M.M12 * p.Y + t.M.M13 * p.Z + t.M.M14;
-        float newY = t.M.M21 * p.X + t.M.M22 * p.Y + t.M.M23 * p.Z + t.M.M24;
-        float newZ = t.M.M31 * p.X + t.M.M32 * p.Y + t.M.M33 * p.Z + t.M.M34;
-        float w = t.M.M41 * p.X + t.M.M42 * p.Y + t.M.M43 * p.Z + t.M.M44;
+        var newX = t.M.M11 * p.X + t.M.M12 * p.Y + t.M.M13 * p.Z + t.M.M14;
+        var newY = t.M.M21 * p.X + t.M.M22 * p.Y + t.M.M23 * p.Z + t.M.M24;
+        var newZ = t.M.M31 * p.X + t.M.M32 * p.Y + t.M.M33 * p.Z + t.M.M34;
+        var w = t.M.M41 * p.X + t.M.M42 * p.Y + t.M.M43 * p.Z + t.M.M44;
 
-        Point newPoint = new Point(newX, newY, newZ);
+        var newPoint = new Point(newX, newY, newZ);
         
         if (w != 0 && Math.Abs(w - 1) > 1e-5) newPoint /= w;
         
@@ -165,25 +231,24 @@ public struct Transformation
      
     public static Vec operator *(Transformation t, Vec v)
     {
-        float newX = t.M.M11 * v.X + t.M.M12 * v.Y + t.M.M13 * v.Z;
-        float newY = t.M.M21 * v.X + t.M.M22 * v.Y + t.M.M23 * v.Z;
-        float newZ = t.M.M31 * v.X + t.M.M32 * v.Y + t.M.M33 * v.Z;
+        var newX = t.M.M11 * v.X + t.M.M12 * v.Y + t.M.M13 * v.Z;
+        var newY = t.M.M21 * v.X + t.M.M22 * v.Y + t.M.M23 * v.Z;
+        var newZ = t.M.M31 * v.X + t.M.M32 * v.Y + t.M.M33 * v.Z;
         return new Vec(newX, newY, newZ);
     }
     
     public static Normal operator *(Transformation t, Normal n)
     {
-        float newX = t.InvM.M11 * n.X + t.InvM.M21 * n.Y + t.InvM.M31 * n.Z;
-        float newY = t.InvM.M12 * n.X + t.InvM.M22 * n.Y + t.InvM.M32 * n.Z;
-        float newZ = t.InvM.M13 * n.X + t.InvM.M23 * n.Y + t.InvM.M33 * n.Z;
+        var newX = t.InvM.M11 * n.X + t.InvM.M21 * n.Y + t.InvM.M31 * n.Z;
+        var newY = t.InvM.M12 * n.X + t.InvM.M22 * n.Y + t.InvM.M32 * n.Z;
+        var newZ = t.InvM.M13 * n.X + t.InvM.M23 * n.Y + t.InvM.M33 * n.Z;
         return new Normal(newX, newY, newZ);
     }
     
     public bool IsConsistent(double e = 1e-5)
     {
-        Transformation supposedIdentity = new(M * InvM, InvM * M);
-        Transformation identity = new Transformation();
-        return supposedIdentity.IsClose(identity, e);
+        var supposedIdentity = this * Inverse();
+        return supposedIdentity.IsClose(Identity, e);
     }
 
     public bool IsClose(Transformation otherT, double e = 1e-5)
@@ -194,9 +259,9 @@ public struct Transformation
     public static bool AreMatricesClose(Matrix4x4 M1, Matrix4x4 M2, double e = 1e-5)
     {
         Matrix4x4 diff = M1 - M2;
-        return Math.Abs(diff.M11) < e && Math.Abs(diff.M12) < e && Math.Abs(diff.M13) < e && Math.Abs(diff.M14) < e && 
-               Math.Abs(diff.M21) < e && Math.Abs(diff.M22) < e && Math.Abs(diff.M23) < e && Math.Abs(diff.M24) < e && 
-               Math.Abs(diff.M31) < e && Math.Abs(diff.M32) < e && Math.Abs(diff.M33) < e && Math.Abs(diff.M34) < e && 
-               Math.Abs(diff.M41) < e && Math.Abs(diff.M42) < e && Math.Abs(diff.M43) < e && Math.Abs(diff.M44) < e;
+        return MyLibrary.IsZero(diff.M11, e) && MyLibrary.IsZero(diff.M12, e) && MyLibrary.IsZero(diff.M13, e) && MyLibrary.IsZero(diff.M14, e) && 
+               MyLibrary.IsZero(diff.M21, e) && MyLibrary.IsZero(diff.M22, e) && MyLibrary.IsZero(diff.M23, e) && MyLibrary.IsZero(diff.M24, e) && 
+               MyLibrary.IsZero(diff.M31, e) && MyLibrary.IsZero(diff.M32, e) && MyLibrary.IsZero(diff.M33, e) && MyLibrary.IsZero(diff.M34, e) && 
+               MyLibrary.IsZero(diff.M41, e) && MyLibrary.IsZero(diff.M42, e) && MyLibrary.IsZero(diff.M43, e) && MyLibrary.IsZero(diff.M44, e);
     }
 }

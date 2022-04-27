@@ -85,7 +85,7 @@ public class TransformationTests
     }
 
     [Fact]
-    void TestMultiplication()
+    public void TestMultiplication()
     {
         var T1 = new Transformation(m, mInv);
         
@@ -125,7 +125,8 @@ public class TransformationTests
             )
         );
         
-        Assert.True((T1 * T2).IsConsistent(1e-3)); // the test fails when the error is smaller than 0.001
+        Assert.True(T1T2.IsConsistent(1e-4));       // 1e-4 for rounding errors
+        Assert.True((T1 * T2).IsConsistent(1e-4));
         Assert.True((T1 * T2).IsClose(T1T2));
     }
 
@@ -187,6 +188,18 @@ public class TransformationTests
         var tr12 = tr1 * tr2;
         Assert.True(tr12.IsConsistent());
         Assert.True(tr12.IsClose(Transformation.Translation(5, 8, 11)));
+      
+        // check that translations act correctly
+        var p = new Point(1, 1, 1);
+        //_testOutputHelper.WriteLine(tr1.InvM.ToString());
+        //_testOutputHelper.WriteLine(tr1.M.ToString());
+        Assert.True((tr1 * p).IsClose(new Point(2, 3, 4)));
+
+        var v = new Vec(1, 2, 3);
+        Assert.True((tr1 * v).IsClose(new Vec(1, 2, 3)));
+    
+        var n = new Normal(1, 2, 3);
+        Assert.True((tr1 * n).IsClose(new Normal(1, 2, 3)));
     }
 
     [Fact]
@@ -196,11 +209,12 @@ public class TransformationTests
         Assert.True(Transformation.RotationX(4).IsConsistent());
         Assert.True(Transformation.RotationX(20).IsConsistent());
 
-        var eX = new Vec(1,0,0);
-        var eY = new Vec(0,1,0);
-        var eZ = new Vec(0,0,1);
+        var eX = Vec.Ex;
+        var eY = Vec.Ey;
+        var eZ = Vec.Ez;
         
         Assert.True((Transformation.RotationX(90) * eY).IsClose(eZ));
+        //_testOutputHelper.WriteLine((Transformation.RotationY(90).M).ToString());
         Assert.True((Transformation.RotationY(90) * eZ).IsClose(eX));
         Assert.True((Transformation.RotationZ(90) * eX).IsClose(eY));
     }

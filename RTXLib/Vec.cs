@@ -24,6 +24,10 @@ public struct Vec
 		set => vec.Z = value;
 	}
 
+	public static Vec Ex => new Vec(1, 0, 0);
+	public static Vec Ey => new Vec(0, 1, 0);
+	public static Vec Ez => new Vec(0, 0, 1);
+
 	// *** Constructors *** //
 
 	// Default constructor creates a new 3d vector with all componenents set to 0
