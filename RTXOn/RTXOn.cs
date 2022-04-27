@@ -1,50 +1,49 @@
-using System;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using RTXLib;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
 
 namespace RTXOn;
 
-// file PFM da leggere, a, γ, nome file PNG/JPEG/etc. da creare
 class RTXOn
 {
     static void Main(string[] args)
     {
         Console.WriteLine("Hello, World!");
-        Parameters parameters = new Parameters(args);
-        HdrImage image = new HdrImage(parameters.InputPfmFileName);
-        image.NormalizeImage(parameters.Factor);
-        image.ClampImage();
-        image.SaveAsPNG(parameters.OnputPngFileName, parameters.Gamma);
+        try
+        {
+            var parameters = new Parameters(args);
+            var image = new HdrImage(parameters.InputPfmFileName);
+            image.NormalizeImage(parameters.Factor); 
+            image.ClampImage();
+            image.SaveAsPng(parameters.OutputPngFileName, parameters.Gamma);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Something went wrong, see below for the details.");
+            Console.WriteLine(e.Message);
+        }
     }
 }
 
 
-public struct Parameters
+public readonly struct Parameters
 {
-    private readonly string inputFile, outputFile;
-    private readonly float factor, gamma;
-
-    public string InputPfmFileName => inputFile;
-    public string OnputPngFileName => outputFile;
-
-    public float Factor => factor;
-    public float Gamma => gamma;
+    public string InputPfmFileName { get; }
+    public string OutputPngFileName { get; }
+    public float Factor { get; }
+    public float Gamma { get; }
 
     public Parameters(string[] args)
     {
         if (args.Length != 4)
         {
-            throw new InvalidEnumArgumentException("Usage: <program> <pfmFile> <a> <gamma> <otuputFile>");
+            throw new InvalidEnumArgumentException("Usage: <program> <pfmFile> <a> <gamma> <outputFile>");
         }
 
-        inputFile = args[0];
+        InputPfmFileName = args[0];
 
         try
         {
-            factor = float.Parse(args[1]);
+            Factor = float.Parse(args[1]);
         }
         catch
         {
@@ -53,13 +52,13 @@ public struct Parameters
         
         try
         {
-            gamma = float.Parse(args[2]);
+            Gamma = float.Parse(args[2]);
         }
         catch
         {
             throw new TypeLoadException($"Invalid gamma ('{args[2]}'), it must be a floating-point number.");
         }
 
-        outputFile = args[3];
+        OutputPngFileName = args[3];
     }
 }

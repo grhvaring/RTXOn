@@ -22,7 +22,7 @@ namespace RTXLib.Tests
         [Fact]
         public void TestCreationHdrImage()
         {
-            HdrImage testImage = new HdrImage(10, 5);
+            var testImage = new HdrImage(10, 5);
 
             Assert.True(testImage.Width == 10);        // Check correct width
             Assert.True(testImage.Height == 5);        // Check correct height
@@ -33,7 +33,7 @@ namespace RTXLib.Tests
         [Fact]
         public void TestPixelOffset()
         {
-            HdrImage testImage = new HdrImage(10, 5);
+            var testImage = new HdrImage(10, 5);
 
             // Check correct offsets
             Assert.True(testImage.PixelOffset(0, 0) == 0);                   // Check first pixel
@@ -48,7 +48,7 @@ namespace RTXLib.Tests
         [Fact]
         public void TestValidCoordinates()
         {
-            HdrImage testImage = new HdrImage(10, 5);
+            var testImage = new HdrImage(10, 5);
 
             // Check correct coordinates
             Assert.True(testImage.ValidCoordinates(0, 0));     // Check correct extremal coordinates
@@ -75,56 +75,52 @@ namespace RTXLib.Tests
         [Fact]
         public void TestSetGetPixel()
         {
-            HdrImage testImage = new HdrImage(10, 5);
-            Color referenceColor1 = new Color(1.0f, 2.0f, 3.0f);
-            Color referenceColor2 = new Color(2.0f, 4.0f, 6.0f);
-            Color defaultColor = new Color(0.0f, 0.0f, 0.0f);
+            var testImage = new HdrImage(10, 5);
+            var referenceColor1 = new Color(1.0f, 2.0f, 3.0f);
+            var referenceColor2 = new Color(2.0f, 4.0f, 6.0f);
+            var defaultColor = new Color(0.0f, 0.0f, 0.0f);
 
             testImage.SetPixel(2, 3, referenceColor1);
             testImage.SetPixel(3, 4, referenceColor2);
 
-            // Check correct color
-            Assert.True((testImage.GetPixel(2, 3)).IsClose(referenceColor1));  // Check if color in position (2,3) is correct
-            Assert.True((testImage.GetPixel(3, 4)).IsClose(referenceColor2));  // Check if color in position (3,4) is correct
-            Assert.True((testImage.GetPixel(1, 2)).IsClose(defaultColor));      // Check if color in unassigned position (1,2) is the default color
+            // Check correct colors
+            Assert.True((testImage.GetPixel(2, 3)).IsClose(referenceColor1));
+            Assert.True((testImage.GetPixel(3, 4)).IsClose(referenceColor2));
+            Assert.True((testImage.GetPixel(1, 2)).IsClose(defaultColor));
 
             // Check wrong color
-            Assert.False((testImage.GetPixel(3, 4)).IsClose(referenceColor1)); // Check if color in position (3,4) is different from color set in position (2,3)
+            Assert.False((testImage.GetPixel(3, 4)).IsClose(referenceColor1));
         }
 
         [Fact]
         public void TestParseImgSize()
         {
-            HdrImage testImage = new HdrImage(2, 1);
-            
             // Correct format
-            testImage.ParseImgSize("3 2");
-            Assert.True(testImage.Width == 3 && testImage.Height == 2);
+            HdrImage.ParseImgSize("3 2", out var width, out var height);
+            Assert.True(width == 3 && height == 2);
             
             // Incorrect formats
-            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("-1 2"));
-            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("1 -2"));
-            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("-1 -2"));
-            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("2"));
-            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize(""));
-            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("-1"));
-            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("1 2 3"));
-            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseImgSize("abc"));
+            Assert.Throws<InvalidPfmFileFormat>(() => HdrImage.ParseImgSize("-1 2"));
+            Assert.Throws<InvalidPfmFileFormat>(() => HdrImage.ParseImgSize("1 -2"));
+            Assert.Throws<InvalidPfmFileFormat>(() => HdrImage.ParseImgSize("-1 -2"));
+            Assert.Throws<InvalidPfmFileFormat>(() => HdrImage.ParseImgSize("2"));
+            Assert.Throws<InvalidPfmFileFormat>(() => HdrImage.ParseImgSize(""));
+            Assert.Throws<InvalidPfmFileFormat>(() => HdrImage.ParseImgSize("-1"));
+            Assert.Throws<InvalidPfmFileFormat>(() => HdrImage.ParseImgSize("1 2 3"));
+            Assert.Throws<InvalidPfmFileFormat>(() => HdrImage.ParseImgSize("abc"));
         }
 
         [Fact]
         public void TestParseEndianness()
         {
-            HdrImage testImage = new HdrImage(2, 1);
-
-            float endianness = testImage.ParseEndianness("1.0");
-            Assert.True(endianness == 1.0f);
+            var endianness = HdrImage.ParseEndianness("1.0");
+            Assert.True(endianness == 1.0);
             
-            endianness = testImage.ParseEndianness("-1.0");
-            Assert.True(endianness == -1.0f);
+            endianness = HdrImage.ParseEndianness("-1.0");
+            Assert.True(endianness == -1.0);
             
-            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseEndianness("0"));
-            Assert.Throws<InvalidPfmFileFormat>(() => testImage.ParseEndianness("abc"));
+            Assert.Throws<InvalidPfmFileFormat>(() => HdrImage.ParseEndianness("0"));
+            Assert.Throws<InvalidPfmFileFormat>(() => HdrImage.ParseEndianness("abc"));
         }
 
         [Fact]
@@ -140,7 +136,7 @@ namespace RTXLib.Tests
                 0x00, 0x00, 0x8c, 0x42, 0x00, 0x00, 0xa0, 0x42, 0x00, 0x00, 0xb4, 0x42
             };
             
-            HdrImage testImage = new HdrImage(3, 2);
+            var testImage = new HdrImage(3, 2);
             
             testImage.SetPixel(0,0, new Color(10.0f, 20.0f, 30.0f));
             testImage.SetPixel(1,0, new Color(40.0f, 50.0f, 60.0f));
@@ -150,20 +146,20 @@ namespace RTXLib.Tests
             testImage.SetPixel(2,1, new Color(700.0f, 800.0f, 900.0f));
 
             // Long way (useful for debugging)
-            using (MemoryStream memoryStream = new MemoryStream(referenceBytesLe.Length))
+            using (var memoryStream = new MemoryStream(referenceBytesLe.Length))
             {
                 // Write the content of testImage to the memStream buffer as a PFM image
-                testImage.WritePfm(memoryStream, -1.0);
+                testImage.WritePfm(memoryStream, HdrImage.LittleEndian);
                 
                 // Set the position to the beginning of the stream.
                 memoryStream.Seek(0, SeekOrigin.Begin);
                 
                 // Scan the buffer to find inconsistencies with the reference
-                for (int i = 0; i < referenceBytesLe.Length; ++i)
+                foreach (var refByte in referenceBytesLe)
                 {
-                    byte b = (byte)memoryStream.ReadByte();
+                    var readByte = (byte)memoryStream.ReadByte();
                     //_testOutputHelper.WriteLine($"{b} =? {referenceBytes[i]}");
-                    Assert.True(b == referenceBytesLe[i]);
+                    Assert.True(readByte == refByte);
                 }
             }
         }
@@ -182,7 +178,7 @@ namespace RTXLib.Tests
                 0x42, 0x8c, 0x00, 0x00, 0x42, 0xa0, 0x00, 0x00, 0x42, 0xb4, 0x00, 0x00
             };
 
-            HdrImage testImage = new HdrImage(3, 2);
+            var testImage = new HdrImage(3, 2);
             
             testImage.SetPixel(0,0, new Color(10.0f, 20.0f, 30.0f));
             testImage.SetPixel(1,0, new Color(40.0f, 50.0f, 60.0f));
@@ -191,24 +187,18 @@ namespace RTXLib.Tests
             testImage.SetPixel(1,1, new Color(400.0f, 500.0f, 600.0f));
             testImage.SetPixel(2,1, new Color(700.0f, 800.0f, 900.0f));
 
-            using (MemoryStream memoryStream = new MemoryStream(referenceBytesBe.Length))
-            {
-                // Write the content of testImage to the memoryStream buffer as a PFM image
-                testImage.WritePfm(memoryStream, +1.0);
+            using var memoryStream = new MemoryStream(referenceBytesBe.Length);
+            testImage.WritePfm(memoryStream, HdrImage.BigEndian);
+            var myBytesBe = memoryStream.ToArray();
                 
-                // Convert buffer into Array of bytes (discarding non-used elements)
-                byte[] myBytesBe = memoryStream.ToArray();
-                
-                // Test equality with the reference bytes
-                Assert.True(myBytesBe.SequenceEqual(referenceBytesBe));
-            }
+            Assert.True(myBytesBe.SequenceEqual(referenceBytesBe));
         }
 
 
         [Fact]
         public void TestReadPfmFile()
         {
-            HdrImage image = new HdrImage("../../../reference_be.pfm");
+            var image = new HdrImage("../../../reference_be.pfm");
 
             Assert.True(image.Width == 3);
             Assert.True(image.Height == 2);
@@ -244,18 +234,18 @@ namespace RTXLib.Tests
         [Fact]
         public void TestAverageLuminosity()
         {
-            HdrImage testImage = new HdrImage(2, 1);
+            var testImage = new HdrImage(2, 1);
             testImage.SetPixel(0, 0, new Color(5.0f, 10.0f, 15.0f)); // Luminosity = 10
             testImage.SetPixel(1, 0, new Color(500.0f, 1000.0f, 1500.0f)); // Luminosity = 1000
             
-            _testOutputHelper.WriteLine($"Average luminosity = {testImage.AverageLuminosity()}");
+            // _testOutputHelper.WriteLine($"Average luminosity = {testImage.AverageLuminosity()}");
             Assert.True(100.0f == testImage.AverageLuminosity());
         }
 
         [Fact]
         public void TestNormalizeImage()
         {
-            HdrImage testImage = new HdrImage(2, 1);
+            var testImage = new HdrImage(2, 1);
             testImage.SetPixel(0, 0, new Color(5.0f, 10.0f, 15.0f)); // Luminosity = 10
             testImage.SetPixel(1, 0, new Color(500.0f, 1000.0f, 1500.0f)); // Luminosity = 1000
             
@@ -267,7 +257,7 @@ namespace RTXLib.Tests
         [Fact]
         public void TestClampImage()
         {
-            HdrImage testImage = new HdrImage(2, 1);
+            var testImage = new HdrImage(2, 1);
             testImage.SetPixel(0, 0, new Color(5.0f, 10.0f, 15.0f)); 
             testImage.SetPixel(1, 0, new Color(500.0f, 1000.0f, 1500.0f));
             
@@ -277,64 +267,49 @@ namespace RTXLib.Tests
 
             foreach (var pixel in testImage.Pixels)
             {
-                Assert.True(0.0f <= pixel.R && pixel.R <= 1.0f);
-                Assert.True(0.0f <= pixel.G && pixel.G <= 1.0f);
-                Assert.True(0.0f <= pixel.B && pixel.B <= 1.0f);
+                Assert.True(pixel.R is >= 0.0f and <= 1.0f);
+                Assert.True(pixel.G is >= 0.0f and <= 1.0f);
+                Assert.True(pixel.B is >= 0.0f and <= 1.0f);
             }
         }
 
-        // this test can not be performed because WriteFloat is a private method
-        
-        /*
         [Fact]
         public void TestReadFloat()
         {
-            // Creating a test image, just to use the function
-            HdrImage testImage = new HdrImage(1, 1);
-
             // Test number
-            float testNumber = 3.0f;
+            var testNumber = 3.0f;
 
-            // Creating a memory stream for allocation of 4 bytes
-            using (MemoryStream memoryStream = new MemoryStream(4))
-            {
-                // Write the test byte on the stream; the endianness is little endian as default
-                testImage.WriteFloat(memoryStream, testNumber);
+            // Creating a memory stream capable to store of 4 bytes
+            using var memoryStream = new MemoryStream(4);
+            
+            HdrImage.WriteFloat(memoryStream, testNumber, HdrImage.LittleEndian);
+            
+            memoryStream.Seek(0, SeekOrigin.Begin); // reset stream
+            Assert.True(testNumber == HdrImage.ReadFloat(memoryStream));
 
-                // Reset to the beginning of the stream to reuse it
-                memoryStream.Seek(0, SeekOrigin.Begin);
-                Assert.True(testNumber == testImage.ReadFloat(memoryStream));       // Check correct number
+            memoryStream.Seek(0, SeekOrigin.Begin); // reset stream
+            Assert.False(5.0f == HdrImage.ReadFloat(memoryStream)); // wrong number
 
-                memoryStream.Seek(0, SeekOrigin.Begin);
-                Assert.False(5.0f == testImage.ReadFloat(memoryStream));            // Check wrong number
-
-                memoryStream.Seek(0, SeekOrigin.Begin);
-                Assert.False(testNumber == testImage.ReadFloat(memoryStream,1));    // Check wrong endianness
-            }
+            memoryStream.Seek(0, SeekOrigin.Begin); // reset stream
+            Assert.False(testNumber == HdrImage.ReadFloat(memoryStream, HdrImage.BigEndian)); // wrong endianness
         }
-        */
 
         [Fact]
         public void TestReadPfmLine()
         {
-            // Creating a test image, just to use the function
-            HdrImage testImage = new HdrImage(1, 1);
-
             // Test string and conversion in byte of test string
-            string testString = "Hello\nworld\n";
-            byte[] testBytes = Encoding.ASCII.GetBytes(testString, 0, testString.Length);
+            const string testString = "Hello\nworld\n";
+            var testBytes = Encoding.ASCII.GetBytes(testString, 0, testString.Length);
 
             // Creating a memory stream for allocation of 
-            using (MemoryStream memoryStream = new MemoryStream(testString.Length))
-            {
-                // Write the test byte on the stream; the endianness is little endian as default
-                memoryStream.Write(testBytes);
+            using var memoryStream = new MemoryStream(testString.Length);
+            // Little endianness is assumed
+            memoryStream.Write(testBytes);
 
-                // Reset to the beginning of the stream to reuse it
-                memoryStream.Seek(0, SeekOrigin.Begin);
-                Assert.True("Hello" == testImage.ReadPfmLine(memoryStream));
-                Assert.True("world" == testImage.ReadPfmLine(memoryStream));
-            }
+            // Reset to the beginning of the stream to reuse it
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            Assert.True("Hello" == HdrImage.ReadPfmLine(memoryStream));
+            Assert.True("world" == HdrImage.ReadPfmLine(memoryStream));
         }
     }
 }
