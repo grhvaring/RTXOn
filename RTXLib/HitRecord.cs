@@ -17,9 +17,10 @@ public readonly struct HitRecord
         Ray = ray;
     }
 
-    public bool IsClose(HitRecord other)
+    public bool IsClose(HitRecord other, double e = 1e-5)
     {
-        return WorldPoint.IsClose(other.WorldPoint) && Normal.IsClose(other.Normal) &&
-               SurfacePoint.IsClose(other.SurfacePoint) && MyLibrary.IsZero(T - other.T) && Ray.IsClose(other.Ray);
+        return WorldPoint.IsClose(other.WorldPoint, e) && Normal.IsClose(other.Normal, e) &&
+               SurfacePoint.IsClose(other.SurfacePoint, e) && MyLibrary.IsZero(T - other.T, e) && 
+               Ray.IsClose(other.Ray, e);
     }
 }
