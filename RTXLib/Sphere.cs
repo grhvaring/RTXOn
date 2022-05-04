@@ -30,20 +30,22 @@ public class Sphere : IShape
 
     private static float? CalculateFirstIntersectionTime(Ray invRay)
     {
-        // set temporary variables for readability and efficiency
         var O = invRay.Origin.ToVec();
         var d = invRay.Dir;
-        var Od = O * d;
-        var d2 = d.SquaredNorm();
-        var delta4 = (float) Math.Pow(Od, 2) - d2 * (O.SquaredNorm() - 1);
+        
+        var a = d.SquaredNorm();
+        var b2 = O * d;
+        var c = O.SquaredNorm() - 1;
+        var delta4 = b2 * b2 - a * c;
         
         if (delta4 < 0) return null; // null = no hit
-
-        float? t = null; // // t = null -> no hit
-        var sqrtDelta4 = Math.Sqrt(delta4);
-        var t1 = (float) (-Od - sqrtDelta4) / d2;
-        var t2 = (float) (-Od + sqrtDelta4) / d2;
         
+        var sqrtDelta4 = (float) Math.Sqrt(delta4);
+        var t1 = (-b2 - sqrtDelta4) / a;
+        var t2 = (-b2 + sqrtDelta4) / a;
+        
+        float? t = null; // // t = null -> no hit
+
         if (t1 > invRay.TMin && t1 < invRay.TMax)
         {
             t = t1;
@@ -52,7 +54,6 @@ public class Sphere : IShape
         {
             t = t2;
         }
-        
         return t;
     }
 
