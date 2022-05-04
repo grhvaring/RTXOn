@@ -9,6 +9,11 @@ public class Sphere : IShape
         Transformation = transformation ?? new Transformation();
     }
 
+    public Sphere(float x, float y, float z, float r = 1)
+    {
+        Transformation = Transformation.Translation(x, y, z) * Transformation.Scaling(r);
+    }
+
     public HitRecord? RayIntersection(Ray ray)
     {
         var invRay = ray.Transform(Transformation.Inverse());
