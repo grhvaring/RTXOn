@@ -25,10 +25,15 @@ public struct Vec2D
 		U = vector.U;
 		V = vector.V;
 	}
-	
-	public bool IsClose(Vec2D otherVector, double epsilon = 1e-5)
+
+	public bool IsClose(float u, float v, double e = 1e-5)
 	{
-		return Math.Abs(U - otherVector.U) < epsilon && Math.Abs(V - otherVector.V) < epsilon;
+		return MyLibrary.IsZero(u - U, e) && MyLibrary.IsZero(v - V, e);
+	}
+	
+	public bool IsClose(Vec2D otherVector, double e = 1e-5)
+	{
+		return IsClose(otherVector.U, otherVector.V, e);
 	}
 
 	public override string ToString()
