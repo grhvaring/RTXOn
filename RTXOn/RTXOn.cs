@@ -7,6 +7,10 @@ class RTXOn
 {
     static void Main(string[] args)
     {
+        
+        var WHITE = new Color(255, 255, 255);
+        var BLACK = new Color();
+
         Console.WriteLine("Hello, World!");
         try
         {
@@ -21,6 +25,35 @@ class RTXOn
             Console.WriteLine("Something went wrong, see below for the details.");
             Console.WriteLine(e.Message);
         }
+
+        var world = new World();
+        var r = 1.0f / 10.0f;
+        float[] limits = {-0.5f, 0.5f};
+        foreach (var x in limits)
+        {
+            foreach (var y in limits)
+            {
+                foreach (var z in limits)
+                {
+                    world.Add(new Sphere(x, y, z, r));
+                }
+            }
+        }
+        
+        world.Add(new Sphere(0, 0.5f, 0, r));
+        world.Add(new Sphere(0,0, -0.5f, r));
+
+        var camera = new PerspectiveCamera(1, 1, Transformation.Translation(-1, 0, 0));
+        // var camera = new OrthogonalCamera(1, Transformation.Translation(-1, 0, 0));
+        var imageSpheres = new HdrImage(1080, 1080);
+        var tracer = new ImageTracer(imageSpheres, camera);
+        tracer.FireAllRays(ray => world.RayIntersection(ray).HasValue ? WHITE : BLACK);
+
+        var factor = 1.0f;
+        var gamma = 1.0f;
+        tracer.Image.NormalizeImage(factor); 
+        tracer.Image.ClampImage();
+        tracer.Image.SaveAsPng("spheres.png", gamma);
     }
 }
 
