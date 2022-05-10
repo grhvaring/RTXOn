@@ -17,22 +17,28 @@ printf "\rCompleted [${_fill// /#}${_empty// /-}] ${_progress}%%"
 
 }
 
+orthogonal=false
+
 if [ -z $1 ]
 then
   camera="perspective"
 else
   camera="$1"
+  if [ $camera = "orthogonal" ]
+  then
+    orthogonal=true
+  fi
 fi
 
-if [ ! -d camera ]
+if [ ! -d $camera ]
 then
   mkdir $camera
 fi
 
-for angle in $(seq 1 359); do
+for angle in $(seq 0 359); do
     # Angle with three digits, e.g. angle="1" → angleNNN="001"
     angleNNN=$(printf "%03d" $angle)
-    ./bin/Debug/net6.0/RTXOn demo --width=640 --height=480 --angle-deg $angle --output=$camera/img$angleNNN.png
+    ./bin/Debug/net6.0/RTXOn demo --width=640 --height=480 --orthogonal orthogonal --angle-deg $angle --output=$camera/img$angleNNN.png
     ProgressBar $angle 359
 done
 
