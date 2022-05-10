@@ -80,9 +80,24 @@ public struct Color
     
     // *** Other methods *** //
     
-    public bool IsClose(Color otherColor, double epsilon = 1e-5)
+    public bool IsClose(float r, float g, float b, double e = 1e-5)
     {
-        return (Math.Abs(R - otherColor.R) < epsilon) && (Math.Abs(G - otherColor.G) < epsilon) && (Math.Abs(B - otherColor.B) < epsilon);
+        return MyLib.IsZero(R - r, e) && MyLib.IsZero(G - g, e) && MyLib.IsZero(B - b, e);
+    }
+
+    public bool IsClose(float rgb, double e = 1e-5)
+    {
+        return IsClose(rgb, rgb, rgb, e);
+    }
+
+    public bool IsZero(double e = 1e-5)
+    {
+        return IsClose(0, e);
+    }
+    
+    public bool IsClose(Color otherColor, double e = 1e-5)
+    {
+        return IsClose(otherColor.R, otherColor.G, otherColor.B, e);
     }
     
     public override string ToString()
@@ -92,8 +107,8 @@ public struct Color
 
     public float Luminosity()
     {
-        float max = Math.Max(R, Math.Max(G, B));
-        float min = Math.Min(R, Math.Min(G, B));
+        var max = Math.Max(R, Math.Max(G, B));
+        var min = Math.Min(R, Math.Min(G, B));
         return 0.5f * (max + min);
     }
 

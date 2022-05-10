@@ -125,20 +125,20 @@ public struct Vec
 
 	public static float ScalarProduct(Vec vector1, Normal normal)
 	{
-		Vec vector2 = normal.ConversionToVec();
+		Vec vector2 = normal.ToVec();
 		return ScalarProduct(vector1, vector2);
 	}
 
 	public static float ScalarProduct(Normal normal, Vec vector2)
 	{
-		Vec vector1 = normal.ConversionToVec();
+		Vec vector1 = normal.ToVec();
 		return ScalarProduct(vector1, vector2);
 	}
 
 	public static float ScalarProduct(Normal normal1, Normal normal2)
 	{
-		Vec vector1 = normal1.ConversionToVec();
-		Vec vector2 = normal2.ConversionToVec();
+		Vec vector1 = normal1.ToVec();
+		Vec vector2 = normal2.ToVec();
 		return ScalarProduct(vector1, vector2);
 	}
 
@@ -172,22 +172,22 @@ public struct Vec
 	// vector x normal
 	public static Vec CrossProduct(Vec vector1, Normal normal)
     {
-		Vec vector2 = normal.ConversionToVec();
+		Vec vector2 = normal.ToVec();
 		return CrossProduct(vector1, vector2);
 	}
 
 	// normal x vector
 	public static Vec CrossProduct(Normal normal, Vec vector2)
 	{
-		Vec vector1 = normal.ConversionToVec();
+		Vec vector1 = normal.ToVec();
 		return CrossProduct(vector1, vector2);
 	}
 
 	// normal x normal
 	public static Vec CrossProduct(Normal normal1, Normal normal2)
 	{
-		Vec vector1 = normal1.ConversionToVec();
-		Vec vector2 = normal2.ConversionToVec();
+		Vec vector1 = normal1.ToVec();
+		Vec vector2 = normal2.ToVec();
 		return CrossProduct(vector1, vector2);
 	}
 

@@ -32,8 +32,7 @@ public class HdrImage
 		NPixels = w * h;
 		Pixels = new Color[NPixels];
 
-		// Creation of a default color (with all 0 entries)
-		Color defaultColor = new Color();
+		var defaultColor = new Color();
 
 		for (int i = 0; i < NPixels; i++)
 		{
@@ -100,7 +99,7 @@ public class HdrImage
 	// If they are not compatible the function returns false, else returns true
 	public bool ValidCoordinates(int x, int y)
 	{
-		return ((x >= 0) && (x <= Width) && (y >= 0) && (y <= Height));
+		return x >= 0 && x <= Width && y >= 0 && y <= Height;
 	}
 
 	// pixel_offset converts the coordinates (x,y) of a pixel in a positional index

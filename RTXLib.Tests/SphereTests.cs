@@ -24,7 +24,7 @@ public class SphereTests
         Assert.True(hitRecord.WorldPoint.IsClose(new Point(0, 0, 1)));
         Assert.True(hitRecord.Normal.IsClose(new Normal(0, 0, 1)));
         Assert.True(hitRecord.SurfacePoint.IsClose(0,0));
-        Assert.True(MyLibrary.IsZero(hitRecord.T - 1));
+        Assert.True(MyLib.IsZero(hitRecord.T - 1));
         
         ray = new Ray(new Point(3, 0, 0), -Vec.Ex);
         Assert.True(sphere.RayIntersection(ray).HasValue);
@@ -33,7 +33,7 @@ public class SphereTests
         Assert.True(hitRecord.WorldPoint.IsClose(new Point(1, 0, 0)));
         Assert.True(hitRecord.Normal.IsClose(new Normal(1, 0, 0)));
         Assert.True(hitRecord.SurfacePoint.IsClose(0, 0.5f));
-        Assert.True(MyLibrary.IsZero(hitRecord.T - 2));
+        Assert.True(MyLib.IsZero(hitRecord.T - 2));
         
         ray = new Ray(new Point(0, 0, 0), Vec.Ex);
         Assert.True(sphere.RayIntersection(ray).HasValue);
@@ -42,7 +42,7 @@ public class SphereTests
         Assert.True(hitRecord.WorldPoint.IsClose(new Point(1, 0, 0)));
         Assert.True(hitRecord.Normal.IsClose(new Normal(-1, 0, 0)));
         Assert.True(hitRecord.SurfacePoint.IsClose(0,0.5f));
-        Assert.True(MyLibrary.IsZero(hitRecord.T - 1));    }
+        Assert.True(MyLib.IsZero(hitRecord.T - 1));    }
 
     [Fact]
     void TestRayIntersectionTranslated()
@@ -55,7 +55,7 @@ public class SphereTests
         Assert.True(hitRecord.WorldPoint.IsClose(new Point(10, 0, 1)));
         Assert.True(hitRecord.Normal.IsClose(new Normal(0, 0, 1)));
         Assert.True(hitRecord.SurfacePoint.IsClose(0,0));
-        Assert.True(MyLibrary.IsZero(hitRecord.T - 1));
+        Assert.True(MyLib.IsZero(hitRecord.T - 1));
         
         ray = new Ray(new Point(13, 0, 0), -Vec.Ex);
         Assert.True(sphere.RayIntersection(ray).HasValue);
@@ -65,7 +65,7 @@ public class SphereTests
         Assert.True(hitRecord.WorldPoint.IsClose(new Point(11, 0, 0)));
         Assert.True(hitRecord.Normal.IsClose(new Normal(1, 0, 0)));
         Assert.True(hitRecord.SurfacePoint.IsClose(0, 0.5f));
-        Assert.True(MyLibrary.IsZero(hitRecord.T - 2));    }
+        Assert.True(MyLib.IsZero(hitRecord.T - 2));    }
 
     [Fact]
     public void TestRayIntersectionNoHit()

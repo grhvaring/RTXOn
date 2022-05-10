@@ -20,7 +20,7 @@ public readonly struct HitRecord
     public bool IsClose(HitRecord other, double e = 1e-5)
     {
         return WorldPoint.IsClose(other.WorldPoint, e) && Normal.IsClose(other.Normal, e) &&
-               SurfacePoint.IsClose(other.SurfacePoint, e) && MyLibrary.IsZero(T - other.T, e) && 
+               SurfacePoint.IsClose(other.SurfacePoint, e) && MyLib.IsZero(T - other.T, e) && 
                Ray.IsClose(other.Ray, e);
     }
 }

@@ -24,9 +24,9 @@ public class CameraTests
         var ray4 = camera.FireRay(1, 1);
 
         // Check if the rays are parallel 
-        Assert.True(MyLibrary.IsZero(Vec.CrossProduct(ray1.Dir, ray2.Dir).SquaredNorm()));
-        Assert.True(MyLibrary.IsZero(Vec.CrossProduct(ray1.Dir, ray3.Dir).SquaredNorm()));
-        Assert.True(MyLibrary.IsZero(Vec.CrossProduct(ray1.Dir, ray4.Dir).SquaredNorm()));
+        Assert.True(MyLib.IsZero(Vec.CrossProduct(ray1.Dir, ray2.Dir).SquaredNorm()));
+        Assert.True(MyLib.IsZero(Vec.CrossProduct(ray1.Dir, ray3.Dir).SquaredNorm()));
+        Assert.True(MyLib.IsZero(Vec.CrossProduct(ray1.Dir, ray4.Dir).SquaredNorm()));
         
         // Check if the rays hit the corners in the correct coordinates
         Assert.True(ray1.At(1).IsClose(new Point(0, aspectRatio, -1)));
