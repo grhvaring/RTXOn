@@ -28,7 +28,7 @@ public struct Vec2D
 
 	public bool IsClose(float u, float v, double e = 1e-5)
 	{
-		return MyLibrary.IsZero(u - U, e) && MyLibrary.IsZero(v - V, e);
+		return MyLib.IsZero(u - U, e) && MyLib.IsZero(v - V, e);
 	}
 	
 	public bool IsClose(Vec2D otherVector, double e = 1e-5)
