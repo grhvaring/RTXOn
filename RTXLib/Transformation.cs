@@ -259,9 +259,9 @@ public struct Transformation
     public static bool AreMatricesClose(Matrix4x4 M1, Matrix4x4 M2, double e = 1e-5)
     {
         Matrix4x4 diff = M1 - M2;
-        return MyLibrary.IsZero(diff.M11, e) && MyLibrary.IsZero(diff.M12, e) && MyLibrary.IsZero(diff.M13, e) && MyLibrary.IsZero(diff.M14, e) && 
-               MyLibrary.IsZero(diff.M21, e) && MyLibrary.IsZero(diff.M22, e) && MyLibrary.IsZero(diff.M23, e) && MyLibrary.IsZero(diff.M24, e) && 
-               MyLibrary.IsZero(diff.M31, e) && MyLibrary.IsZero(diff.M32, e) && MyLibrary.IsZero(diff.M33, e) && MyLibrary.IsZero(diff.M34, e) && 
-               MyLibrary.IsZero(diff.M41, e) && MyLibrary.IsZero(diff.M42, e) && MyLibrary.IsZero(diff.M43, e) && MyLibrary.IsZero(diff.M44, e);
+        return MyLib.IsZero(diff.M11, e) && MyLib.IsZero(diff.M12, e) && MyLib.IsZero(diff.M13, e) && MyLib.IsZero(diff.M14, e) && 
+               MyLib.IsZero(diff.M21, e) && MyLib.IsZero(diff.M22, e) && MyLib.IsZero(diff.M23, e) && MyLib.IsZero(diff.M24, e) && 
+               MyLib.IsZero(diff.M31, e) && MyLib.IsZero(diff.M32, e) && MyLib.IsZero(diff.M33, e) && MyLib.IsZero(diff.M34, e) && 
+               MyLib.IsZero(diff.M41, e) && MyLib.IsZero(diff.M42, e) && MyLib.IsZero(diff.M43, e) && MyLib.IsZero(diff.M44, e);
     }
 }

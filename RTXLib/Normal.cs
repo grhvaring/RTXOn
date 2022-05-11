@@ -23,7 +23,6 @@ public struct Normal
 		set => normal.Z = value;
 	}
 
-	// Creating a new normal with all componenents set to 0
 	public Normal()
 	{
 		normal = new Vector3(0);
@@ -42,24 +41,15 @@ public struct Normal
 	}
 
 	// Creating a new normal equal to another normal
-	public Normal(Normal normal)
+	public Normal(Normal other)
 	{
-		this.normal = new Vector3(normal.X, normal.Y, normal.Z);
+		normal = new Vector3(other.X, other.Y, other.Z);
 	}
 
-	// *** Norms and squared norms *** //
+	// *** Norms and squared norm *** //
 
-	// Norm calculates the norm of a 3d vector
-	public float Norm()
-	{
-		return (float)normal.Length();
-	}
-
-	// SquaredNorm calculates the squared norm of a 3d vector
-	public float SquaredNorm()
-	{
-		return (float)normal.LengthSquared();
-	}
+	public float Norm => normal.Length();
+	public float SquaredNorm => normal.LengthSquared();
 
 	// *** Operations *** //
 
@@ -70,7 +60,6 @@ public struct Normal
 	}
 
 	// Negation operator ... an alternative form of unary - operator
-
 	public Normal Negation()
 	{
 		return new Normal(-X, -Y, -Z);
@@ -79,7 +68,7 @@ public struct Normal
 	// Product of normal * scalar
 	public static Normal operator *(Normal vector, float scalar)
 	{
-		return new Normal(scalar * vector.X, scalar * vector.Y, scalar * vector.Z);
+		return scalar * vector;
 	}
 
 	// Product of scalar * normal
@@ -96,7 +85,7 @@ public struct Normal
 	}
 
 	// Scalar product normal * normal
-	// All other combinantion of scalar products are definied in Vec
+	// All other combinations of scalar products are defined in Vec
 	public static float operator *(Normal normal1, Normal normal2)
 	{
 		return normal1.X * normal2.X + normal1.Y * normal2.Y + normal1.Z * normal2.Z;
@@ -104,36 +93,34 @@ public struct Normal
 	}
 
 	// *** Normalization and conversion *** //
-
-	// Normalization of a 3d vector
-	// NOTE: the normalization function has to return a new vector or is only a void function that normalize coordinates ?
-	public void Normalize()
+	
+	public Normal Normalize()
 	{
-		float norm = Norm();
-		X = X / norm;
-		Y = Y / norm;
-		Z = Z / norm;
-	}
-
-	public Normal CreateNomalizedNormal()
-	{
-		float norm = Norm();
+		var norm = Norm;
 		return new Normal(X / norm, Y / norm, Z / norm);
 	}
 
 	// IsClose checks if a normal can be considered equal to another normal
 	public bool IsClose(Normal otherNormal, double epsilon = 1e-5)
 	{
-		return (Math.Abs(X - otherNormal.X) < epsilon) && (Math.Abs(Y - otherNormal.Y) < epsilon) && (Math.Abs(Z - otherNormal.Z) < epsilon);
+		return IsClose(otherNormal.X, otherNormal.Y, otherNormal.Z);
+	}
+	
+	public bool IsClose(float x, float y, float z, double e = 1e-5)
+	{
+		return MyLib.AreZero(X - x, Y - y, Z - z, e);
 	}
 
-	//
-	public Vec ConversionToVec()
+	public bool IsClose(float xyz, double e = 1e-5)
+	{
+		return IsClose(xyz, xyz, xyz, e);
+	}
+	
+	public Vec ToVec()
 	{
 		return new Vec(X, Y, Z);
 	}
 
-	// ToString shows the coordinates of a vector in string format
 	public override string ToString()
 	{
 		return $"(x= {X}, y= {Y}, z= {Z})";

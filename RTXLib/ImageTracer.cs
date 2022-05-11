@@ -4,6 +4,7 @@ public class ImageTracer
 {
     public HdrImage Image;
     public ICamera Camera;
+    
     public ImageTracer(HdrImage image, ICamera camera)
     {
         Image = image;
