@@ -1,5 +1,6 @@
 ﻿namespace RTXLib;
 
+///<summary> Class <c>PCG</c> models a generator of random floating point numbers in interval [0, 1] using PCG algorithm.</summary>
 public class PCG
 {
 	public ulong State;
@@ -23,5 +24,12 @@ public class PCG
 		uint xorShifted = (uint) (((oldState >> 18) ^ oldState) >> 27);
 		uint rot = (uint)(oldState >> 59);
 		return (uint)((xorShifted >> (int) rot) | (xorShifted << (int)((-rot) & 31)));
+		// NOTE: the (int) cast of right side of operators >> and << is not problematic since the maximum size of rot is 64 - 59 = 5.
+    }
+
+	// The RandomFloat methods generates a random float number in interval [0, 1]
+	public float RandomFloat()
+    {
+		return Random() / 0xffffffff;
     }
 }
