@@ -23,7 +23,7 @@ public class PCG
 		State = (oldState * 6364136223846793005 + Inc);
 		uint xorShifted = (uint) (((oldState >> 18) ^ oldState) >> 27);
 		uint rot = (uint)(oldState >> 59);
-		return (uint)((xorShifted >> (int) rot) | (xorShifted << (int)((-rot) & 31)));
+		return (xorShifted >> (int) rot) | (xorShifted << (int)(-rot & 31));
 		// NOTE: the (int) cast of right side of operators >> and << is not problematic since the maximum size of rot is 64 - 59 = 5.
     }
 
