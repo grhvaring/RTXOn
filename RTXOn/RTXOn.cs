@@ -23,28 +23,22 @@ static class RTXOn
         
         [Option('h',"height", HelpText = "Height of the image.", Default = 1080)]
         public int Height { get; set; }
-        
-        [Option('o',"orthogonal", HelpText = "Use orthogonal camera instead of perspective camera.")]
+
+        [Option("orthogonal", HelpText = "Use orthogonal camera instead of perspective camera.")]
         public bool Orthogonal { get; set; }
         
         [Option('r',"aspect-ratio", HelpText = "Aspect ratio of the image.", Default = 1)]
         public float AspectRatio { get; set; }
         
-        [Option('a', "normalization", HelpText = "Normalization factor for the image.", Default = 1)]
+        [Option("normalization", HelpText = "Normalization factor for the image.", Default = 1)]
         public float Normalization { get; set; }
         
-        [Option('g', "gamma", HelpText = "Gamma factor (monitor flux correction).", Default = 1)]
+        [Option("gamma", HelpText = "Gamma factor (monitor flux correction).", Default = 1)]
         public float Gamma { get; set; }
         
         [Option('d', "distance", HelpText = "Distance of the camera from screen.", Default = 1)]
         public float Distance { get; set; }
-        
-        [Option('R', "radius", HelpText = "Radius of the spheres.", Default = 1.0f / 10.0f)]
-        public float Radius { get; set; }
-        
-        [Option('e', "edge", HelpText = "Edge lenght of the cube.", Default = 1)]
-        public float Edge { get; set; }
-        
+
         [Option( "output", HelpText = "Output PNG filename.", Default = "out.png")]
         public string Output { get; set; }
         
@@ -115,16 +109,14 @@ static class RTXOn
                 if (options.Verbose)
                 {
                     Console.WriteLine($"\tScreen distance\t-d {options.Distance}");
-                    Console.WriteLine($"\tSpheres radii\t-R {options.Radius}");
-                    Console.WriteLine($"\tCube edge\t-e {options.Edge}");
                 }
                 var WHITE = new Color(255, 255, 255);
                 var BLACK = new Color();
 
                 var world = new World();
-                var r = options.Radius; // spheres radius
-                var edge = options.Edge;
-                float[] limits = {-0.5f * options.Edge, 0.5f * edge}; // edges of the cube
+                var r = 1.0f / 1.0f; // spheres radius
+                var edge = 1.0f;
+                float[] limits = {-0.5f * edge, 0.5f * edge}; // edges of the cube
                 foreach (var x in limits)
                 {
                     foreach (var y in limits)
@@ -139,7 +131,7 @@ static class RTXOn
                 world.Add(new Sphere(0, 0.5f * edge, 0, r));
                 world.Add(new Sphere(0,0, -0.5f * edge, r));
 
-                var transformation = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(-15) * Transformation.Translation(-options.Distance);
+                var transformation = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(15) * Transformation.Translation(-options.Distance);
                 ICamera camera = options.Orthogonal ? 
                     new OrthogonalCamera(options.AspectRatio, transformation) : 
                     new PerspectiveCamera(options.Distance, options.AspectRatio, transformation);
