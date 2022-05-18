@@ -151,19 +151,10 @@ namespace RTXLib.Tests
 			Vec a = new Vec(1.0f, 2.0f, 3.0f);
 			Vec b = new Vec(1.0f, 2.0f, 3.0f);
 
-			a.Normalize();
-			b = b / b.Norm();
+			a = a.Normalize();
+			b /= b.Norm();
 
 			Assert.True(a.IsClose(b));
-		}
-
-		[Fact]
-		public void TestCreateNomalizedVec()
-		{
-			Vec a = new Vec(1.0f, 2.0f, 3.0f);
-			Vec b = a.CreateNomalizedVec();
-			
-			Assert.True(b.IsClose(a / a.Norm()));
 		}
 	}
 }
