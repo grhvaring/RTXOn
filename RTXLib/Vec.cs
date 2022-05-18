@@ -192,26 +192,13 @@ public struct Vec
 	}
 
 	// *** Normalization and conversion *** //
-
-	// This function normalize a specified vector without creating a new one
 	
-	public void Normalize()
-    {
-		float norm = Norm();
-		X = X / norm;
-		Y = Y / norm;
-		Z = Z / norm;
-	}
-
-	// This function creates a new normalized vector
-
-	public Vec CreateNomalizedVec()
-    {
-		float norm = Norm();
+	public Vec Normalize()
+	{
+		var norm = Norm();
 		return new Vec(X / norm, Y / norm, Z / norm);
 	}
-
-
+	
 	// Trasformation in a normal struct
 	public Normal ConversionToNormal()
     {
