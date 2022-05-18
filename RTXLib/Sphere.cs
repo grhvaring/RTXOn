@@ -1,20 +1,16 @@
 namespace RTXLib;
 
-public class Sphere : IShape
+public class Sphere : Shape
 {
-    public Transformation Transformation { get; set; }
-    
-    public Sphere(Transformation? transformation = null)
-    {
-        Transformation = transformation ?? new Transformation();
-    }
-
     public Sphere(float x, float y, float z, float r = 1)
     {
         Transformation = Transformation.Translation(x, y, z) * Transformation.Scaling(r);
     }
 
-    public HitRecord? RayIntersection(Ray ray)
+    public Sphere(Transformation? transformation = null) : base(transformation) {}
+    public Sphere(Transformation transformation, Material material) : base(transformation, material) {}
+
+    public override HitRecord? RayIntersection(Ray ray)
     {
         var invRay = ray.Transform(Transformation.Inverse());
         var firstHitTime= CalculateFirstIntersectionTime(invRay);
@@ -24,7 +20,7 @@ public class Sphere : IShape
         var time = firstHitTime.Value;
         var hitPoint = invRay.At(time);
         var hitRecord = new HitRecord(Transformation * hitPoint, Transformation * NormalAt(hitPoint, invRay.Dir),
-                PointToUV(hitPoint), time, ray);
+                PointToUV(hitPoint), time, ray, this);
         return hitRecord;
     }
 
