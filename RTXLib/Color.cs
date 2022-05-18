@@ -26,6 +26,9 @@ public struct Color
         B = b;
     }
     
+    public static Color BLACK => new();
+    public static Color WHITE => new(255, 255, 255);
+    
     // *** Math operations *** //
     
     // (left) product with a scalar

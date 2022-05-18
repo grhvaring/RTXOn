@@ -11,6 +11,12 @@ public abstract class BRDF
     public Pigment Pigment { get; set; }
     
     // NOTE: to be changed in order to have pigment = BLACK as default
+
+    public BRDF()
+    {
+        Pigment = new UniformPigment(Color.BLACK);
+    }
+    
     public BRDF(UniformPigment pigment)
     {
         Pigment = pigment;
@@ -29,6 +35,11 @@ public class DiffuseBRDF : BRDF
 {
     public float Reflectance { get; set; }
 
+    public DiffuseBRDF(float reflectance = 1.0f)
+    {      
+        Reflectance = reflectance;
+    }
+    
     public DiffuseBRDF(UniformPigment pigment, float reflectance = 1.0f) : base(pigment)
     {      
         Reflectance = reflectance;

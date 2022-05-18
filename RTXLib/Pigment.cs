@@ -29,9 +29,14 @@ public class UniformPigment : Pigment
 {
     public Color Color;
 
-	public UniformPigment(Color color)
+    public UniformPigment(Color color = default)
     {
         Color = color;
+    }
+
+    public UniformPigment(float r, float g, float b)
+    {
+        Color = new Color(r, g, b);
     }
 
     public Color GetColor(Vec2D coordinates)
