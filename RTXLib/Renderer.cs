@@ -146,10 +146,10 @@ public class PathTracer : Renderer
 
                 // Recursive call of Run
                 var newRadiance = Run(newRay);
-                cumulativeRadiance = hitColor * newRadiance;
+                cumulativeRadiance = cumulativeRadiance + hitColor * newRadiance;
             }
         }
 
-        return emittedRadiance + cumulativeRadiance * (float)(1.0 / NumberOfRays);
+        return emittedRadiance + cumulativeRadiance * (float)(1.0f / NumberOfRays);
     }
 }
