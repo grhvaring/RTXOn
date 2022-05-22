@@ -2,9 +2,10 @@ namespace RTXLib;
 
 public class Sphere : Shape
 {
-    public Sphere(float x, float y, float z, float r = 1)
+    public Sphere(float x, float y, float z, Material material, float r = 1)
     {
         Transformation = Transformation.Translation(x, y, z) * Transformation.Scaling(r);
+        Material = material;
     }
 
     public Sphere(Transformation? transformation = null) : base(transformation) {}
