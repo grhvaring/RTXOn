@@ -5,7 +5,7 @@ using RTXLib;
 
 namespace RTXOn;
 
-static class RTXOn
+class RTXOn
 {
     private class Options
     {
@@ -39,11 +39,20 @@ static class RTXOn
         [Option('d', "distance", HelpText = "Distance of the camera from screen.", Default = 1)]
         public float Distance { get; set; }
 
-        [Option( "output", HelpText = "Output PNG filename.", Default = "out.png")]
-        public string Output { get; set; }
+        [Option( "png-output", HelpText = "Output PNG filename.", Default = "out.png")]
+        public string PngOutput { get; set; }
+        
+        [Option( "pfm-output", HelpText = "Output PNG filename.", Default = "out.pfm")]
+        public static string PfmOutput { get; set; }
         
         [Option( "angle-deg", HelpText = "Camera rotation angle about Z axis.", Default = 0)]
         public float AngleDegZ { get; set; }
+
+        [Option("renderer", HelpText = "Renderer to use for the demo: onoff/flat.", Default = "flat")]
+        public static string Renderer { get; set; }
+
+        [Option("luminosity", HelpText = "Override average luminosity of the image.")]
+        public static float? Luminosity { get; set; }
     }
     public readonly struct IOFiles
     {
@@ -62,13 +71,13 @@ static class RTXOn
         }
     }
 
-    static void Main(string[] args)
+    private static void Main(string[] args)
     {
         Parser.Default.ParseArguments<Options>(args)
             .WithParsed(RunOptions);
     }
 
-    static void RunOptions(Options options)
+    private static void RunOptions(Options options)
     {
         if (options.Verbose)
         {
@@ -93,7 +102,7 @@ static class RTXOn
                         Console.WriteLine($"\tOutput file\t{files.OutputPngFileName}");
                     }
                     var image = new HdrImage(files.InputPfmFileName);
-                    image.NormalizeImage(options.Normalization);
+                    image.NormalizeImage(options.Normalization, Options.Luminosity);
                     image.ClampImage();
                     image.SaveAsPng(files.OutputPngFileName, options.Gamma);
                 }
@@ -110,26 +119,36 @@ static class RTXOn
                 {
                     Console.WriteLine($"\tScreen distance\t-d {options.Distance}");
                 }
-                var WHITE = new Color(255, 255, 255);
-                var BLACK = new Color();
+                var YELLOW = new Color(1, 1, 0.2F);
+                var GREEN = new Color(0, 1,0 );
+                var RED = new Color(1.1f, 0.2F, 0.2F);
+                var BROWN = new Color(1.2f, 0.27f,0.2f);
+                var VIOLET = new Color(0.9F, 0.2F,1.1F);
+
 
                 var world = new World();
-                var r = 1.0f / 1.0f; // spheres radius
+                var r = 1.0f / 10.0f; // spheres radius
                 var edge = 1.0f;
                 float[] limits = {-0.5f * edge, 0.5f * edge}; // edges of the cube
+                var material = new Material(new UniformPigment(RED));
                 foreach (var x in limits)
                 {
                     foreach (var y in limits)
                     {
                         foreach (var z in limits)
                         {
-                            world.Add(new Sphere(x, y, z, r));
+                            world.Add(new Sphere(x, y, z, material, r));
                         }
                     }
                 }
-        
-                world.Add(new Sphere(0, 0.5f * edge, 0, r));
-                world.Add(new Sphere(0,0, -0.5f * edge, r));
+
+                var firstMaterial = new Material(new CheckeredPigment(VIOLET, YELLOW, 2));
+                // var spinniiii = new HdrImage("memorial.pfm");
+                // var spinniMaterial = new Material(new ImagePigment(spinniiii));
+                world.Add(new Sphere(0, 0.5f * edge, 0, firstMaterial, r));
+                var checkPigment = new CheckeredPigment(VIOLET, GREEN, 4);
+                var checkMaterial = new Material(checkPigment);
+                world.Add(new Sphere(0,0, -0.5f * edge, checkMaterial, r));
 
                 var transformation = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(15) * Transformation.Translation(-options.Distance);
                 ICamera camera = options.Orthogonal ? 
@@ -137,11 +156,13 @@ static class RTXOn
                     new PerspectiveCamera(options.Distance, options.AspectRatio, transformation);
                 var imageSpheres = new HdrImage(options.Width, options.Height);
                 var tracer = new ImageTracer(imageSpheres, camera);
-                tracer.FireAllRays(ray => world.RayIntersection(ray).HasValue ? WHITE : BLACK);
-                
-                tracer.Image.NormalizeImage(options.Normalization); 
+                if (Options.Renderer == "onoff") Console.WriteLine("onoff renderer");
+                Renderer renderer = Options.Renderer == "onoff" ? new OnOffRenderer(world) : new FlatRenderer(world);
+                tracer.FireAllRays(renderer.Run);
+                tracer.Image.WritePfm(Options.PfmOutput);
+                tracer.Image.NormalizeImage(options.Normalization, Options.Luminosity); 
                 tracer.Image.ClampImage();
-                tracer.Image.SaveAsPng(options.Output, options.Gamma);
+                tracer.Image.SaveAsPng(options.PngOutput, options.Gamma);
                 break;
         }
     }
