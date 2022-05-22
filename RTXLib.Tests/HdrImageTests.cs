@@ -96,7 +96,7 @@ namespace RTXLib.Tests
         public void TestParseImgSize()
         {
             // Correct format
-            HdrImage.ParseImgSize("3 2", out var width, out var height);
+            var (width, height) = HdrImage.ParseImgSize("3 2");
             Assert.True(width == 3 && height == 2);
             
             // Incorrect formats

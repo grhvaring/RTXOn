@@ -72,7 +72,7 @@ public class HdrImage
 		if (magic != "PF") throw new InvalidPfmFileFormat("Invalid magic in PFM file.");
 
 		var imgSize = ReadPfmLine(stream);
-		ParseImgSize(imgSize, out Width, out Height);
+		(Width, Height) = ParseImgSize(imgSize);
 		NPixels = Width * Height;
 		Pixels = new Color[NPixels];
 
@@ -122,7 +122,7 @@ public class HdrImage
 	
 	// Read the dimensions of a PFM image from a string
 
-	public static void ParseImgSize(string line, out int width, out int height)
+	public static (int, int) ParseImgSize(string line)
 	{
 		char[] delimiterChars = { ' ', '\t' };
 		var dimensions = line.Split(delimiterChars);
@@ -134,29 +134,22 @@ public class HdrImage
 
 		try
 		{
-			width = int.Parse(dimensions[0]);
-			height = int.Parse(dimensions[1]);
+			var width = int.Parse(dimensions[0]);
+			var height = int.Parse(dimensions[1]);
 
 			if (width < 0 || height < 0)
 			{
 				throw new InvalidDataException();
 			}
+
+			return (width, height);
 		}
 		catch
 		{
 			throw new InvalidPfmFileFormat("Invalid width or height. Should be two positive integers separated by a whitespace.");
 		}
 	}
-	
-	/// <summary>
-	/// This method makes the test for the InvalidPfmFileFormat exception more readable
-	/// </summary>
-	/// <param name="line">String containing &lt;width&gt; &lt;height&gt;</param>
-	public static void ParseImgSize(string line)
-	{
-		ParseImgSize(line, out var width, out var height);
-	}
-	
+
 	// Decode endianness of from a string
 	public static float ParseEndianness(string line)
 	{
@@ -181,26 +174,24 @@ public class HdrImage
 	{
 		var sequence = BitConverter.GetBytes(value);
 		
-		double machineEndianness = BitConverter.IsLittleEndian ? LittleEndian : BigEndian;
-		if (endianness != machineEndianness)
-		{
-			Array.Reverse(sequence);
-		}
+		var machineEndianness = BitConverter.IsLittleEndian ? LittleEndian : BigEndian;
+		if (endianness != machineEndianness) Array.Reverse(sequence);
+		
 		outputStream.Write(sequence, 0, sequence.Length);
 	}
 
 	public void WritePfm(Stream outputStream, double endianness = LittleEndian)
 	{
-		string endiannessString = (endianness == LittleEndian) ? "-1.0" : "+1.0";
+		var endiannessString = (endianness == LittleEndian) ? "-1.0" : "+1.0";
 		
 		// Write the PFM file header (ascii -> does not change with endianness)
 		var header = Encoding.ASCII.GetBytes($"PF\n{Width} {Height}\n{endiannessString}\n");
 		outputStream.Write(header, 0, header.Length); 
 		
 		// Write the image (bottom-to-up, left-to-right)
-		for (int y = Height - 1; y >= 0; --y)
+		for (var y = Height - 1; y >= 0; --y)
 		{
-			for (int x = 0; x < Width; ++x)
+			for (var x = 0; x < Width; ++x)
 			{
 				Color color = GetPixel(x, y);
 				WriteFloat(outputStream, color.R, endianness);
@@ -209,15 +200,21 @@ public class HdrImage
 			}
 		}
 	}
+
+	public void WritePfm(string outputFile, double endianness = LittleEndian)
+	{
+		using Stream fileStream = File.OpenWrite(outputFile);
+		WritePfm(fileStream, endianness);
+	}
 	
 	public float AverageLuminosity(float delta = 1e-10f)
 	{
 		float sum = 0;
-		foreach (Color pixel in Pixels)
+		foreach (var pixel in Pixels)
 		{
 			sum += (float)Math.Log10(delta + pixel.Luminosity());
 		}
-
+		
 		return (float)Math.Pow(10, sum / NPixels);
 	}
 

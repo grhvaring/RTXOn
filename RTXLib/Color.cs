@@ -69,6 +69,12 @@ public struct Color
     }
     
     // Sum of two colors
+    /// <summary>
+    /// Element-wise sum of two RGB colors.
+    /// </summary>
+    /// <param name="c1">First color</param>
+    /// <param name="c2">Second color</param>
+    /// <returns>Sum of c1 and c2</returns>
     public static Color operator +(Color c1, Color c2)
     {
         return new Color(c1.R + c2.R, c1.G + c2.G, c1.B + c2.B);

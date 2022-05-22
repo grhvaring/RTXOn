@@ -8,7 +8,7 @@
 ///</summary>
 public abstract class BRDF
 {
-    public Pigment Pigment { get; set; }
+    public Pigment Pigment { get; }
     
     // NOTE: to be changed in order to have pigment = BLACK as default
 
@@ -35,7 +35,7 @@ public abstract class BRDF
 ///</summary>
 public class DiffuseBRDF : BRDF
 {
-    public float Reflectance { get; set; }
+    public float Reflectance { get; }
 
     public DiffuseBRDF(float reflectance = 1.0f)
     {      
