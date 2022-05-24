@@ -101,6 +101,14 @@ public class PathTracer : Renderer
         MaxDepth = maxDepth;
         RussianRouletteLimit = russianRouletteLimit;
     }
+    
+    public PathTracer(World world, int maxDepth = 2) : base(world) 
+    {
+        Pcg = new PCG();
+        NumberOfRays = 10;
+        MaxDepth = maxDepth;
+        RussianRouletteLimit = 3;
+    }
 
     /// <summary>Method <c>Run</c> runs the renderer for a specified ray.</summary>
     public override Color Run(Ray ray)
@@ -110,7 +118,7 @@ public class PathTracer : Renderer
 
         var hitRecord = World.RayIntersection(ray);
 
-        // If the ray hits the backgroun, return the background color
+        // If the ray hits the background, return the background color
         if (!hitRecord.HasValue) return BackgroundColor;
 
         Material hitMaterial = hitRecord.Value.Shape.Material;
@@ -146,7 +154,7 @@ public class PathTracer : Renderer
 
                 // Recursive call of Run
                 var newRadiance = Run(newRay);
-                cumulativeRadiance = cumulativeRadiance + hitColor * newRadiance;
+                cumulativeRadiance += hitColor * newRadiance;
             }
         }
 
