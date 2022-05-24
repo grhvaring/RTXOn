@@ -17,9 +17,9 @@ public struct Material
         EmittedRadiance = emittedRadiance;
     }
     
-    public Material(BRDF brdf, Pigment emittedRadiance)
+    public Material(BRDF brdf, Pigment? emittedRadiance = null)
     {
         BRDF = brdf;
-        EmittedRadiance = emittedRadiance;
+        EmittedRadiance = emittedRadiance ?? new UniformPigment();
     }
 }
