@@ -17,7 +17,7 @@ public abstract class BRDF
         Pigment = new UniformPigment(Color.BLACK);
     }
     
-    public BRDF(UniformPigment pigment)
+    public BRDF(Pigment pigment)
     {
         Pigment = pigment;
     }
@@ -42,7 +42,7 @@ public class DiffuseBRDF : BRDF
         Reflectance = reflectance;
     }
     
-    public DiffuseBRDF(UniformPigment pigment, float reflectance = 1.0f) : base(pigment)
+    public DiffuseBRDF(Pigment pigment, float reflectance = 1.0f) : base(pigment)
     {      
         Reflectance = reflectance;
     }
@@ -76,7 +76,7 @@ public class SpecularBRDF : BRDF
         Reflectance = reflectance;
     }
     
-    public SpecularBRDF(UniformPigment pigment, float reflectance = 1.0f) : base(pigment)
+    public SpecularBRDF(Pigment pigment, float reflectance = 1.0f) : base(pigment)
     {      
         Reflectance = reflectance;
     }
