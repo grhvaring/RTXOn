@@ -94,6 +94,15 @@ public class PathTracer : Renderer
         MaxDepth = 2;
         RussianRouletteLimit = 3;
     }
+    
+    public PathTracer(World world, int numberOfRays, int maxDepth) : base(world) 
+    {
+        Pcg = new PCG();
+        NumberOfRays = numberOfRays;
+        MaxDepth = maxDepth;
+        RussianRouletteLimit = 3;
+    }
+    
     public PathTracer(World world, Color backgroundColor, PCG pcg, int numberOfRays = 10, int maxDepth = 2, int russianRouletteLimit = 3) : base(world, backgroundColor) 
     {
         Pcg = pcg;
@@ -102,7 +111,7 @@ public class PathTracer : Renderer
         RussianRouletteLimit = russianRouletteLimit;
     }
     
-    public PathTracer(World world, int maxDepth = 2) : base(world) 
+    public PathTracer(World world, int maxDepth = 2) : base(world)
     {
         Pcg = new PCG();
         NumberOfRays = 10;
@@ -114,7 +123,7 @@ public class PathTracer : Renderer
     public override Color Run(Ray ray)
     {
         // If the ray does not hit anything, return black color
-        if (ray.Depth > MaxDepth) return new Color(0.0f, 0.0f, 0.0f);
+        if (ray.Depth > MaxDepth) return Color.BLACK;
 
         var hitRecord = World.RayIntersection(ray);
 
@@ -130,10 +139,10 @@ public class PathTracer : Renderer
         // If the depth of the ray equals a certain limit, start the Russian roulette algorithm
         if (ray.Depth >= RussianRouletteLimit)
         {
-            float q = Math.Max(0.05f, 1.0f - hitColorLum);
+            var q = Math.Max(0.05f, 1.0f - hitColorLum);
             if (Pcg.RandomFloat() > q)
             {
-                hitColor = hitColor * (float)(1.0 / (1.0 - q));
+                hitColor *= 1.0f / (1.0f - q);
             }
             else
             {
@@ -143,21 +152,20 @@ public class PathTracer : Renderer
 
         // Monte Carlo integration section
 
-        Color cumulativeRadiance = new Color(0.0f, 0.0f, 0.0f);
+        Color cumulativeRadiance = new Color();
 
-        // Start recursion if it is worth
-        if (hitColorLum > 0.0f)
+        // Start recursion only if necessary
+        if (hitColorLum == 0) return emittedRadiance + cumulativeRadiance * 1.0f / NumberOfRays;
+        
+        for (var _ = 0; _ < NumberOfRays; _++)
         {
-            for (int rayIndex = 0; rayIndex < NumberOfRays; rayIndex++)
-            {
-                Ray newRay = hitMaterial.BRDF.ScatterRay(Pcg, hitRecord.Value.Ray.Dir, hitRecord.Value.WorldPoint, hitRecord.Value.Normal, ray.Depth + 1);
-
-                // Recursive call of Run
-                var newRadiance = Run(newRay);
-                cumulativeRadiance += hitColor * newRadiance;
-            }
+            var newRay = hitMaterial.BRDF.ScatterRay(Pcg, hitRecord.Value.Ray.Dir, hitRecord.Value.WorldPoint, hitRecord.Value.Normal, ray.Depth + 1);
+            
+            // Recursive call of Run
+            var newRadiance = Run(newRay);
+            cumulativeRadiance += hitColor * newRadiance;
         }
 
-        return emittedRadiance + cumulativeRadiance * (float)(1.0f / NumberOfRays);
+        return emittedRadiance + cumulativeRadiance * 1.0f / NumberOfRays;
     }
 }

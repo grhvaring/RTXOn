@@ -32,6 +32,6 @@ public class PCG
 	///<summary> The <c>RandomFloat</c> methods generates a random float number in interval [0, 1]. </summary>
 	public float RandomFloat()
     {
-		return Random() / ((float)(Math.Pow(2,32) - 1));
+		return Random() / (float)(Math.Pow(2,32) - 1);
     }
 }
