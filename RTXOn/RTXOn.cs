@@ -52,6 +52,12 @@ class RTXOn
 
         [Option("luminosity", HelpText = "Override average luminosity of the image.")]
         public static float? Luminosity { get; set; }
+        
+        [Option("rays", Default = 10)]
+        public static int NumberOfRays { get; set; }
+        
+        [Option("depth", Default = 2)]
+        public static int MaxDepth { get; set; }
     }
     public readonly struct IOFiles
     {
@@ -78,7 +84,7 @@ class RTXOn
     
     static readonly Color YELLOW = new(1, 1, 0.2F);
     static readonly Color GREEN = new(0, 1,0 );
-    static readonly Color RED = new (1.1f, 0.2F, 0.2F);
+    static readonly Color RED = new (1, 0, 0);
     static readonly Color BROWN = new (1.2f, 0.27f,0.2f);
     static readonly Color VIOLET = new (0.9F, 0.2F,1.1F);
 
@@ -132,21 +138,28 @@ class RTXOn
 
                 // reflecting red sphere
 
-                var spherePigment = new UniformPigment(RED);
+                var spherePigment = new UniformPigment(new Color(1.1f, 0.2f, 0.2f));
                 var sphereMaterial = new Material(new SpecularBRDF(spherePigment));
                 var sphere = new Sphere(0,0,0.5f, sphereMaterial, 0.5f);
                 world.Add(sphere);
                 
                 // diffusive sky
 
-                var skyColor = new Color(0.37f, 1.97f, 255);
-                var skyMaterial = new Material(new UniformPigment(skyColor));
+                var skyColor = new Color(0.37f, 0.9f, 1);
+                var skyMaterial = new Material(new DiffuseBRDF(new UniformPigment(skyColor)));
                 var sky = new Sphere(0, 0, 0, skyMaterial, 100);
-                world.Add(sky);
+                //world.Add(sky);
 
+                // sun
+
+                var sunMaterial = new Material(new UniformPigment(new Color(1, 1, 1)));
+                var sun = new Sphere(0, 0, 1.5f, sunMaterial, 0.5f);
+                world.Add(sun);
+                
                 // floor
                 
-                var floorPigment = new CheckeredPigment(GREEN, RED);
+                Pigment floorPigment = new CheckeredPigment(GREEN, RED);
+                //floorPigment = new UniformPigment(new Color(0, 0, 1));
                 var floorMaterial = new Material(new DiffuseBRDF(floorPigment));
                 var floor = new Plane(floorMaterial);
                 world.Add(floor);
@@ -163,7 +176,7 @@ class RTXOn
         {
             "onoff" => new OnOffRenderer(world),
             "flat" => new FlatRenderer(world),
-            "pathtracer" => new PathTracer(world, 3),
+            "pathtracer" => new PathTracer(world, Options.NumberOfRays, Options.MaxDepth),
             _ => new OnOffRenderer(world)
         };
     }
@@ -193,10 +206,8 @@ class RTXOn
 
     private static ImageTracer RenderImage(World world, Options options)
     {
-        var transformation = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(15) * Transformation.Translation(-options.Distance);
-        ICamera camera = options.Orthogonal ? 
-            new OrthogonalCamera(options.AspectRatio, transformation) : 
-            new PerspectiveCamera(options.Distance, options.AspectRatio, transformation);
+        // var transformation = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(15) * Transformation.Translation(-options.Distance);
+        var camera = ChooseCamera(options);
         var image = new HdrImage(options.Width, options.Height);
         var tracer = new ImageTracer(image, camera);
         var renderer = SelectRenderer(world);
@@ -206,10 +217,22 @@ class RTXOn
         return tracer;
     }
 
+    private static ICamera ChooseCamera(Options options, Transformation? transformation = null)
+    {
+        if (options.Orthogonal)
+        {
+            var T = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(5) * Transformation.Translation(-options.Distance);
+            return new OrthogonalCamera(options.AspectRatio, T);
+        }
+
+        transformation ??= Transformation.RotationZ(options.AngleDegZ) * Transformation.Translation(0,0,1) * Transformation.Translation(-options.Distance);
+        return new PerspectiveCamera(options.Distance, options.AspectRatio, transformation.Value);
+    }
+    
     private static void FinalizeImage(HdrImage image, Options options)
     {
         image.WritePfm(Options.PfmOutput);
-        image.NormalizeImage(options.Normalization, Options.Luminosity); 
+        image.NormalizeImage(options.Normalization, Options.Luminosity);
         image.ClampImage();
         image.SaveAsPng(options.PngOutput, options.Gamma);   
     }
