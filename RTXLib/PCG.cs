@@ -1,6 +1,7 @@
 ﻿namespace RTXLib;
 
 ///<summary> Class <c>PCG</c> models a generator of random floating point numbers uniformly distributed in interval [0, 1] using the PCG algorithm described in the 2014 paper "PCG: A Family of Simple Fast Space-Efficient Statistically Good Algorithms for Random Number Generation" by Melissa E. O'Neill.</summary>
+
 public class PCG
 {
 	public ulong State;
@@ -17,6 +18,7 @@ public class PCG
 	}
 
 	///<summary> The <c>Random</c> methods generates a random 32bit unsigned integer in interval [0, 2^32 - 1]. </summary>
+
 	public uint Random()
     {
 		ulong oldState = State;
