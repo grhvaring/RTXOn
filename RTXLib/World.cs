@@ -7,16 +7,16 @@ namespace RTXLib;
 public class World
 {
 	// Field of the class (list of shapes)
-	public List<IShape> ShapeList;
+	public List<Shape> ShapeList;
 
 	// Default constructor (create an empty list of shape)
 	public World()
 	{
-		ShapeList = new List<IShape>();
+		ShapeList = new List<Shape>();
 	}
 
 	// Add a new shape to the image
-	public void Add(IShape shape)
+	public void Add(Shape shape)
     {
 		ShapeList.Add(shape);
     }
@@ -28,7 +28,7 @@ public class World
 		// Variable for the closest intersection; it is initially set to null.
 		HitRecord? closestIntersection = null;
 
-		foreach(IShape shape in ShapeList)
+		foreach(var shape in ShapeList)
         {
 			HitRecord? intersection = shape.RayIntersection(ray);
 

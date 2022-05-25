@@ -7,14 +7,16 @@ public readonly struct HitRecord
     public Vec2D SurfacePoint { get; }
     public float T { get; }
     public Ray Ray { get; }
+    public Shape Shape { get; }
 
-    public HitRecord(Point worldPoint, Normal normal, Vec2D surfacePoint, float t, Ray ray)
+    public HitRecord(Point worldPoint, Normal normal, Vec2D surfacePoint, float t, Ray ray, Shape shape)
     {
         WorldPoint = worldPoint;
         Normal = normal;
         SurfacePoint = surfacePoint;
         T = t;
         Ray = ray;
+        Shape = shape;
     }
 
     public bool IsClose(HitRecord other, double e = 1e-5)
