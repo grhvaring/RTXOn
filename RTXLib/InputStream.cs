@@ -1,50 +1,62 @@
 ﻿using RTXLib;
 using System.Globalization;
 
-/// <summary>Class <c>InputStream</c> models a stream used to parse the file descriving the scene to be rendered.</summary>
+/// <summary>Class <c>InputStream</c> models a stream used to parse the file describing the scene to be rendered.</summary>
 public class InputStream
 {
-	public StreamReader Stream;
+	public const char EOF = (char)0xFFFF; // TextReader default return value when no character is read
+	private const string whitespaces = " \t\n\r";
+	private const string symbols = "()<>[],*";
+	public TextReader Stream;
 	public SourceLocation Location;
 	public char SavedChar;
 	public SourceLocation SavedLocation;
 	public int Tabulations;
 
-	public InputStream(StreamReader stream, string filename = "", int tabulations = 8)
+	public InputStream(TextReader stream, string filename = "", int tabulations = 8)
 	{
 		Stream = stream;
 		Location = new SourceLocation(filename, 1, 1);
 		SavedChar = '\0';
 		SavedLocation = Location;
 		Tabulations = tabulations;
-
 	}
 
 	/// <summary>Method <c>UpdatePosition</c> updates the <c>Location</c> after reading a character from the stream.</summary>
 	public void UpdatePosition(char ch)
 	{
-		// If nothing is read, do nothing
-		if (ch == '\0')
-			return;
-
-		// If the newline character is read, add 1 line and return to column 1
-		else if (ch == '\n')
+		// end of file
+		if (ch == EOF) return;
+		if (ch == '\n')
 		{
+			// newline
 			Location.LineNumber += 1;
 			Location.ColumnNumber = 1;
 		}
-
-		// If the tabulation character is read, add to the number of column the number specified by Tabulations
-		// property
-		else if (ch == '\t')
-			Location.ColumnNumber += Tabulations;
-
-		// Otherwise, add 1 column
-		else
-			Location.ColumnNumber = 1;
+		else if (ch == '\t') Location.ColumnNumber += Tabulations; // tab
+		else Location.ColumnNumber += 1; // any other character
 	}
 
-	/// <summary>Method <c>ReadChar</c> reads a new character from the stream and save his location.</summary>
+	public Token ReadToken()
+	{
+		SkipWhitespacesAndComments();
+		var ch = ReadChar();
+		
+		// end of file
+		if (ch == EOF) return new StopToken(Location);
+
+		var tokenLocation = Location.ShallowCopy();
+		
+		if (symbols.Contains(ch)) return new SymbolToken(tokenLocation, ch);
+		if (char.IsNumber(ch)) return ParseFloatToken(ch, tokenLocation);
+		if (ch == '"') return ParseStringToken(tokenLocation);
+		if (char.IsLetter(ch)) return ParseKeywordOrIdentifierToken(ch, tokenLocation);
+		
+		// if none of the previous checks returned a valid token
+		throw new GrammarError(tokenLocation, $"Invalid character {ch}");
+	}
+
+	/// <summary>Method <c>ReadChar</c> reads a new character from the stream and saves his location.</summary>
 	public char ReadChar()
 	{
 		char ch;
@@ -54,8 +66,7 @@ public class InputStream
 			ch = SavedChar;
 			SavedChar = '\0';
 		}
-		else
-			ch = (char)Stream.Read();
+		else ch = (char)Stream.Read();
 
 		SavedLocation = Location.ShallowCopy();
 		UpdatePosition(ch);
@@ -64,78 +75,44 @@ public class InputStream
 
 	public void UnreadChar(char ch)
     {
-
-		// In the example professor request to do an assert. Why ???
+	    // In the example professor request to do an assert. Why ???
 		SavedChar = ch;
 		Location = SavedLocation.ShallowCopy();
-
-	}
-
-	/// <summary>Method <c>SkipWhitespaceAndComments</c> read (but doesn't save) characters until a non-comment/non-whitespace character is found.</summary>
-	public void SkipWhitespaceAndComments()
-    {
-		char[] WHITESPACE = { ' ', '\t', '\n', '\r' };
-		// NOTE: maybe item should be corrected
-		char[] ENDOFLINE = { '\0', '\n', '\r' };
-
-		char ch = ReadChar();
-
-		// Check if the character is a whitespace or a comment
-		while (Array.Exists(WHITESPACE, whiteSpaceCh => whiteSpaceCh == ch) || (ch == '#'))
-		{
-			// If ch is a comment keep reading
-			if (ch == '#')
-				// Check that ch is different from end of line character and continue execution
-				while(!Array.Exists(ENDOFLINE, endOfLineCh => endOfLineCh == ch))
-					continue;
-
-			ch = ReadChar();
-
-			// If end of file is reached, stop the function
-			if (ch == '\0')
-				return;
-        }
-
-		UnreadChar(ch);
     }
 
 	/// <summary>Method <c>ParseStringTokens</c> parse the character that form a literal string. If the string is not close an error is raised.</summary>
 	public LiteralStringToken ParseStringToken(SourceLocation tokenLocation)
     {
-		string token = "";
+		var token = "";
 
 		while(true)
 		{
-			char ch = ReadChar();
+			var ch = ReadChar();
 
-			// If the ending " has been reached stop the parsing of the file
-			if (ch == '"')
-				break;
+			// stop the parsing at the character " (double quote)
+			if (ch == '"') break;
 
-			// If an empty character has been read whitout reaching the ending " raise an error
-			if (ch == '\0')
-				continue;
+			// raise an error if an empty character has been read without reaching the end
+			if (ch == EOF) continue;
 			// NOTE: to be implemented with GrammarError
-
-			
 			token += ch;
         }
 
 		return new LiteralStringToken(tokenLocation, token);
     }
 
-	public LiteralNumberToken ParseFloatToken(string firstCharacter, SourceLocation tokenLocation)
+	public LiteralNumberToken ParseFloatToken(char firstCharacter, SourceLocation tokenLocation)
     {
 		char[] SCIENTIFIC_NOTATION_BASE = { 'e', 'E' };
 
-		string token = firstCharacter;
+		var token = firstCharacter.ToString();
 
 		while(true)
         {
-			char ch = ReadChar();
+			var ch = ReadChar();
 
 			// If the character read is not a 0-9 digit, a decimal separetor or a base of scientific notation stop the parsing
-			if (!(Char.IsDigit(ch) || (ch == '.') || Array.Exists(SCIENTIFIC_NOTATION_BASE, scientificNotationBaseCh => scientificNotationBaseCh == ch)))
+			if (!(Char.IsDigit(ch) || ch == '.' || SCIENTIFIC_NOTATION_BASE.Contains(ch)))
             {
 				UnreadChar(ch);
 				break;
@@ -149,37 +126,58 @@ public class InputStream
 		// Convert
 		try
 		{
-			value = Single.Parse(token, NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent);
+			value = float.Parse(token, NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent);
 		}
-		catch { throw; } //NOTE: to be changed with actual exception
+		catch
+		{
+			throw new GrammarError(tokenLocation, $"The string {token} could not be converted into a number."); 
+		}
 
 		return new LiteralNumberToken(tokenLocation, value);
     }
 
 	// To be changed to a UNION for C#
-	public IdentifierToken ParseKeywordOrIdentifierToken(string firstCharacter, SourceLocation tokenLocation)
-    {
-		string token = firstCharacter;
+	public Token ParseKeywordOrIdentifierToken(char firstCharacter, SourceLocation tokenLocation)
+	{
+		string token = firstCharacter.ToString();
 
 		while (true)
 		{
-			char ch = ReadChar();
+			var ch = ReadChar();
 
 			// If the character read is not a 0-9 digit, a letter or a _ stop the parsing
-			if (!(Char.IsLetterOrDigit(ch) || (ch == '_')))
+			if (!(char.IsLetterOrDigit(ch) || ch == '_'))
 			{
 				UnreadChar(ch);
 				break;
 			}
-
 			token += ch;
-
-            try 
-			{
-				// Check if it is in the keyword
-				return new IdentifierToken(tokenLocation, token);
-			}
-			catch {  return new IdentifierToken(tokenLocation, token);}
 		}
+
+		try
+		{
+			return new KeywordToken(tokenLocation, MyLib.Keywords[token]);
+		}
+		catch (KeyNotFoundException)
+		{
+			return new IdentifierToken(tokenLocation, token);
+		}
+	}
+
+	public void SkipWhitespacesAndComments()
+	{
+		const string whitespaces = " \t\n\r";
+		var ch = ReadChar();
+		while (whitespaces.Contains(ch) || ch == '#')
+		{
+			// read the comment til the end
+			if (ch == '#')
+				while (!"\r\n".Contains(ReadChar()))
+					continue;
+			ch = ReadChar();
+			// stop reading if at the end of file
+			if (ch == EOF) return;
+		}
+		UnreadChar(ch);
 	}
 }
