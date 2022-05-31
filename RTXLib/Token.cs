@@ -4,73 +4,73 @@
 public class Token
 {
 	public SourceLocation Location;
+
+    public Token(SourceLocation location)
+    {
+        Location = location;
+    }
 }
 
 /// <summary>Class <c>StopToken</c> models the token that identifies the end of a file.</summary>
 public class StopToken : Token
 { 
-	public StopToken(SourceLocation location)
-    {
-        Location = location;
-    }
+	public StopToken(SourceLocation location) : base(location) {}
 }
 
 /// <summary>Class <c>SymbolToken</c> describes the token that models an identifier (e.g. a variable name).</summary>
 public class SymbolToken : Token
 {
-    public string Symbol;
+    public char Symbol;
 
-    public SymbolToken(SourceLocation location, string symbol)
+    public SymbolToken(SourceLocation location, char symbol) : base(location)
     {
-        Location = location;
         Symbol = symbol;
     }
 
     public override string ToString()
     {
-        return Symbol;
+        return $"{Symbol}";
     }
 }
 
-/// <summary>Enum <c>KeywordEnum</c> enumerates all the tokens that model a keyword.</summary>
 public enum KeywordEnum
 {
-    NEW = 1,
-    MATERIAL = 2,
-    PLANE = 3,
-    SPHERE = 4,
-    DIFFUSE = 5,
-    SPECULAR = 6,
-    UNIFORM = 7,
-    CHECKERED = 8,
-    IMAGE = 9,
-    IDENTITY = 10,
-    TRANSLATION = 11,
-    ROTATION_X = 12,
-    ROTATION_Y = 13,
-    ROTATION_Z = 14,
-    SCALING = 15,
-    CAMERA = 16,
-    ORTHOGONAL = 17,
-    PERSPECTIVE = 18,
-    FLOAT = 19
+    New = 1,
+    Material = 2,
+    Plane = 3,
+    Sphere = 4,
+    Diffuse = 5,
+    Specular = 6,
+    Uniform = 7,
+    Checkered = 8,
+    Image = 9,
+    Identity = 10,
+    Translation = 11,
+    RotationX = 12,
+    RotationY = 13,
+    RotationZ = 14,
+    Scaling = 15,
+    Camera = 16,
+    Orthogonal = 17,
+    Perspective = 18,
+    Float = 19
 }
+
+
 
 /// <summary>Class <c>KeywordToken</c> describes the token that models a keyword.</summary>
 public class KeywordToken : Token
 {
     public KeywordEnum Keyword;
     
-    public KeywordToken(SourceLocation location, KeywordEnum keyword)
+    public KeywordToken(SourceLocation location, KeywordEnum keyword) : base(location)
     {
-        Location = location;
         Keyword = keyword;
     }
 
-    // NOTE: To undestend how to use dictionaries and enum and how to correct itbe corrected !!!!!!!!!!!
     public override string ToString()
     {
-        return "A";
+        return Keyword.ToString();
     }
 }
 
@@ -79,9 +79,8 @@ public class LiteralNumberToken : Token
 {
     public float Value;
 
-    public LiteralNumberToken(SourceLocation location, float value)
+    public LiteralNumberToken(SourceLocation location, float value) : base(location)
     {
-        Location = location;
         Value = value;
     }
 
@@ -97,9 +96,8 @@ public class LiteralStringToken : Token
 {
     public string String;
 
-    public LiteralStringToken(SourceLocation location, string literalString)
+    public LiteralStringToken(SourceLocation location, string literalString) : base(location)
     {
-        Location = location;
         String = literalString;
     }
 
@@ -114,9 +112,8 @@ public class IdentifierToken : Token
 {
     public string Identifier;
 
-    public IdentifierToken(SourceLocation location, string identifier)
+    public IdentifierToken(SourceLocation location, string identifier) : base(location)
     {
-        Location = location;
         Identifier = identifier;
     }
 

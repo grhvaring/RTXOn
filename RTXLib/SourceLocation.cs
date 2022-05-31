@@ -1,4 +1,4 @@
-﻿using RTXLib;
+﻿namespace RTXLib;
 
 /// <summary>Class <c>SourceLocation</c> describes the position of a token in a source file.
 /// The position of the token is defined by the name of the file , the number of the row (starting from 1) and the number of the column (starting from 1)
@@ -33,6 +33,30 @@ public class SourceLocation
 	/// <summary>Method <c>ShallowCopy</c> performs a shallow copy of a given <c>SourceLocation</c>.</summary>
 	public SourceLocation ShallowCopy()
 	{
-		return (SourceLocation)this.MemberwiseClone();
+		return (SourceLocation)MemberwiseClone();
 	}
 }
+
+public class GrammarError : Exception
+
+{
+	public SourceLocation Location;
+
+	public GrammarError(SourceLocation location, string message) : base(message)
+	{
+		Location = location;
+	}
+	
+}
+
+/*class GrammarError(BaseException):
+    """An error found by the lexer/parser while reading a scene file
+    The fields of this type are the following:
+    - `file_name`: the name of the file, or the empty string if there is no real file
+    - `line_num`: the line number where the error was discovered (starting from 1)
+    - `col_num`: the column number where the error was discovered (starting from 1)
+    - `message`: a user-frendly error message
+    """
+    location: SourceLocation
+    message: str
+*/

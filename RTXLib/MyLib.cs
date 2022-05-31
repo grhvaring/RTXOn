@@ -64,26 +64,26 @@ public static class MyLib
     }
 
     /// <summary><c>KeywordDicitionary</c> is the dictionary that converts string representing keywords in keyword</summary>
-    public static Dictionary<string, KeywordEnum> KeywordDicitionary = new Dictionary<string, KeywordEnum>()
+    public static Dictionary<string, KeywordEnum> Keywords = new()
     {
-        {"new", KeywordEnum.NEW},
-        {"material", KeywordEnum.MATERIAL},
-        {"plane", KeywordEnum.PLANE},
-        {"sphere", KeywordEnum.SPHERE},
-        {"diffuse", KeywordEnum.DIFFUSE},
-        {"specular", KeywordEnum.SPECULAR},
-        {"uniform", KeywordEnum.UNIFORM},
-        {"checkered", KeywordEnum.CHECKERED},
-        {"image", KeywordEnum.IMAGE},
-        {"identity", KeywordEnum.IDENTITY},
-        {"translation", KeywordEnum.TRANSLATION},
-        {"rotation_x", KeywordEnum.ROTATION_X},
-        {"rotation_y", KeywordEnum.ROTATION_Y},
-        {"rotation_z", KeywordEnum.ROTATION_Z},
-        {"scaling", KeywordEnum.SCALING},
-        {"camera", KeywordEnum.CAMERA},
-        {"orthogonal", KeywordEnum.ORTHOGONAL},
-        {"perspective", KeywordEnum.PERSPECTIVE},
-        {"float", KeywordEnum.FLOAT}
+	    {"new", KeywordEnum.New},
+	    {"material", KeywordEnum.Material},
+	    {"plane", KeywordEnum.Plane},
+	    {"sphere", KeywordEnum.Sphere},
+	    {"diffuse", KeywordEnum.Diffuse},
+	    {"specular", KeywordEnum.Specular},
+	    {"uniform", KeywordEnum.Uniform},
+	    {"checkered", KeywordEnum.Checkered},
+	    {"image", KeywordEnum.Image},
+	    {"Identity", KeywordEnum.Identity},
+	    {"translation", KeywordEnum.Translation},
+	    {"rotationX", KeywordEnum.RotationX},
+	    {"rotationY", KeywordEnum.RotationY},
+	    {"rotationZ", KeywordEnum.RotationZ},
+	    {"scaling", KeywordEnum.Scaling},
+	    {"camera", KeywordEnum.Camera},
+	    {"orthogonal", KeywordEnum.Orthogonal},
+	    {"perspective", KeywordEnum.Perspective},
+	    {"float", KeywordEnum.Float}
     };
 }
