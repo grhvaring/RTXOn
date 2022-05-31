@@ -34,7 +34,7 @@ public static class MyLib
         float b = normal.X * normal.Y * a;
 
         Vec e1 = new Vec(1.0f + sign * normal.X * normal.X * a, sign * b, -sign * normal.X);
-        Vec e2 = new Vec(b, sign + normal.Y * normal.Y * a, - normal.Y);
+        Vec e2 = new Vec(b, sign + normal.Y * normal.Y * a, -normal.Y);
         Vec e3 = new Vec(normal.X, normal.Y, normal.Z);
 
         return (e1, e2, e3);
@@ -62,4 +62,28 @@ public static class MyLib
 
         return (e1, e2, e3);
     }
+
+    /// <summary><c>KeywordDicitionary</c> is the dictionary that converts string representing keywords in keyword</summary>
+    public static Dictionary<string, KeywordEnum> KeywordDicitionary = new Dictionary<string, KeywordEnum>()
+    {
+        {"new", KeywordEnum.NEW},
+        {"material", KeywordEnum.MATERIAL},
+        {"plane", KeywordEnum.PLANE},
+        {"sphere", KeywordEnum.SPHERE},
+        {"diffuse", KeywordEnum.DIFFUSE},
+        {"specular", KeywordEnum.SPECULAR},
+        {"uniform", KeywordEnum.UNIFORM},
+        {"checkered", KeywordEnum.CHECKERED},
+        {"image", KeywordEnum.IMAGE},
+        {"identity", KeywordEnum.IDENTITY},
+        {"translation", KeywordEnum.TRANSLATION},
+        {"rotation_x", KeywordEnum.ROTATION_X},
+        {"rotation_y", KeywordEnum.ROTATION_Y},
+        {"rotation_z", KeywordEnum.ROTATION_Z},
+        {"scaling", KeywordEnum.SCALING},
+        {"camera", KeywordEnum.CAMERA},
+        {"orthogonal", KeywordEnum.ORTHOGONAL},
+        {"perspective", KeywordEnum.PERSPECTIVE},
+        {"float", KeywordEnum.FLOAT}
+    };
 }

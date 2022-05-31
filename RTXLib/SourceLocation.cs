@@ -14,6 +14,7 @@ public class SourceLocation
 	/// <value>Property <c>LineNumber</c> represents the number of the column where the token is located in the source file. The column numbering starts from 1.</value>
 	public int ColumnNumber;
 
+	/// <summary>Default constructor <c>SourceLocation</c> creates a <c>SourceLoacation</c> with an empty string as file name, 0 lines and 0 columns.</summary>
 	public SourceLocation()
 	{
 		FileName = "";
@@ -21,6 +22,7 @@ public class SourceLocation
 		ColumnNumber = 0;
 	}
 
+	/// <summary>Constructor <c>SourceLocation</c> creates a <c>SourceLoacation</c> with specified file name, number of lines and number of columns.</summary>
 	public SourceLocation(string fileName, int lineNumber,  int columnNumber)
 	{
 		FileName = fileName;
@@ -28,6 +30,7 @@ public class SourceLocation
 		ColumnNumber = columnNumber;
 	}
 
+	/// <summary>Method <c>ShallowCopy</c> performs a shallow copy of a given <c>SourceLocation</c>.</summary>
 	public SourceLocation ShallowCopy()
 	{
 		return (SourceLocation)this.MemberwiseClone();

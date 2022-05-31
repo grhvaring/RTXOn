@@ -32,6 +32,7 @@ public class SymbolToken : Token
     }
 }
 
+/// <summary>Enum <c>KeywordEnum</c> enumerates all the tokens that model a keyword.</summary>
 public enum KeywordEnum
 {
     NEW = 1,
@@ -55,7 +56,7 @@ public enum KeywordEnum
     FLOAT = 19
 }
 
-/// <summary>Class <c>KeywordTokenn</c> describes the token that models a keyword.</summary>
+/// <summary>Class <c>KeywordToken</c> describes the token that models a keyword.</summary>
 public class KeywordToken : Token
 {
     public KeywordEnum Keyword;
@@ -66,10 +67,10 @@ public class KeywordToken : Token
         Keyword = keyword;
     }
 
-    // To undestend how to use dictionaries and enum and how to correct itbe corrected !!!!!!!!!!!
+    // NOTE: To undestend how to use dictionaries and enum and how to correct itbe corrected !!!!!!!!!!!
     public override string ToString()
     {
-        return "a";
+        return "A";
     }
 }
 
@@ -108,7 +109,7 @@ public class LiteralStringToken : Token
     }
 }
 
-/// <summary>Class <c>IdentifierToken</c> describes the token that models an identifier (e.g. a variable type).</summary>
+/// <summary>Class <c>IdentifierToken</c> describes the token that models an identifier (e.g. a variable name).</summary>
 public class IdentifierToken : Token 
 {
     public string Identifier;
