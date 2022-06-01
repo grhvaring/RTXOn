@@ -68,7 +68,7 @@ public class InputStream
 
 	public void UnreadToken(Token token)
 	{
-		Assert.True(SavedToken != null);
+		Assert.True(SavedToken == null);
 		SavedToken = token;
 	}
 
@@ -91,7 +91,7 @@ public class InputStream
 
 	public void UnreadChar(char ch)
     {
-	    // In the example professor request to do an assert. Why ???
+	    Assert.True(SavedChar == '\0');
 		SavedChar = ch;
 		Location = SavedLocation.ShallowCopy();
     }
