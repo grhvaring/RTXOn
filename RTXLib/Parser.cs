@@ -33,6 +33,39 @@ public static class Parser
 
         return keywordToken.Keyword;
     }
+
+    /// <summary>
+    /// Read a token from `input_file` and check if it is a string.
+    /// </summary>
+    /// <returns>String</returns>
+    public static string ExpectString(InputStream inputFile)
+    {
+        var token = inputFile.ReadToken();
+
+        if (token is not LiteralStringToken)
+            throw new GrammarError(token.Location, $"Expected a string, got a '{token}' instead.");
+
+        var literalStringToken = (LiteralStringToken) token;
+
+        return literalStringToken.String;
+    }
+
+    /// <summary>
+    /// Read a token from `input_file` and check if it is an identifier.
+    /// </summary>
+    /// <returns>Indentifier as a string</returns>
+    public static string ExpectIdentifier(InputStream inputFile)
+    {
+        var token = inputFile.ReadToken();
+
+        if (token is not IdentifierToken)
+            throw new GrammarError(token.Location, $"Expected a identifier, got a '{token}' instead.");
+
+        var identifierToken = (IdentifierToken)token;
+
+        return identifierToken.Identifier;
+    }
+
     
     /*
      def expect_number(s: InputStream, scene: Scene) -> float:
