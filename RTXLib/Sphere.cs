@@ -41,17 +41,10 @@ public class Sphere : Shape
         var t1 = (-b2 - sqrtDelta4) / a;
         var t2 = (-b2 + sqrtDelta4) / a;
         
-        float? t = null; // // t = null -> no hit
+        if (t1 > invRay.TMin && t1 < invRay.TMax) return t1;
+        if (t2 > invRay.TMin && t2 < invRay.TMax) return t2;
 
-        if (t1 > invRay.TMin && t1 < invRay.TMax)
-        {
-            t = t1;
-        }
-        else if (t2 > invRay.TMin && t2 < invRay.TMax)
-        {
-            t = t2;
-        }
-        return t;
+        return null; // null -> no hit
     }
 
     private static Normal NormalAt(Point point, Vec rayDir)
