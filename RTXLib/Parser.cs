@@ -66,21 +66,6 @@ public static class Parser
         return identifierToken.Identifier;
     }
 
-    
-    /*
-     def expect_number(s: InputStream, scene: Scene) -> float:
-    token = input_file.read_token()
-    if isinstance(token, LiteralNumberToken):
-        return token.value
-    elif isinstance(token, IdentifierToken):
-        variable_name = token.identifier
-        if variable_name not in scene.float_variables:
-            raise GrammarError(token.location, f"unknown variable '{token}'")
-        return scene.float_variables[variable_name]
-
-    raise GrammarError(token.location, f"got '{token}' instead of a number")
-     */
-
     public static float ExpectNumber(InputStream stream, Scene scene)
     {
         var token = stream.ReadToken();
