@@ -232,7 +232,7 @@ public static class Parser
             // Check if next token is also a chained trasformation
             var nextKeyword = stream.ReadToken();
 
-            if ((nextKeyword is not SymbolToken) || (((SymbolToken)nextKeyword).Symbol != '*'))
+            if (nextKeyword is not SymbolToken || ((SymbolToken)nextKeyword).Symbol != '*')
             {
                 stream.UnreadToken(nextKeyword);
                 break;
@@ -324,7 +324,7 @@ public static class Parser
                 ExpectSymbol(stream, ')');
 
                 if (scene.FloatVariables.ContainsKey(variableName) && !(scene.OverriddenVariables.Contains(variableName)))
-                    throw new GrammarError(variableLocation, $"Variable «{variableLocation}» cannot be redefinied.");
+                    throw new GrammarError(variableLocation, $"Variable ï¿½{variableLocation}ï¿½ cannot be redefinied.");
 
                 if (!scene.OverriddenVariables.Contains(variableName))
                     scene.FloatVariables.Add(variableName, variableValue);
