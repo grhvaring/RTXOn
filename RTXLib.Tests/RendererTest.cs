@@ -48,6 +48,7 @@ namespace RTXLib.Tests
 				Output.WriteLine(color2.R.ToString());
 				Output.WriteLine(color2.G.ToString());
 				Output.WriteLine(color2.B.ToString());
+				Output.WriteLine("");
 
 				Assert.True(MyLib.AreClose(expected, color2.R, 1e-3));
 				Assert.True(MyLib.AreClose(expected, color2.G, 1e-3));

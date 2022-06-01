@@ -7,22 +7,29 @@ public class Plane : Shape
     public override HitRecord? RayIntersection(Ray ray)
     {
         var invRay = ray.Transform(Transformation.Inverse());
-        
-        if (invRay.Dir.Z == 0) return null;
 
-        var firstHitTime = -invRay.Origin.Z / invRay.Dir.Z;
-        if (firstHitTime < 0 || firstHitTime > invRay.TMax) return null;
-        
-        var hitPoint = invRay.At(firstHitTime);
+        var firstHitTime = CalculateFirstIntersectionTime(invRay);
+        if (!firstHitTime.HasValue) return null;
+
+        var time = firstHitTime.Value;
+        var hitPoint = invRay.At(time);
         
         return new HitRecord(Transformation * hitPoint, Transformation * NormalAt(invRay.Dir),
-                PointToUV(hitPoint), firstHitTime, ray, this);
+                PointToUV(hitPoint), time, ray, this);
+    }
+
+    private static float? CalculateFirstIntersectionTime(Ray invRay)
+    {
+        if (MyLib.IsZero(invRay.Dir.Z)) return null;  // ray parallel to plane
+        
+        var t = -invRay.Origin.Z / invRay.Dir.Z;
+        return t > 0 && t < invRay.TMax ? t : null; // check this one
     }
 
     private static Normal NormalAt(Vec dir)
     {
         var defaultNormal = new Normal(0, 0, 1);
-        return dir.Z > 0 ? defaultNormal : -defaultNormal;
+        return dir.Z > 0 ? -defaultNormal : defaultNormal;
     }
 
     private static Vec2D PointToUV(Point point)

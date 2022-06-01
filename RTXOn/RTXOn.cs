@@ -136,34 +136,7 @@ class RTXOn
 
                 // originalDemo(world);
 
-                // reflecting red sphere
-
-                var red = new Color(1.1f, 0.2f, 0.2f);
-                var spherePigment = new UniformPigment(red);
-                var sphereMaterial = new Material(new SpecularBRDF(spherePigment));
-                var sphere = new Sphere(sphereMaterial, 0, 0, 0.5f, 0.5f);
-                world.Add(sphere);
-                
-                // diffusive sky
-
-                var skyColor = new Color(0.37f, 0.9f, 1);
-                var skyMaterial = new Material(new DiffuseBRDF(new UniformPigment(skyColor)));
-                var sky = new Sphere(skyMaterial, 0, 0, 0, 100);
-                world.Add(sky);
-
-                // sun
-
-                var sunMaterial = new Material(new UniformPigment(new Color(1, 1, 1)));
-                var sun = new Sphere(sunMaterial, 0, 0, 1.5f, 0.5f);
-                // world.Add(sun);
-                
-                // floor
-                
-                Pigment floorPigment = new CheckeredPigment(GREEN, RED);
-                //floorPigment = new UniformPigment(new Color(0, 0, 1));
-                var floorMaterial = new Material(new DiffuseBRDF(floorPigment));
-                var floor = new Plane(floorMaterial);
-                world.Add(floor);
+                RedReflectingDemo(world);
 
                 var tracer = RenderImage(world, options);
                 FinalizeImage(tracer.Image, options);
@@ -206,6 +179,38 @@ class RTXOn
         var checkPigment = new CheckeredPigment(VIOLET, GREEN, 4);
         var checkMaterial = new Material(checkPigment);
         world.Add(new Sphere(checkMaterial, 0, 0, -0.5f * edge, r));
+    }
+
+    private static void RedReflectingDemo(World world)
+    {
+        // reflecting red sphere
+
+        var red = new Color(1.1f, 0.2f, 0.2f);
+        var spherePigment = new UniformPigment(red);
+        var sphereMaterial = new Material(new SpecularBRDF(spherePigment));
+        var sphere = new Sphere(0,0,0.5f, sphereMaterial, 0.5f);
+        world.Add(sphere);
+
+        // emitting blue sky dome
+
+        var skyColor = new Color(0.37f, 0.9f, 1);
+        var skyMaterial = new Material(new UniformPigment(skyColor));
+        var sky = new Sphere(0, 0, 0, skyMaterial, 100);
+        world.Add(sky);
+
+        // optional sun
+
+        var sunMaterial = new Material(new UniformPigment(new Color(1, 1, 1)));
+        var sun = new Sphere(0, 0, 1.5f, sunMaterial, 0.5f);
+        // world.Add(sun);
+                
+        // floor
+                
+        Pigment floorPigment = new CheckeredPigment(GREEN, red);
+        //floorPigment = new UniformPigment(new Color(0, 0, 1));
+        var floorMaterial = new Material(new DiffuseBRDF(floorPigment));
+        var floor = new Plane(floorMaterial);
+        world.Add(floor);
     }
 
     private static ImageTracer RenderImage(World world, Options options)

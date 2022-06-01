@@ -28,18 +28,18 @@ public class World
 		// Variable for the closest intersection; it is initially set to null.
 		HitRecord? closestIntersection = null;
 
-		foreach(var shape in ShapeList)
+		foreach (var shape in ShapeList)
         {
 			HitRecord? intersection = shape.RayIntersection(ray);
 
 			// Check if the ray intersects a shape.
 			// If there is not intersection the program pass to next shape without doing other operation.
-			if(!intersection.HasValue)	continue;
+			if (!intersection.HasValue)	continue;
 
 			// Check if the last intersection found is closer than the intersection that it is now considedered closed and update.
 			// The first condition is needed to assigned a not null value to closedIntersection when the first intersection has been found for the first time.
 			// The syntax .Value.T it is need because the variables are nullable.
-			if ((!closestIntersection.HasValue) || (intersection.Value.T < closestIntersection.Value.T))
+			if (!closestIntersection.HasValue || intersection.Value.T < closestIntersection.Value.T)
 			{
 				closestIntersection = intersection;
 			}
