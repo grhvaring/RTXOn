@@ -135,35 +135,9 @@ class RTXOn
                 var world = new World();
 
                 // originalDemo(world);
-
-                // reflecting red sphere
-
-                var spherePigment = new UniformPigment(new Color(1.1f, 0.2f, 0.2f));
-                var sphereMaterial = new Material(new SpecularBRDF(spherePigment));
-                var sphere = new Sphere(0,0,0.5f, sphereMaterial, 0.5f);
-                world.Add(sphere);
                 
-                // diffusive sky
-
-                var skyColor = new Color(0.37f, 0.9f, 1);
-                var skyMaterial = new Material(new DiffuseBRDF(new UniformPigment(skyColor)));
-                var sky = new Sphere(0, 0, 0, skyMaterial, 100);
-                //world.Add(sky);
-
-                // sun
-
-                var sunMaterial = new Material(new UniformPigment(new Color(1, 1, 1)));
-                var sun = new Sphere(0, 0, 1.5f, sunMaterial, 0.5f);
-                world.Add(sun);
+                RedReflectingDemo(world);
                 
-                // floor
-                
-                Pigment floorPigment = new CheckeredPigment(GREEN, RED);
-                //floorPigment = new UniformPigment(new Color(0, 0, 1));
-                var floorMaterial = new Material(new DiffuseBRDF(floorPigment));
-                var floor = new Plane(floorMaterial);
-                world.Add(floor);
-
                 var tracer = RenderImage(world, options);
                 FinalizeImage(tracer.Image, options);
                 break;
@@ -204,10 +178,42 @@ class RTXOn
         world.Add(new Sphere(0,0, -0.5f * edge, checkMaterial, r));
     }
 
+    private static void RedReflectingDemo(World world)
+    {
+        // reflecting red sphere
+
+        var red = new Color(1.1f, 0.2f, 0.2f);
+        var spherePigment = new UniformPigment(red);
+        var sphereMaterial = new Material(new SpecularBRDF(spherePigment));
+        var sphere = new Sphere(0,0,0.5f, sphereMaterial, 0.5f);
+        world.Add(sphere);
+
+        // emitting blue sky dome
+
+        var skyColor = new Color(0.37f, 0.9f, 1);
+        var skyMaterial = new Material(new UniformPigment(skyColor));
+        var sky = new Sphere(0, 0, 0, skyMaterial, 100);
+        world.Add(sky);
+
+        // optional sun
+
+        var sunMaterial = new Material(new UniformPigment(new Color(1, 1, 1)));
+        var sun = new Sphere(0, 0, 1.5f, sunMaterial, 0.5f);
+        // world.Add(sun);
+                
+        // floor
+                
+        Pigment floorPigment = new CheckeredPigment(GREEN, red);
+        //floorPigment = new UniformPigment(new Color(0, 0, 1));
+        var floorMaterial = new Material(new DiffuseBRDF(floorPigment));
+        var floor = new Plane(floorMaterial);
+        world.Add(floor);
+    }
+
     private static ImageTracer RenderImage(World world, Options options)
     {
-        // var transformation = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(15) * Transformation.Translation(-options.Distance);
-        var camera = ChooseCamera(options);
+        var transformation = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(15) * Transformation.Translation(-options.Distance);
+        var camera = ChooseCamera(options, transformation);
         var image = new HdrImage(options.Width, options.Height);
         var tracer = new ImageTracer(image, camera);
         var renderer = SelectRenderer(world);
