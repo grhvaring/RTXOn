@@ -32,7 +32,7 @@ namespace RTXLib.Tests
 				var diffuseBRDF = new DiffuseBRDF(pigment1);
 				var enclosureMaterial = new Material(diffuseBRDF, pigment2);
 
-				var sphere = new Sphere(0, 0, 0, enclosureMaterial);
+				var sphere = new Sphere(enclosureMaterial, 0, 0, 0);
 				world.Add(sphere);
 
 				var pathTracer = new PathTracer(world, Color.BLACK, pcg, 1, 100, 101);
