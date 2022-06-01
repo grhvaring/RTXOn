@@ -1,3 +1,5 @@
+using Xunit;
+
 namespace RTXLib;
 
 public static class Parser
@@ -59,7 +61,7 @@ public static class Parser
         var token = inputFile.ReadToken();
 
         if (token is not IdentifierToken)
-            throw new GrammarError(token.Location, $"Expected a identifier, got a '{token}' instead.");
+            throw new GrammarError(token.Location, $"Expected an identifier, got a '{token}' instead.");
 
         var identifierToken = (IdentifierToken)token;
 
@@ -107,7 +109,39 @@ public static class Parser
 
     public static Pigment ParsePigment(InputStream stream, Scene scene)
     {
-        return new UniformPigment();
+        var keywords = new[]{KeywordEnum.Uniform, KeywordEnum.Checkered, KeywordEnum.Image};
+        var location = stream.Location.ShallowCopy();
+        var keyword = ExpectKeywords(stream, keywords);
+        Pigment result = new UniformPigment();
+        switch (keyword)
+        {
+            case KeywordEnum.Uniform:
+            {
+                var color = ParseColor(stream, scene);
+                result = new UniformPigment(color);
+                break;
+            }
+            case KeywordEnum.Checkered:
+            {
+                var color1 = ParseColor(stream, scene);
+                ExpectSymbol(stream, ',');
+                var color2 = ParseColor(stream, scene);
+                ExpectSymbol(stream, ',');
+                var steps = (int)ExpectNumber(stream, scene);
+                result = new CheckeredPigment(color1, color2, steps);
+                break;
+            }
+            case KeywordEnum.Image:
+            {
+                var fileName = ExpectString(stream);
+                result = new ImagePigment(fileName);
+                break;
+            }
+            default:
+                Assert.True(false, "This line should be unreachable");
+                break;
+        }
+        return result;
     }
 
     public static BRDF ParseBRDF(InputStream stream, Scene scene)
@@ -195,7 +229,7 @@ public static class Parser
                 ExpectSymbol(stream, ')');
             }
 
-            // Check if next token is also chained trasformation
+            // Check if next token is also a chained trasformation
             var nextKeyword = stream.ReadToken();
 
             if ((nextKeyword is not SymbolToken) || (((SymbolToken)nextKeyword).Symbol != '*'))
@@ -207,6 +241,53 @@ public static class Parser
 
         return trasformation;
     }
+
+    public static Sphere ParseSphere(InputStream stream, Scene scene)
+    {
+        ExpectSymbol(stream, '(');
+        var location = stream.Location.ShallowCopy();
+        var materialName = ExpectIdentifier(stream);
+        if (!scene.Materials.ContainsKey(materialName))
+            throw new GrammarError(location, $"Unknown material {materialName}.");
+        var material = scene.Materials[materialName];
+        ExpectSymbol(stream, ',');
+        var transformation = ParseTransformation(stream, scene);
+        ExpectSymbol(stream, ')');
+        
+        return new Sphere(material, transformation);
+    }
+
+    public static Plane ParsePlane(InputStream stream, Scene scene)
+    {
+        ExpectSymbol(stream, ',');
+        var location = stream.Location.ShallowCopy();
+        var materialName = ExpectIdentifier(stream);
+        if (!scene.Materials.ContainsKey(materialName))
+            throw new GrammarError(location, $"Unknown material {materialName}.");
+        var material = scene.Materials[materialName];
+        ExpectSymbol(stream, ',');
+        var transformation = ParseTransformation(stream, scene);
+        ExpectSymbol(stream, ')');
+        
+        return new Plane(material, transformation);
+    }
+
+    public static ICamera ParseCamera(InputStream stream, Scene scene)
+    {
+        ExpectSymbol(stream, '(');
+        var type = ExpectKeywords(stream, new[] { KeywordEnum.Orthogonal, KeywordEnum.Perspective });
+        ExpectSymbol(stream, ',');
+        var transformation = ParseTransformation(stream, scene);
+        ExpectSymbol(stream, ',');
+        var aspectRatio = ExpectNumber(stream, scene);
+        ExpectSymbol(stream, ',');
+        var distance = ExpectNumber(stream, scene);
+        ExpectSymbol(stream, ')');
+
+        return type is KeywordEnum.Orthogonal
+            ? new OrthogonalCamera(aspectRatio, transformation)
+            : new PerspectiveCamera(distance, aspectRatio, transformation);
+}
 
     /// <summary>
     /// Method <c>ParseScene</c> reads a scene from a stream and returns a <c>Scene</c> object.
@@ -272,4 +353,5 @@ public static class Parser
 
         return scene;
     }
+
 }

@@ -1,5 +1,6 @@
 ﻿using RTXLib;
 using System.Globalization;
+using Xunit;
 
 /// <summary>Class <c>InputStream</c> models a stream used to parse the file describing the scene to be rendered.</summary>
 public class InputStream
@@ -12,6 +13,7 @@ public class InputStream
 	public char SavedChar;
 	public SourceLocation SavedLocation;
 	public int Tabulations;
+	public Token? SavedToken;
 
 	public InputStream(TextReader stream, string filename = "", int tabulations = 8)
 	{
@@ -20,6 +22,7 @@ public class InputStream
 		SavedChar = '\0';
 		SavedLocation = Location;
 		Tabulations = tabulations;
+		SavedToken = null;
 	}
 
 	/// <summary>Method <c>UpdatePosition</c> updates the <c>Location</c> after reading a character from the stream.</summary>
@@ -41,6 +44,13 @@ public class InputStream
 	{
 		SkipWhitespacesAndComments();
 		var ch = ReadChar();
+
+		if (SavedToken != null)
+		{
+			var result = SavedToken;
+			SavedToken = null;
+			return result;
+		}
 		
 		// end of file
 		if (ch == EOF) return new StopToken(Location);
@@ -54,6 +64,12 @@ public class InputStream
 		
 		// if none of the previous checks returned a valid token
 		throw new GrammarError(tokenLocation, $"Invalid character {ch}");
+	}
+
+	public void UnreadToken(Token token)
+	{
+		Assert.True(SavedToken != null);
+		SavedToken = token;
 	}
 
 	/// <summary>Method <c>ReadChar</c> reads a new character from the stream and saves his location.</summary>
