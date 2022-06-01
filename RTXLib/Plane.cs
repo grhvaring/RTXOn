@@ -2,9 +2,7 @@ namespace RTXLib;
 
 public class Plane : Shape
 {
-    public Plane(Transformation? transformation = null) : base(transformation) {}
-    public Plane(Transformation transformation, Material? material = null) : base(transformation, material) {}
-    public Plane(Material material) : base(material) {}
+    public Plane(Material? material = null, Transformation? transformation = null) : base(material, transformation) {}
     
     public override HitRecord? RayIntersection(Ray ray)
     {
