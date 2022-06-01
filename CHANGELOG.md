@@ -4,8 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- Error in pathtracing when dealing with planes' intersections
+
 ### Added
-- Read 3D scene to render from input file
+- Reading 3D scene from input file
 
 ## [0.3.0] - 2022-05-25
 
