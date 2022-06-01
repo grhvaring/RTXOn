@@ -147,14 +147,129 @@ public static class Parser
 
     public static Transformation ParseTransformation(InputStream stream, Scene scene)
     {
-        KeywordEnum[] TRANSFORMATIONS = 
+        Transformation trasformation = new Transformation();
+
+        KeywordEnum[] TRANSFORMATIONS =
         { KeywordEnum.Identity,
           KeywordEnum.Translation,
           KeywordEnum.RotationX,
           KeywordEnum.RotationY,
-        
-        
-        
+          KeywordEnum.RotationZ,
+          KeywordEnum.Scaling
         };
+
+        while (true)
+        {
+            var trasformationKeyword = ExpectKeywords(stream, TRANSFORMATIONS);
+
+            if (trasformationKeyword == KeywordEnum.Identity) { }   // Do nothing if the trasformation is identity
+            if (trasformationKeyword == KeywordEnum.Translation)
+            {
+                ExpectSymbol(stream, '(');
+                trasformation *= Transformation.Translation(ParseVector(stream, scene));
+                ExpectSymbol(stream, ')');
+            }
+            else if (trasformationKeyword == KeywordEnum.RotationX)
+            {
+                ExpectSymbol(stream, '(');
+                trasformation *= Transformation.RotationX(ExpectNumber(stream, scene));
+                ExpectSymbol(stream, ')');
+            }
+            else if (trasformationKeyword == KeywordEnum.RotationY)
+            {
+                ExpectSymbol(stream, '(');
+                trasformation *= Transformation.RotationY(ExpectNumber(stream, scene));
+                ExpectSymbol(stream, ')');
+            }
+            else if (trasformationKeyword == KeywordEnum.RotationZ)
+            {
+                ExpectSymbol(stream, '(');
+                trasformation *= Transformation.RotationZ(ExpectNumber(stream, scene));
+                ExpectSymbol(stream, ')');
+            }
+            else if (trasformationKeyword == KeywordEnum.Scaling)
+            {
+                ExpectSymbol(stream, '(');
+                var vec = ParseVector(stream, scene);
+                trasformation *= Transformation.Scaling(vec.X, vec.Y, vec.Z);
+                ExpectSymbol(stream, ')');
+            }
+
+            // Check if next token is also chained trasformation
+            var nextKeyword = stream.ReadToken();
+
+            if ((nextKeyword is not SymbolToken) || (((SymbolToken)nextKeyword).Symbol != '*'))
+            {
+                stream.UnreadToken(nextKeyword);
+                break;
+            }
+        }
+
+        return trasformation;
+    }
+
+    /// <summary>
+    /// Method <c>ParseScene</c> reads a scene from a stream and returns a <c>Scene</c> object.
+    /// </summary>
+    /// <param name="stream">The stream from which the file is read.</param>
+    /// <param name="variables">The list of the variables.</param>
+    /// <returns>A scene with the collection of object (world, camera, materials and float variables) described in the stream.</returns>
+    /// <exception cref="GrammarError"></exception>
+    public static Scene ParseScene(InputStream stream, Dictionary<string, float> variables)
+    {
+        Scene scene = new Scene();
+        scene.FloatVariables = variables; //Shallow Copy
+        scene.OverriddenVariables = new SortedSet<string>(variables.Keys);
+
+        while (true)
+        {
+            var what = stream.ReadToken();
+
+            if (what is StopToken)
+                break;
+
+            if (what is not KeywordToken)
+                throw new Exception("This line should be unreachable");
+
+            var whatKeyword = (KeywordToken)what;   //At this point we are sure the object is a KeywordToken
+
+            if (whatKeyword.Keyword == KeywordEnum.Float)
+            {
+                var variableName = ExpectIdentifier(stream);
+                var variableLocation = stream.Location;
+
+                ExpectSymbol(stream, '(');
+                var variableValue = ExpectNumber(stream, scene);
+                ExpectSymbol(stream, ')');
+
+                if (scene.FloatVariables.ContainsKey(variableName) && !(scene.OverriddenVariables.Contains(variableName)))
+                    throw new GrammarError(variableLocation, $"Variable «{variableLocation}» cannot be redefinied.");
+
+                if (!scene.OverriddenVariables.Contains(variableName))
+                    scene.FloatVariables.Add(variableName, variableValue);
+            }
+
+            else if (whatKeyword.Keyword == KeywordEnum.Sphere)
+                scene.World.Add(ParseSphere(stream, scene));
+
+            else if (whatKeyword.Keyword == KeywordEnum.Plane)
+                scene.World.Add(ParsePlane(stream, scene));
+
+            else if (whatKeyword.Keyword == KeywordEnum.Camera)
+            {
+                if (scene.Camera == null)
+                    throw new GrammarError(whatKeyword.Location, $"You cannot define more that one camera.");
+
+                scene.Camera = ParseCamera(stream, scene);
+            }
+
+            else if (whatKeyword.Keyword == KeywordEnum.Material)
+            {
+                (var name, var material) = ParseMaterial(stream, scene);
+                scene.Materials.Add(name, material);
+            }
+        }
+
+        return scene;
     }
 }
