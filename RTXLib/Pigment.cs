@@ -1,6 +1,5 @@
 ﻿namespace RTXLib;
 
-
 ///<summary>
 ///Abstract interface <c>Pigment</c> models a pigment, i. e., a function that associates a color to each point of a parametric surface.
 ///
@@ -17,9 +16,9 @@
 /// </item>
 /// </list>
 /// </summary>
-public interface Pigment
+public abstract class Pigment
 {
-    public Color GetColor(Vec2D coordinates);
+    public abstract Color GetColor(Vec2D coordinates);
 }
 
 ///<summary>
@@ -39,7 +38,7 @@ public class UniformPigment : Pigment
         Color = new Color(r, g, b);
     }
 
-    public Color GetColor(Vec2D coordinates)
+    public override Color GetColor(Vec2D coordinates)
     {
         return Color;
     }
@@ -63,7 +62,7 @@ public class CheckeredPigment : Pigment
         NumberOfSteps = numberOfSteps;
     }
 
-    public Color GetColor(Vec2D coordinates)
+    public override Color GetColor(Vec2D coordinates)
     {
         // Check to which square is assigned to the given coordinate
         int u = (int)Math.Floor(coordinates.U * NumberOfSteps);
@@ -87,7 +86,13 @@ public class ImagePigment : Pigment
     {
         Image = image;
     }
-    public Color GetColor(Vec2D coordinates)
+
+    public ImagePigment(string fileName)
+    {
+        Image = new HdrImage(fileName);
+    }
+    
+    public override Color GetColor(Vec2D coordinates)
     {
         // Check which pixel is assigned to the given coordinate
         int column = (int)(coordinates.U * Image.Width);
