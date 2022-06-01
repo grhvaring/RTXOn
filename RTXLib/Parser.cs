@@ -33,4 +33,62 @@ public static class Parser
 
         return keywordToken.Keyword;
     }
+    
+    /*
+     def expect_number(s: InputStream, scene: Scene) -> float:
+    token = input_file.read_token()
+    if isinstance(token, LiteralNumberToken):
+        return token.value
+    elif isinstance(token, IdentifierToken):
+        variable_name = token.identifier
+        if variable_name not in scene.float_variables:
+            raise GrammarError(token.location, f"unknown variable '{token}'")
+        return scene.float_variables[variable_name]
+
+    raise GrammarError(token.location, f"got '{token}' instead of a number")
+     */
+
+    public static float ExpectNumber(InputStream stream, Scene scene)
+    {
+        var token = stream.ReadToken();
+        if (token is LiteralNumberToken numberToken) return numberToken.Value;
+        if (token is IdentifierToken idToken)
+        {
+            var variableName = idToken.Identifier;
+            if (!scene.FloatVariables.ContainsKey(variableName)) 
+                throw new GrammarError(idToken.Location, $"Unknown variable {variableName}.");
+            return scene.FloatVariables[variableName];
+        }
+
+        throw new GrammarError(token.Location, $"Expected a number, got a {token}.");
+    }
+
+    public static Color ParseColor(InputStream stream, Scene scene)
+    {
+        ExpectSymbol(stream, '[');
+        var r = ExpectNumber(stream, scene);
+        ExpectSymbol(stream, ',');
+        var g = ExpectNumber(stream, scene);
+        ExpectSymbol(stream, ',');
+        var b = ExpectNumber(stream, scene);
+        ExpectSymbol(stream, ']');
+        return new Color(r, g, b);
+    }
+    
+    public static Vec ParseVector(InputStream stream, Scene scene)
+    {
+        ExpectSymbol(stream, '[');
+        var x = ExpectNumber(stream, scene);
+        ExpectSymbol(stream, ',');
+        var y = ExpectNumber(stream, scene);
+        ExpectSymbol(stream, ',');
+        var z = ExpectNumber(stream, scene);
+        ExpectSymbol(stream, ']');
+        return new Vec(x, y, z);
+    }
+
+    public static Pigment ParsePigment(InputStream stream, Scene scene)
+    {
+        return new UniformPigment();
+    }
 }
