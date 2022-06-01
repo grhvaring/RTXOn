@@ -109,4 +109,52 @@ public static class Parser
     {
         return new UniformPigment();
     }
+
+    public static BRDF ParseBRDF(InputStream stream, Scene scene)
+    {
+        KeywordEnum [] BRDFKEYWORDS = {KeywordEnum.Diffuse, KeywordEnum.Uniform};
+
+        var brdfKeyword = ExpectKeywords(stream, BRDFKEYWORDS);
+        ExpectSymbol(stream, '(');
+        var pigment = ParsePigment(stream, scene);
+        ExpectSymbol(stream, '(');
+
+        if (brdfKeyword == KeywordEnum.Diffuse)
+            return new DiffuseBRDF(pigment);
+
+        if (brdfKeyword == KeywordEnum.Uniform)
+            return new SpecularBRDF(pigment);
+
+        // NOTE: to be changed and to verify how to handle assert in C#
+        throw new Exception("This line should be unreachable");
+        
+    }
+
+    public static (string, Material) ParseMaterial(InputStream stream, Scene scene)
+    {
+        var name = ExpectIdentifier(stream);
+
+        ExpectSymbol(stream, '(');
+        var brdf = ParseBRDF(stream, scene);
+        ExpectSymbol(stream, ',');
+        var emittedRadiance = ParsePigment(stream, scene);
+        ExpectSymbol(stream, ')');
+
+        var material = new Material(brdf, emittedRadiance);
+
+        return (name, material);
+    }
+
+    public static Transformation ParseTransformation(InputStream stream, Scene scene)
+    {
+        KeywordEnum[] TRANSFORMATIONS = 
+        { KeywordEnum.Identity,
+          KeywordEnum.Translation,
+          KeywordEnum.RotationX,
+          KeywordEnum.RotationY,
+        
+        
+        
+        };
+    }
 }
