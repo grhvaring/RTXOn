@@ -12,16 +12,9 @@ public abstract class Shape
         Material = new Material();
     }
 
-    protected Shape(Transformation transformation, Material? material = null)
+    protected Shape(Material? material = null, Transformation? transformation = null)
     {
-        Transformation = transformation;
+        Transformation = transformation ?? new Transformation();
         Material = material ?? new Material(); 
     }
-    
-    protected Shape(Material material)
-    {
-        Transformation = Transformation.Identity;
-        Material = material; 
-    }
-    
 }

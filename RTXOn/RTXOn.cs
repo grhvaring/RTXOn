@@ -78,7 +78,7 @@ class RTXOn
 
     private static void Main(string[] args)
     {
-        Parser.Default.ParseArguments<Options>(args)
+        CommandLine.Parser.Default.ParseArguments<Options>(args)
             .WithParsed(RunOptions);
     }
     
@@ -135,11 +135,14 @@ class RTXOn
                 var world = new World();
 
                 // originalDemo(world);
-                
+
                 RedReflectingDemo(world);
-                
+
                 var tracer = RenderImage(world, options);
                 FinalizeImage(tracer.Image, options);
+                break;
+            
+            case "render":
                 break;
         }
     }
@@ -167,7 +170,7 @@ class RTXOn
             {
                 foreach (var z in limits)
                 {
-                    world.Add(new Sphere(x, y, z, material, r));
+                    world.Add(new Sphere(material, x, y, z, r));
                 }
             }
         }
@@ -175,7 +178,7 @@ class RTXOn
         var firstMaterial = new Material(new CheckeredPigment(VIOLET, YELLOW, 2));
         var checkPigment = new CheckeredPigment(VIOLET, GREEN, 4);
         var checkMaterial = new Material(checkPigment);
-        world.Add(new Sphere(0,0, -0.5f * edge, checkMaterial, r));
+        world.Add(new Sphere(checkMaterial, 0, 0, -0.5f * edge, r));
     }
 
     private static void RedReflectingDemo(World world)
@@ -212,8 +215,8 @@ class RTXOn
 
     private static ImageTracer RenderImage(World world, Options options)
     {
-        var transformation = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(15) * Transformation.Translation(-options.Distance);
-        var camera = ChooseCamera(options, transformation);
+        // var transformation = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(15) * Transformation.Translation(-options.Distance);
+        var camera = ChooseCamera(options);
         var image = new HdrImage(options.Width, options.Height);
         var tracer = new ImageTracer(image, camera);
         var renderer = SelectRenderer(world);

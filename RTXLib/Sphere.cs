@@ -2,14 +2,13 @@ namespace RTXLib;
 
 public class Sphere : Shape
 {
-    public Sphere(float x, float y, float z, Material material, float r = 1)
+    public Sphere(Material material, float x, float y, float z, float r = 1) : base(material)
     {
         Transformation = Transformation.Translation(x, y, z) * Transformation.Scaling(r);
-        Material = material;
     }
 
     public Sphere(Transformation? transformation = null) : base(transformation) {}
-    public Sphere(Transformation transformation, Material material) : base(transformation, material) {}
+    public Sphere(Material material, Transformation transformation) : base(material, transformation) {}
 
     public override HitRecord? RayIntersection(Ray ray)
     {

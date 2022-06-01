@@ -111,7 +111,15 @@ public class PathTracer : Renderer
         RussianRouletteLimit = russianRouletteLimit;
     }
     
-    public PathTracer(World world, int maxDepth = 2) : base(world)
+    public PathTracer(World world, int numberOfRays = 10, int maxDepth = 2) : base(world) 
+    {
+        Pcg = new PCG();
+        NumberOfRays = numberOfRays;
+        MaxDepth = maxDepth;
+        RussianRouletteLimit = 3;
+    }
+    
+    public PathTracer(World world, int maxDepth = 2) : base(world) 
     {
         Pcg = new PCG();
         NumberOfRays = 10;
