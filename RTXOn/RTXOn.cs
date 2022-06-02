@@ -58,6 +58,10 @@ class RTXOn
         
         [Option("depth", Default = 2)]
         public static int MaxDepth { get; set; }
+
+        [Option("input-file", Default = "examples/demo.txt",
+            HelpText = "Input file containing the 3D scene to render.")]
+        public string InputSceneFile { get; set; }
     }
     public readonly struct IOFiles
     {
@@ -102,6 +106,7 @@ class RTXOn
         
         var arguments = options.Arguments.ToArray();
 
+        ImageTracer? tracer;
         switch (options.Mode)
         {
             case "pfm2png":
@@ -138,12 +143,27 @@ class RTXOn
 
                 RedReflectingDemo(world);
 
-                var tracer = RenderImage(world, options);
+                tracer = RenderImage(world, options);
                 FinalizeImage(tracer.Image, options);
                 break;
             
             case "render":
+            {
+                using var reader = new StreamReader(options.InputSceneFile);
+                var inputStream = new InputStream(reader, options.InputSceneFile);
+                try
+                {
+                    var scene = RTXLib.Parser.ParseScene(inputStream);
+                    tracer = RenderImage(scene.World, options);
+                    FinalizeImage(tracer.Image, options);
+                }
+                catch (GrammarError e)
+                {
+                    var loc = e.Location;
+                    Console.WriteLine($"In file \"{loc.FileName}\", line {loc.LineNumber}, col {loc.ColumnNumber-1}: {e.Message}");
+                }
                 break;
+            }
         }
     }
 
@@ -188,20 +208,20 @@ class RTXOn
         var red = new Color(1.1f, 0.2f, 0.2f);
         var spherePigment = new UniformPigment(red);
         var sphereMaterial = new Material(new SpecularBRDF(spherePigment));
-        var sphere = new Sphere(0,0,0.5f, sphereMaterial, 0.5f);
+        var sphere = new Sphere(sphereMaterial,0,0,0.5f, 0.5f);
         world.Add(sphere);
 
         // emitting blue sky dome
 
         var skyColor = new Color(0.37f, 0.9f, 1);
         var skyMaterial = new Material(new UniformPigment(skyColor));
-        var sky = new Sphere(0, 0, 0, skyMaterial, 100);
+        var sky = new Sphere(skyMaterial, 0, 0, 0, 100);
         world.Add(sky);
 
         // optional sun
 
         var sunMaterial = new Material(new UniformPigment(new Color(1, 1, 1)));
-        var sun = new Sphere(0, 0, 1.5f, sunMaterial, 0.5f);
+        var sun = new Sphere(sunMaterial, 0, 0, 1.5f, 0.5f);
         // world.Add(sun);
                 
         // floor
