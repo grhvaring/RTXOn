@@ -107,6 +107,7 @@ class RTXOn
         var arguments = options.Arguments.ToArray();
 
         ImageTracer? tracer;
+      
         switch (options.Mode)
         {
             case "pfm2png":
@@ -216,12 +217,14 @@ class RTXOn
         var skyColor = new Color(0.37f, 0.9f, 1);
         var skyMaterial = new Material(new UniformPigment(skyColor));
         var sky = new Sphere(skyMaterial, 0, 0, 0, 100);
+
         world.Add(sky);
 
         // optional sun
 
         var sunMaterial = new Material(new UniformPigment(new Color(1, 1, 1)));
         var sun = new Sphere(sunMaterial, 0, 0, 1.5f, 0.5f);
+    
         // world.Add(sun);
                 
         // floor
