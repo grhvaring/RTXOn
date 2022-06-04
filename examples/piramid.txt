@@ -1,0 +1,49 @@
+# rgb emitting spheres
+
+material red_material(
+    diffuse(uniform([0, 0, 0])),
+    uniform([255, 0, 0])
+)
+
+material green_material(
+    diffuse(uniform([0, 0, 0])),
+    uniform([0, 255, 0])
+)
+
+material blue_material(
+    diffuse(uniform([0, 0, 0])),
+    uniform([0, 0, 255])
+)
+
+material yellow_material(
+    diffuse(uniform([0, 0, 0])),
+    uniform([255, 255, 6.9])
+)
+
+material sky_material(
+    diffuse(uniform([0, 0, 0])),
+    uniform([1, 1, 1])
+)
+
+material ground_material(
+    diffuse(uniform([1, 1, 1])),
+    uniform([0, 0, 0])
+)
+
+float r(0.5)
+float neg_r(-0.5)
+float l(1.730205)
+float l_half(0.866)
+float ml_half(-0.866)
+
+sphere (sky_material, scaling([100, 100, 100]))
+plane (ground_material, translation([0, 0, neg_r]))
+
+sphere (red_material, translation([-0.5, l_half, 0]) * scaling ([r, r, r]))
+sphere (green_material, translation([-0.5, ml_half, 0]) * scaling ([r, r, r]))
+sphere (blue_material, translation([1, 0, 0]) * scaling ([r, r, r]))
+sphere (yellow_material, translation([0, 0, l]) * scaling ([r, r, r]))
+
+# translation([0, -2, 0]) * rotation_y(5) * rotation_z(90)
+# translation([0.5, -0.5, 0.5]) * rotation_x(-15) * rotation_z(90)
+camera (perspective, translation([-2, 0, 0.5]), 1.0, 2.0)

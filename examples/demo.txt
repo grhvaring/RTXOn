@@ -1,4 +1,4 @@
-float clock(30)
+float clock(150)
 
 material sky_material(
     diffuse(uniform([0, 0, 0])),
