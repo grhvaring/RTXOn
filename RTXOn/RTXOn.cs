@@ -89,7 +89,7 @@ class RTXOn
         CommandLine.Parser.Default.ParseArguments<Options>(args)
             .WithParsed(RunOptions);
     }
-    
+
     static readonly Color YELLOW = new(1, 1, 0.2F);
     static readonly Color GREEN = new(0, 1,0 );
     static readonly Color RED = new (1, 0, 0);
