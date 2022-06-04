@@ -42,9 +42,6 @@ public class InputStream
 
 	public Token ReadToken()
 	{
-		SkipWhitespacesAndComments();
-		var ch = ReadChar();
-
 		if (SavedToken != null)
 		{
 			var result = SavedToken;
@@ -52,13 +49,16 @@ public class InputStream
 			return result;
 		}
 		
+		SkipWhitespacesAndComments();
+		var ch = ReadChar();
+
 		// end of file
 		if (ch == EOF) return new StopToken(Location);
 
 		var tokenLocation = Location.ShallowCopy();
 		
 		if (symbols.Contains(ch)) return new SymbolToken(tokenLocation, ch);
-		if (char.IsNumber(ch)) return ParseFloatToken(ch, tokenLocation);
+		if (char.IsNumber(ch) || ch == '-') return ParseFloatToken(ch, tokenLocation);
 		if (ch == '"') return ParseStringToken(tokenLocation);
 		if (char.IsLetter(ch)) return ParseKeywordOrIdentifierToken(ch, tokenLocation);
 		
@@ -70,6 +70,7 @@ public class InputStream
 	{
 		Assert.True(SavedToken == null);
 		SavedToken = token;
+		Location = SavedLocation.ShallowCopy();
 	}
 
 	/// <summary>Method <c>ReadChar</c> reads a new character from the stream and saves his location.</summary>
@@ -122,7 +123,7 @@ public class InputStream
 		char[] SCIENTIFIC_NOTATION_BASE = { 'e', 'E' };
 
 		var token = firstCharacter.ToString();
-
+		
 		while(true)
         {
 			var ch = ReadChar();
@@ -135,14 +136,14 @@ public class InputStream
             }
 
 			token += ch;
-		}
+        }
 
 		float value;
 
 		// Convert
 		try
 		{
-			value = float.Parse(token, NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent);
+			value = float.Parse(token, NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent | NumberStyles.AllowLeadingSign);
 		}
 		catch
 		{

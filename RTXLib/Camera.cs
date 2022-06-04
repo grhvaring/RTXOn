@@ -56,6 +56,7 @@ public class PerspectiveCamera : ICamera
     {
         var origin = new Point(-Distance, 0, 0);
         var direction = new Vec(Distance, (1 - 2 * u) * AspectRatio, 2 * v - 1);
+        // tmin = - Origin.X / direction.X = 1;
         return new Ray(origin, direction, 1).Transform(Transformation);
     }
 }

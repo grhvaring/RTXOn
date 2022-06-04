@@ -23,7 +23,7 @@ public class Plane : Shape
         if (MyLib.IsZero(invRay.Dir.Z)) return null;  // ray parallel to plane
         
         var t = -invRay.Origin.Z / invRay.Dir.Z;
-        return t > 0 && t < invRay.TMax ? t : null; // check this one
+        return t > invRay.TMin && t < invRay.TMax ? t : null; // check this one
     }
 
     private static Normal NormalAt(Vec dir)

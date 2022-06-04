@@ -12,8 +12,7 @@ public static class Parser
         var token = inputFile.ReadToken();
         var message = $"Got {token} when expecting {symbol}";
         var e = new GrammarError(token.Location, message);
-        if (token is not SymbolToken) throw e;
-        var symToken = (SymbolToken) token;
+        if (token is not SymbolToken symToken) throw e;
         if (symToken.Symbol != symbol) throw e;
     }
 
@@ -25,13 +24,11 @@ public static class Parser
     {
         var token = inputFile.ReadToken();
 
-        if (token is not KeywordToken)
+        if (token is not KeywordToken keywordToken)
             throw new GrammarError(token.Location, $"Keyword expected, got a '{token}' instead.");
 
-        var keywordToken = (KeywordToken) token;
-
         if (!keywords.Contains(keywordToken.Keyword))
-            throw new GrammarError(token.Location, $"Expected a keyword in the list {string.Join(", ", keywords)}");
+            throw new GrammarError(keywordToken.Location, $"Expected a keyword in the list {string.Join(", ", keywords)}");
 
         return keywordToken.Keyword;
     }
@@ -109,10 +106,13 @@ public static class Parser
 
     public static Pigment ParsePigment(InputStream stream, Scene scene)
     {
-        var keywords = new[]{KeywordEnum.Uniform, KeywordEnum.Checkered, KeywordEnum.Image};
+        var keywords = new[] {KeywordEnum.Uniform, KeywordEnum.Checkered, KeywordEnum.Image};
         var location = stream.Location.ShallowCopy();
         var keyword = ExpectKeywords(stream, keywords);
         Pigment result = new UniformPigment();
+        
+        ExpectSymbol(stream, '(');
+        
         switch (keyword)
         {
             case KeywordEnum.Uniform:
@@ -141,26 +141,29 @@ public static class Parser
                 Assert.True(false, "This line should be unreachable");
                 break;
         }
+        
+        ExpectSymbol(stream, ')');
+
         return result;
     }
 
     public static BRDF ParseBRDF(InputStream stream, Scene scene)
     {
-        KeywordEnum [] BRDFKEYWORDS = {KeywordEnum.Diffuse, KeywordEnum.Uniform};
+        KeywordEnum [] keywords = {KeywordEnum.Diffuse, KeywordEnum.Specular};
 
-        var brdfKeyword = ExpectKeywords(stream, BRDFKEYWORDS);
+        var brdfKeyword = ExpectKeywords(stream, keywords);
         ExpectSymbol(stream, '(');
         var pigment = ParsePigment(stream, scene);
-        ExpectSymbol(stream, '(');
-
+        ExpectSymbol(stream, ')');
+        
         if (brdfKeyword == KeywordEnum.Diffuse)
             return new DiffuseBRDF(pigment);
 
-        if (brdfKeyword == KeywordEnum.Uniform)
+        if (brdfKeyword == KeywordEnum.Specular)
             return new SpecularBRDF(pigment);
 
         // NOTE: to be changed and to verify how to handle assert in C#
-        throw new Exception("This line should be unreachable");
+        throw new GrammarError(stream.Location, "This line should be unreachable.");
         
     }
 
@@ -196,43 +199,25 @@ public static class Parser
         {
             var trasformationKeyword = ExpectKeywords(stream, TRANSFORMATIONS);
 
-            if (trasformationKeyword == KeywordEnum.Identity) { }   // Do nothing if the trasformation is identity
-            if (trasformationKeyword == KeywordEnum.Translation)
-            {
-                ExpectSymbol(stream, '(');
-                trasformation *= Transformation.Translation(ParseVector(stream, scene));
-                ExpectSymbol(stream, ')');
-            }
-            else if (trasformationKeyword == KeywordEnum.RotationX)
-            {
-                ExpectSymbol(stream, '(');
-                trasformation *= Transformation.RotationX(ExpectNumber(stream, scene));
-                ExpectSymbol(stream, ')');
-            }
-            else if (trasformationKeyword == KeywordEnum.RotationY)
-            {
-                ExpectSymbol(stream, '(');
-                trasformation *= Transformation.RotationY(ExpectNumber(stream, scene));
-                ExpectSymbol(stream, ')');
-            }
-            else if (trasformationKeyword == KeywordEnum.RotationZ)
-            {
-                ExpectSymbol(stream, '(');
-                trasformation *= Transformation.RotationZ(ExpectNumber(stream, scene));
-                ExpectSymbol(stream, ')');
-            }
+            if (trasformationKeyword == KeywordEnum.Identity) return new Transformation(); // maybe it is a little too much
+            
+            ExpectSymbol(stream, '(');
+            if (trasformationKeyword == KeywordEnum.Translation) trasformation *= Transformation.Translation(ParseVector(stream, scene));
+            else if (trasformationKeyword == KeywordEnum.RotationX) trasformation *= Transformation.RotationX(ExpectNumber(stream, scene));
+            else if (trasformationKeyword == KeywordEnum.RotationY) trasformation *= Transformation.RotationY(ExpectNumber(stream, scene));
+            else if (trasformationKeyword == KeywordEnum.RotationZ) trasformation *= Transformation.RotationZ(ExpectNumber(stream, scene));
             else if (trasformationKeyword == KeywordEnum.Scaling)
             {
-                ExpectSymbol(stream, '(');
                 var vec = ParseVector(stream, scene);
                 trasformation *= Transformation.Scaling(vec.X, vec.Y, vec.Z);
-                ExpectSymbol(stream, ')');
             }
 
-            // Check if next token is also a chained trasformation
+            ExpectSymbol(stream, ')');
+            
+            // Check if next token is also a chained transformation
             var nextKeyword = stream.ReadToken();
 
-            if (nextKeyword is not SymbolToken || ((SymbolToken)nextKeyword).Symbol != '*')
+            if (nextKeyword is not SymbolToken token || token.Symbol != '*')
             {
                 stream.UnreadToken(nextKeyword);
                 break;
@@ -259,7 +244,7 @@ public static class Parser
 
     public static Plane ParsePlane(InputStream stream, Scene scene)
     {
-        ExpectSymbol(stream, ',');
+        ExpectSymbol(stream, '(');
         var location = stream.Location.ShallowCopy();
         var materialName = ExpectIdentifier(stream);
         if (!scene.Materials.ContainsKey(materialName))
@@ -279,9 +264,9 @@ public static class Parser
         ExpectSymbol(stream, ',');
         var transformation = ParseTransformation(stream, scene);
         ExpectSymbol(stream, ',');
-        var aspectRatio = ExpectNumber(stream, scene);
-        ExpectSymbol(stream, ',');
         var distance = ExpectNumber(stream, scene);
+        ExpectSymbol(stream, ',');
+        var aspectRatio = ExpectNumber(stream, scene);
         ExpectSymbol(stream, ')');
 
         return type is KeywordEnum.Orthogonal
@@ -296,11 +281,14 @@ public static class Parser
     /// <param name="variables">The list of the variables.</param>
     /// <returns>A scene with the collection of object (world, camera, materials and float variables) described in the stream.</returns>
     /// <exception cref="GrammarError"></exception>
-    public static Scene ParseScene(InputStream stream, Dictionary<string, float> variables)
+    public static Scene ParseScene(InputStream stream, Dictionary<string, float>? variables = null)
     {
-        Scene scene = new Scene();
-        scene.FloatVariables = variables; //Shallow Copy
-        scene.OverriddenVariables = new SortedSet<string>(variables.Keys);
+        var scene = new Scene();
+        if (variables is not null)
+        {
+            scene.FloatVariables = variables; // Shallow Copy
+            scene.OverriddenVariables = new SortedSet<string>(variables.Keys);
+        }
 
         while (true)
         {
@@ -310,9 +298,9 @@ public static class Parser
                 break;
 
             if (what is not KeywordToken)
-                throw new Exception("This line should be unreachable");
+                Assert.True(false,  $"This line should be unreachable, file location: line {stream.Location.LineNumber} col {stream.Location.ColumnNumber}");
 
-            var whatKeyword = (KeywordToken)what;   //At this point we are sure the object is a KeywordToken
+            var whatKeyword = (KeywordToken)what; // At this point we are sure the object is a KeywordToken
 
             if (whatKeyword.Keyword == KeywordEnum.Float)
             {
@@ -324,7 +312,7 @@ public static class Parser
                 ExpectSymbol(stream, ')');
 
                 if (scene.FloatVariables.ContainsKey(variableName) && !(scene.OverriddenVariables.Contains(variableName)))
-                    throw new GrammarError(variableLocation, $"Variable �{variableLocation}� cannot be redefinied.");
+                    throw new GrammarError(variableLocation, $"Variable {variableLocation} cannot be redefined.");
 
                 if (!scene.OverriddenVariables.Contains(variableName))
                     scene.FloatVariables.Add(variableName, variableValue);
@@ -338,7 +326,7 @@ public static class Parser
 
             else if (whatKeyword.Keyword == KeywordEnum.Camera)
             {
-                if (scene.Camera == null)
+                if (scene.Camera != null)
                     throw new GrammarError(whatKeyword.Location, $"You cannot define more that one camera.");
 
                 scene.Camera = ParseCamera(stream, scene);
@@ -346,7 +334,7 @@ public static class Parser
 
             else if (whatKeyword.Keyword == KeywordEnum.Material)
             {
-                (var name, var material) = ParseMaterial(stream, scene);
+                var (name, material) = ParseMaterial(stream, scene);
                 scene.Materials.Add(name, material);
             }
         }

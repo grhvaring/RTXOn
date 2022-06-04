@@ -26,8 +26,8 @@ class RTXOn
         [Option("orthogonal", HelpText = "Use orthogonal camera instead of perspective camera.")]
         public bool Orthogonal { get; set; }
         
-        [Option('r',"aspect-ratio", HelpText = "Aspect ratio of the image.", Default = 1)]
-        public float AspectRatio { get; set; }
+        [Option('r',"aspect-ratio", HelpText = "Aspect ratio of the image.", Default = null)]
+        public float? AspectRatio { get; set; }
         
         [Option("normalization", HelpText = "Normalization factor for the image.", Default = 1)]
         public float Normalization { get; set; }
@@ -58,6 +58,14 @@ class RTXOn
         
         [Option("depth", Default = 2)]
         public static int MaxDepth { get; set; }
+
+        [Option("input-file", Default = "examples/demo.txt",
+            HelpText = "Input file containing the 3D scene to render.")]
+        public string InputSceneFile { get; set; }
+        
+        [Option("background",  Default = "black",
+            HelpText = "Background color, can be black or white.")]
+        public static string BackgroundColor { get; set; }
     }
     public readonly struct IOFiles
     {
@@ -102,6 +110,8 @@ class RTXOn
         
         var arguments = options.Arguments.ToArray();
 
+        ImageTracer? tracer;
+      
         switch (options.Mode)
         {
             case "pfm2png":
@@ -138,23 +148,39 @@ class RTXOn
 
                 RedReflectingDemo(world);
 
-                var tracer = RenderImage(world, options);
+                tracer = RenderImage(world, options);
                 FinalizeImage(tracer.Image, options);
                 break;
             
             case "render":
+            {
+                using var reader = new StreamReader(options.InputSceneFile);
+                var inputStream = new InputStream(reader, options.InputSceneFile);
+                try
+                {
+                    var scene = RTXLib.Parser.ParseScene(inputStream);
+                    tracer = RenderImageFromScene(scene, options);
+                    FinalizeImage(tracer.Image, options);
+                }
+                catch (GrammarError e)
+                {
+                    var loc = e.Location;
+                    Console.WriteLine($"In file \"{loc.FileName}\", line {loc.LineNumber}, col {loc.ColumnNumber-1}: {e.Message}");
+                }
                 break;
+            }
         }
     }
 
     private static Renderer SelectRenderer(World world)
     {
+        var background = Options.BackgroundColor == "black" ? Color.BLACK : Color.WHITE;
         return Options.Renderer switch
         {
-            "onoff" => new OnOffRenderer(world),
-            "flat" => new FlatRenderer(world),
-            "pathtracer" => new PathTracer(world, Options.NumberOfRays, Options.MaxDepth),
-            _ => new OnOffRenderer(world)
+            "onoff" => new OnOffRenderer(world, background),
+            "flat" => new FlatRenderer(world, background),
+            "pathtracer" => new PathTracer(world, background, Options.NumberOfRays, Options.MaxDepth),
+            _ => new OnOffRenderer(world, background)
         };
     }
 
@@ -188,20 +214,22 @@ class RTXOn
         var red = new Color(1.1f, 0.2f, 0.2f);
         var spherePigment = new UniformPigment(red);
         var sphereMaterial = new Material(new SpecularBRDF(spherePigment));
-        var sphere = new Sphere(0,0,0.5f, sphereMaterial, 0.5f);
+        var sphere = new Sphere(sphereMaterial,0,0,0.5f, 0.5f);
         world.Add(sphere);
 
         // emitting blue sky dome
 
         var skyColor = new Color(0.37f, 0.9f, 1);
         var skyMaterial = new Material(new UniformPigment(skyColor));
-        var sky = new Sphere(0, 0, 0, skyMaterial, 100);
+        var sky = new Sphere(skyMaterial, 0, 0, 0, 100);
+
         world.Add(sky);
 
         // optional sun
 
         var sunMaterial = new Material(new UniformPigment(new Color(1, 1, 1)));
-        var sun = new Sphere(0, 0, 1.5f, sunMaterial, 0.5f);
+        var sun = new Sphere(sunMaterial, 0, 0, 1.5f, 0.5f);
+    
         // world.Add(sun);
                 
         // floor
@@ -225,17 +253,32 @@ class RTXOn
 
         return tracer;
     }
+    
+    private static ImageTracer RenderImageFromScene(Scene scene, Options options)
+    {
+        // var transformation = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(15) * Transformation.Translation(-options.Distance);
+        var camera = scene.Camera ?? ChooseCamera(options);
+        var image = new HdrImage(options.Width, options.Height);
+        var tracer = new ImageTracer(image, camera);
+        var renderer = SelectRenderer(scene.World);
+        
+        tracer.FireAllRays(renderer.Run);
+
+        return tracer;
+    }
 
     private static ICamera ChooseCamera(Options options, Transformation? transformation = null)
     {
+        var aspectRatio = options.AspectRatio ?? options.Width / options.Height;
+        Console.WriteLine(aspectRatio);
         if (options.Orthogonal)
         {
             var T = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(5) * Transformation.Translation(-options.Distance);
-            return new OrthogonalCamera(options.AspectRatio, T);
+            return new OrthogonalCamera(aspectRatio, T);
         }
 
         transformation ??= Transformation.RotationZ(options.AngleDegZ) * Transformation.Translation(0,0,1) * Transformation.Translation(-options.Distance);
-        return new PerspectiveCamera(options.Distance, options.AspectRatio, transformation.Value);
+        return new PerspectiveCamera(options.Distance, aspectRatio, transformation.Value);
     }
     
     private static void FinalizeImage(HdrImage image, Options options)

@@ -217,6 +217,8 @@ public struct Transformation
     
     public static Point operator *(Transformation t, Point p)
     {
+        if (t.M.IsIdentity) return p;
+        
         var newX = t.M.M11 * p.X + t.M.M12 * p.Y + t.M.M13 * p.Z + t.M.M14;
         var newY = t.M.M21 * p.X + t.M.M22 * p.Y + t.M.M23 * p.Z + t.M.M24;
         var newZ = t.M.M31 * p.X + t.M.M32 * p.Y + t.M.M33 * p.Z + t.M.M34;
@@ -231,6 +233,8 @@ public struct Transformation
      
     public static Vec operator *(Transformation t, Vec v)
     {
+        if (t.M.IsIdentity) return v;
+
         var newX = t.M.M11 * v.X + t.M.M12 * v.Y + t.M.M13 * v.Z;
         var newY = t.M.M21 * v.X + t.M.M22 * v.Y + t.M.M23 * v.Z;
         var newZ = t.M.M31 * v.X + t.M.M32 * v.Y + t.M.M33 * v.Z;
@@ -239,6 +243,8 @@ public struct Transformation
     
     public static Normal operator *(Transformation t, Normal n)
     {
+        if (t.InvM.IsIdentity) return n;
+
         var newX = t.InvM.M11 * n.X + t.InvM.M21 * n.Y + t.InvM.M31 * n.Z;
         var newY = t.InvM.M12 * n.X + t.InvM.M22 * n.Y + t.InvM.M32 * n.Z;
         var newZ = t.InvM.M13 * n.X + t.InvM.M23 * n.Y + t.InvM.M33 * n.Z;
