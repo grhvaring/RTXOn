@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- Error in pathtracing when dealing with planes' intersections
+- Error in pathtracing when dealing with planes' intersections [#10](https://github.com/grhvaring/RTXOn/issues/10)
 
 ### Added
 - Reading 3D scene from input file
