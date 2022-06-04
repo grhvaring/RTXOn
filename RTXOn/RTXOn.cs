@@ -26,8 +26,8 @@ class RTXOn
         [Option("orthogonal", HelpText = "Use orthogonal camera instead of perspective camera.")]
         public bool Orthogonal { get; set; }
         
-        [Option('r',"aspect-ratio", HelpText = "Aspect ratio of the image.", Default = 1)]
-        public float AspectRatio { get; set; }
+        [Option('r',"aspect-ratio", HelpText = "Aspect ratio of the image.", Default = null)]
+        public float? AspectRatio { get; set; }
         
         [Option("normalization", HelpText = "Normalization factor for the image.", Default = 1)]
         public float Normalization { get; set; }
@@ -62,6 +62,10 @@ class RTXOn
         [Option("input-file", Default = "examples/demo.txt",
             HelpText = "Input file containing the 3D scene to render.")]
         public string InputSceneFile { get; set; }
+        
+        [Option("background",  Default = "black",
+            HelpText = "Background color, can be black or white.")]
+        public static string BackgroundColor { get; set; }
     }
     public readonly struct IOFiles
     {
@@ -155,7 +159,7 @@ class RTXOn
                 try
                 {
                     var scene = RTXLib.Parser.ParseScene(inputStream);
-                    tracer = RenderImage(scene.World, options);
+                    tracer = RenderImageFromScene(scene, options);
                     FinalizeImage(tracer.Image, options);
                 }
                 catch (GrammarError e)
@@ -170,12 +174,13 @@ class RTXOn
 
     private static Renderer SelectRenderer(World world)
     {
+        var background = Options.BackgroundColor == "black" ? Color.BLACK : Color.WHITE;
         return Options.Renderer switch
         {
-            "onoff" => new OnOffRenderer(world),
-            "flat" => new FlatRenderer(world),
-            "pathtracer" => new PathTracer(world, Options.NumberOfRays, Options.MaxDepth),
-            _ => new OnOffRenderer(world)
+            "onoff" => new OnOffRenderer(world, background),
+            "flat" => new FlatRenderer(world, background),
+            "pathtracer" => new PathTracer(world, background, Options.NumberOfRays, Options.MaxDepth),
+            _ => new OnOffRenderer(world, background)
         };
     }
 
@@ -248,17 +253,32 @@ class RTXOn
 
         return tracer;
     }
+    
+    private static ImageTracer RenderImageFromScene(Scene scene, Options options)
+    {
+        // var transformation = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(15) * Transformation.Translation(-options.Distance);
+        var camera = scene.Camera ?? ChooseCamera(options);
+        var image = new HdrImage(options.Width, options.Height);
+        var tracer = new ImageTracer(image, camera);
+        var renderer = SelectRenderer(scene.World);
+        
+        tracer.FireAllRays(renderer.Run);
+
+        return tracer;
+    }
 
     private static ICamera ChooseCamera(Options options, Transformation? transformation = null)
     {
+        var aspectRatio = options.AspectRatio ?? options.Width / options.Height;
+        Console.WriteLine(aspectRatio);
         if (options.Orthogonal)
         {
             var T = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(5) * Transformation.Translation(-options.Distance);
-            return new OrthogonalCamera(options.AspectRatio, T);
+            return new OrthogonalCamera(aspectRatio, T);
         }
 
         transformation ??= Transformation.RotationZ(options.AngleDegZ) * Transformation.Translation(0,0,1) * Transformation.Translation(-options.Distance);
-        return new PerspectiveCamera(options.Distance, options.AspectRatio, transformation.Value);
+        return new PerspectiveCamera(options.Distance, aspectRatio, transformation.Value);
     }
     
     private static void FinalizeImage(HdrImage image, Options options)
