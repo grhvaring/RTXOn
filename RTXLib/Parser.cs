@@ -264,9 +264,9 @@ public static class Parser
         ExpectSymbol(stream, ',');
         var transformation = ParseTransformation(stream, scene);
         ExpectSymbol(stream, ',');
-        var aspectRatio = ExpectNumber(stream, scene);
-        ExpectSymbol(stream, ',');
         var distance = ExpectNumber(stream, scene);
+        ExpectSymbol(stream, ',');
+        var aspectRatio = ExpectNumber(stream, scene);
         ExpectSymbol(stream, ')');
 
         return type is KeywordEnum.Orthogonal
