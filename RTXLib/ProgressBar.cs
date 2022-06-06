@@ -45,7 +45,7 @@ public class ProgressBar : IDisposable, IProgress<double> {
 			int percent = (int) (currentProgress * 100);
 			var done = new string('#', progressBlockCount);
 			var remaining = new string('-', blockCount - progressBlockCount);
-			var text = $"Completed\t[{done}{remaining}] {percent,3}%  ";
+			var text = $"[{done}{remaining}] {percent,3}%  ";
 			// animation[animationIndex++ % animation.Length]
 			UpdateText(text);
 
