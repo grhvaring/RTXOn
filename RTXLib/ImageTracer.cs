@@ -20,8 +20,11 @@ public class ImageTracer
 
     public void FireAllRays(Func<Ray, Color> function)
     {
+        using var progress = new ProgressBar();
         for (int row = 0; row < Image.Height; ++row)
         {
+            SaveSnapShotImage();
+            progress.Report((double) row / Image.Height);
             for (int col = 0; col < Image.Width; ++col)
             {
                 var ray = FireRay(col, row);
@@ -29,5 +32,14 @@ public class ImageTracer
                 Image.SetPixel(col, row, color);
             }
         }
+    }
+
+    private void SaveSnapShotImage()
+    {
+        var tempImage = Image.ShallowCopy();
+        tempImage.WritePfm("temp.pfm");
+        tempImage.NormalizeImage(1);
+        tempImage.ClampImage();
+        tempImage.SaveAsPng("temp.png", 1);
     }
 }
