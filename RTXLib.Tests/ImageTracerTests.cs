@@ -1,3 +1,5 @@
+using Xunit.Abstractions;
+
 namespace RTXLib.Tests;
 using Xunit;
 
@@ -7,7 +9,13 @@ public class ImageTracerTests
     static HdrImage image = new HdrImage(4, 2);
     static PerspectiveCamera camera = new PerspectiveCamera(aspectRatio: 2);
     static ImageTracer tracer = new ImageTracer(image, camera);
- 
+    
+    private readonly ITestOutputHelper Output;
+
+    public ImageTracerTests(ITestOutputHelper output)
+    {
+        Output = output;
+    }
 
     [Fact]
     public void TestOrientation()

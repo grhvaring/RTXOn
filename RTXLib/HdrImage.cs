@@ -342,6 +342,11 @@ public class HdrImage
 		using Stream fileStream = File.OpenWrite(fileName);
 		bitmap.Save(fileStream, new PngEncoder());
     }
+
+	public HdrImage ShallowCopy()
+	{
+		return new HdrImage(Width, Height, Pixels);
+	}
 }
 
 public class InvalidPfmFileFormat : FormatException

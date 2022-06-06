@@ -36,9 +36,10 @@ public class ImageTracer
 
     private void SaveSnapShotImage()
     {
-        Image.WritePfm("temp.pfm");
-        Image.NormalizeImage(1);
-        Image.ClampImage();
-        Image.SaveAsPng("temp.png", 1);
+        var tempImage = Image.ShallowCopy();
+        tempImage.WritePfm("temp.pfm");
+        tempImage.NormalizeImage(1);
+        tempImage.ClampImage();
+        tempImage.SaveAsPng("temp.png", 1);
     }
 }
