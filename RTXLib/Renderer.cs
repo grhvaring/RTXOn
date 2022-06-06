@@ -145,7 +145,7 @@ public class PathTracer : Renderer
         float hitColorLum = Math.Max(Math.Max(hitColor.R, hitColor.G), hitColor.B);
 
         // If the depth of the ray equals a certain limit, start the Russian roulette algorithm
-        if (ray.Depth >= RussianRouletteLimit)
+        if (hitColorLum > 0 && ray.Depth >= RussianRouletteLimit)
         {
             var q = Math.Max(0.05f, 1.0f - hitColorLum);
             if (Pcg.RandomFloat() > q)
@@ -163,7 +163,7 @@ public class PathTracer : Renderer
         Color cumulativeRadiance = new Color();
 
         // Start recursion only if necessary
-        if (hitColorLum == 0) return emittedRadiance + cumulativeRadiance * 1.0f / NumberOfRays;
+        if (MyLib.IsZero(hitColorLum, 1e-3)) return emittedRadiance + cumulativeRadiance * 1.0f / NumberOfRays;
         
         for (var _ = 0; _ < NumberOfRays; _++)
         {

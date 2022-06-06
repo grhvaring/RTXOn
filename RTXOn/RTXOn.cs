@@ -66,6 +66,10 @@ class RTXOn
         [Option("background",  Default = "black",
             HelpText = "Background color, can be black or white.")]
         public static string BackgroundColor { get; set; }
+        
+        [Option('s', "subdivisions", Default = 0, HelpText = "Number of subdivisions for the pixels (s = 2 --> 9 rays per pixel.")]
+        public int subDivisions { get; set; }
+
     }
     public readonly struct IOFiles
     {
@@ -262,7 +266,7 @@ class RTXOn
         var tracer = new ImageTracer(image, camera);
         var renderer = SelectRenderer(scene.World);
         
-        tracer.FireAllRays(renderer.Run);
+        tracer.FireAllRays(renderer.Run, options.subDivisions);
 
         return tracer;
     }
