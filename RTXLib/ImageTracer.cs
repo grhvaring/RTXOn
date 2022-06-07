@@ -23,14 +23,19 @@ public class ImageTracer
         using var progress = new ProgressBar();
         var numSubRays = (int) Math.Pow(numSubDivisions + 1, 2);
         pcg ??= new PCG();
+        var numUpdates = 10;
+        var threshold = (Image.Height - 1) / numUpdates;
         for (int row = 0; row < Image.Height; ++row)
         {
-            SaveSnapShotImage();
+            if (row % threshold == 0)
+            {
+                SaveSnapShotImage();
+                threshold += (Image.Height - 1) / numUpdates;
+            }
             progress.Report((double) row / Image.Height);
             for (int col = 0; col < Image.Width; ++col)
             {
                 var color = new Color();
-
                 if (numSubDivisions == 0)
                 {
                     var ray = FireRay(col, row);
