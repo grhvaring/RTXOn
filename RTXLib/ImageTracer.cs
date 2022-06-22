@@ -29,7 +29,7 @@ public class ImageTracer
         {
             if (row % threshold == 0)
             {
-                SaveSnapShotImage();
+                // SaveSnapShotImage();
                 threshold += (Image.Height - 1) / numUpdates;
             }
             progress.Report((double) row / Image.Height);
