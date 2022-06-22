@@ -21,9 +21,8 @@ public class ImageTracer
     public void FireAllRays(Func<Ray, Color> function, int numSubDivisions = 0, PCG? pcg = null)
     {
         using var progress = new ProgressBar();
-        var numSubRays = (int) Math.Pow(numSubDivisions + 1, 2);
         pcg ??= new PCG();
-        var numUpdates = 10;
+        var numUpdates = Math.Min(10, Image.Height - 1);
         var threshold = (Image.Height - 1) / numUpdates;
         for (int row = 0; row < Image.Height; ++row)
         {
@@ -43,6 +42,7 @@ public class ImageTracer
                 }
                 else
                 {
+                    var numSubRays = (int) Math.Pow(numSubDivisions + 1, 2);
                     for (var i = 0; i < numSubRays; ++i)
                     {
                         // (uPixel, vPixel) specifies a uniformly distributed random point inside the sub square
