@@ -7,7 +7,7 @@ public class InputStream
 {
 	public const char EOF = (char)0xFFFF; // TextReader default return value when no character is read
 	private const string whitespaces = " \t\n\r";
-	private const string symbols = "()<>[],*";
+	private const string symbols = "()[],*";
 	public TextReader Stream;
 	public SourceLocation Location;
 	public char SavedChar;
