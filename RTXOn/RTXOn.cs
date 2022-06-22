@@ -66,11 +66,17 @@ class RTXOn
         [Option("background",  Default = "black",
             HelpText = "Background color, can be black or white.")]
         public static string BackgroundColor { get; set; }
-        
+
         [Option('s', "subdivisions", Default = 0, HelpText = "Number of subdivisions for the pixels (s = 2 --> 9 rays per pixel.")]
         public int subDivisions { get; set; }
-
+        
+        [Option("seed", HelpText = "Seed for the random number generator.", Default = 42)]
+        public ulong Seed { get; set; }
+        
+        [Option("sequence", HelpText = "Sequence of the random number generator.", Default = 54)]
+        public ulong Sequence { get; set; }
     }
+    
     public readonly struct IOFiles
     {
         public string InputPfmFileName { get; }
@@ -265,8 +271,9 @@ class RTXOn
         var image = new HdrImage(options.Width, options.Height);
         var tracer = new ImageTracer(image, camera);
         var renderer = SelectRenderer(scene.World);
+        var pcg = new PCG(options.Seed, options.Sequence);
         
-        tracer.FireAllRays(renderer.Run, options.subDivisions);
+        tracer.FireAllRays(renderer.Run, options.subDivisions, pcg);
 
         return tracer;
     }
