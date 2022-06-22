@@ -25,7 +25,7 @@ public class ImageTracer
         pcg ??= new PCG();
         for (int row = 0; row < Image.Height; ++row)
         {
-            SaveSnapShotImage();
+            // SaveSnapShotImage();
             progress.Report((double) row / Image.Height);
             for (int col = 0; col < Image.Width; ++col)
             {
