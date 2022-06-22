@@ -256,6 +256,21 @@ public static class Parser
         
         return new Plane(material, transformation);
     }
+    
+    public static Box ParseBox(InputStream stream, Scene scene)
+    {
+        ExpectSymbol(stream, '(');
+        var location = stream.Location.ShallowCopy();
+        var materialName = ExpectIdentifier(stream);
+        if (!scene.Materials.ContainsKey(materialName))
+            throw new GrammarError(location, $"Unknown material {materialName}.");
+        var material = scene.Materials[materialName];
+        ExpectSymbol(stream, ',');
+        var transformation = ParseTransformation(stream, scene);
+        ExpectSymbol(stream, ')');
+        
+        return new Box(material, transformation);
+    }
 
     public static ICamera ParseCamera(InputStream stream, Scene scene)
     {
@@ -311,10 +326,10 @@ public static class Parser
                 var variableValue = ExpectNumber(stream, scene);
                 ExpectSymbol(stream, ')');
 
-                if (scene.FloatVariables.ContainsKey(variableName) && !(scene.OverriddenVariables.Contains(variableName)))
+                if ( scene.FloatVariables.ContainsKey(variableName) && !scene.OverriddenVariables.Contains(variableName) )
                     throw new GrammarError(variableLocation, $"Variable {variableLocation} cannot be redefined.");
 
-                if (!scene.OverriddenVariables.Contains(variableName))
+                if ( !scene.OverriddenVariables.Contains(variableName) )
                     scene.FloatVariables.Add(variableName, variableValue);
             }
 
@@ -324,6 +339,9 @@ public static class Parser
             else if (whatKeyword.Keyword == KeywordEnum.Plane)
                 scene.World.Add(ParsePlane(stream, scene));
 
+            else if (whatKeyword.Keyword == KeywordEnum.Box)
+                scene.World.Add(ParseBox(stream, scene));
+            
             else if (whatKeyword.Keyword == KeywordEnum.Camera)
             {
                 if (scene.Camera != null)
