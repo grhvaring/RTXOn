@@ -274,7 +274,6 @@ class RTXOn
         var pcg = new PCG(options.Seed, options.Sequence);
         
         tracer.FireAllRays(renderer.Run, options.subDivisions, pcg);
-
         return tracer;
     }
 
