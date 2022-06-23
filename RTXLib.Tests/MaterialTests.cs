@@ -30,10 +30,11 @@ public class MaterialTests
         // ADD RANDOM DIRECTION TESTING
         var redMaterial = new Material(new UniformPigment(1, 0, 0));
         var ez = new Normal(0, 0, 1);
-        var outDir = Vec.Ez;
+        var pcg = new PCG();
+        var inDir = new Vec(pcg.RandomFloat(), pcg.RandomFloat(), -pcg.RandomFloat());
+        var outDir = new Vec(pcg.RandomFloat(), pcg.RandomFloat(), pcg.RandomFloat());
         var northPole = new Vec2D(0, 0);
         var red = new Color(1, 0, 0);
-        Assert.True(material.BRDF.Eval(ez, -outDir, outDir, northPole).IsClose(red));
-    }
-    */
+        Assert.True(material.BRDF.Eval(ez, inDir, outDir, northPole).IsClose(red));
+    }*/
 }

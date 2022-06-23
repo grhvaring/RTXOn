@@ -245,10 +245,10 @@ class RTXOn
         world.Add(floor);
     }
 
-    private static ImageTracer RenderImage(World world, Options options)
+    private static ImageTracer RenderImage(World world, Options options, ICamera? camera = null)
     {
         // var transformation = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(15) * Transformation.Translation(-options.Distance);
-        var camera = ChooseCamera(options);
+        camera ??= ChooseCamera(options);
         var image = new HdrImage(options.Width, options.Height);
         var tracer = new ImageTracer(image, camera);
         var renderer = SelectRenderer(world);
@@ -274,14 +274,13 @@ class RTXOn
     private static ICamera ChooseCamera(Options options, Transformation? transformation = null)
     {
         var aspectRatio = options.AspectRatio ?? options.Width / options.Height;
-        Console.WriteLine(aspectRatio);
         if (options.Orthogonal)
         {
             var T = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(5) * Transformation.Translation(-options.Distance);
             return new OrthogonalCamera(aspectRatio, T);
         }
 
-        transformation ??= Transformation.RotationZ(options.AngleDegZ) * Transformation.Translation(0,0,1) * Transformation.Translation(-options.Distance);
+        transformation ??= Transformation.RotationZ(options.AngleDegZ) * Transformation.Translation(0,0,1);
         return new PerspectiveCamera(options.Distance, aspectRatio, transformation.Value);
     }
     

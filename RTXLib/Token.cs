@@ -53,7 +53,8 @@ public enum KeywordEnum
     Camera = 16,
     Orthogonal = 17,
     Perspective = 18,
-    Float = 19
+    Float = 19,
+    Box = 20
 }
 
 
