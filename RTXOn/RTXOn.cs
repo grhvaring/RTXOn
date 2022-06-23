@@ -68,12 +68,12 @@ class RTXOn
         public static string BackgroundColor { get; set; }
 
         [Option('s', "subdivisions", Default = 0, HelpText = "Number of subdivisions for the pixels (s = 2 --> 9 rays per pixel.")]
-        public int subDivisions { get; set; }
+        public int SubDivisions { get; set; }
         
-        [Option("seed", HelpText = "Seed for the random number generator.", Default = 42)]
+        [Option("seed", HelpText = "Seed for the random number generator.", Default = (ulong)42)]
         public ulong Seed { get; set; }
         
-        [Option("sequence", HelpText = "Sequence of the random number generator.", Default = 54)]
+        [Option("sequence", HelpText = "Sequence of the random number generator.", Default = (ulong)54)]
         public ulong Sequence { get; set; }
     }
     
@@ -92,6 +92,31 @@ class RTXOn
             InputPfmFileName = args[0];
             OutputPngFileName = args[1];
         }
+    }
+    
+    public static List<string> ImagesToAverage(string[] args)
+    {
+        if (args.Length < 1)
+        {
+            throw new InvalidEnumArgumentException("Expected at least one argument.");
+        }
+
+        var files = new List<string>();
+
+        foreach (var a in args)
+        {
+            if (a.Contains(".pfm")) files.Add(a);
+        }
+
+        return files;
+    }
+
+    static private (int, int) ReadPfmDimensions(string fileName)
+    {
+        using var fileStream = File.OpenRead(fileName);
+        HdrImage.ReadPfmLine(fileStream); // skip first line
+        var dimensions = HdrImage.ReadPfmLine(fileStream);
+        return HdrImage.ParseImgSize(dimensions);
     }
 
     private static void Main(string[] args)
@@ -143,7 +168,6 @@ class RTXOn
                     Console.WriteLine("Something went wrong, see below for the details.");
                     Console.WriteLine(e.Message);
                 }
-
                 break;
 
             case "demo":
@@ -179,6 +203,27 @@ class RTXOn
                 }
                 break;
             }
+            case "average":
+                try
+                {
+                    var images = ImagesToAverage(arguments);
+                    if (options.Verbose)
+                    {
+                        // be verbose
+                    }
+
+                    var (width, height) = ReadPfmDimensions(images[0]);
+                    var image = new HdrImage(width, height);
+                    foreach (var im in images) image += new HdrImage(im);
+                    image /= images.Count;
+                    FinalizeImage(image, options);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Something went wrong, see below for the details.");
+                    Console.WriteLine(e.Message);
+                }
+                break;
         }
     }
 
@@ -273,7 +318,7 @@ class RTXOn
         var renderer = SelectRenderer(scene.World);
         var pcg = new PCG(options.Seed, options.Sequence);
         
-        tracer.FireAllRays(renderer.Run, options.subDivisions, pcg);
+        tracer.FireAllRays(renderer.Run, options.SubDivisions, pcg);
         return tracer;
     }
 
