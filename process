@@ -4,4 +4,4 @@ then
 fi
 
 ./RTXOn/bin/Debug/net6.0/RTXOn render --renderer pathtracer --width 1080 --height 540 --input-file examples/$1.txt \
---png-output $1/$2.png --pfm-output $1/$2.pfm --rays 10 -s 4 --seed $3 --sequence $4
+--png-output $1/$3.png --pfm-output $1/$3.pfm --rays 10 -s 4 --seed $2 --sequence $3
