@@ -11,16 +11,10 @@ public abstract class Renderer
     ///<summary>Instance variable <c>BackgroundColor</c> represents the color of the background of the image. If not specified, the color of the background is set to black.</summary>
     public Color BackgroundColor;
 
-    public Renderer(World world)
+    public Renderer(World world, Color? backgroundColor = null)
     {
         World = world;
-        BackgroundColor = Color.BLACK;
-    }
-    
-    public Renderer(World world, Color backgroundColor)
-    {
-        World = world;
-        BackgroundColor = backgroundColor;
+        BackgroundColor = backgroundColor ?? Color.BLACK;
     }
 
     /// <summary>Method <c>Run</c> runs the renderer for a specified ray.</summary>
@@ -30,21 +24,11 @@ public abstract class Renderer
 /// <summary>Class <c>OnOffRenderer</c> models a simple two color "on-off" renderer, useful for dubugging puroposes.</summary>
 public class OnOffRenderer : Renderer
 {
-    /// <summary>Instance variable <c>Color</c> represents the color used to color the shapes in the scene. If not specified it is set to white.</summary>
     public Color Color;
-    public OnOffRenderer(World world) :  base(world)
+    /// <summary>Instance variable <c>Color</c> represents the color used to color the shapes in the scene. If not specified it is set to white.</summary>
+    public OnOffRenderer(World world, Color? color = null, Color? backgroundColor = null) : base(world, backgroundColor)
     {
-        Color = Color.WHITE;
-    }
-
-    public OnOffRenderer(World world, Color backgroundColor) : base(world, backgroundColor)
-    {
-        Color = Color.WHITE;
-    }
-
-    public OnOffRenderer(World world, Color backgroundColor, Color color) : base(world, backgroundColor)
-    {
-        Color = color;
+        Color = color ?? Color.WHITE;
     }
 
     /// <summary>Method <c>Run</c> runs the renderer for a specified ray.</summary>
@@ -87,17 +71,17 @@ public class PathTracer : Renderer
     ///<summary>Instance variable <c>RussianRouletteLimit</c> represents the depth of a ray that triggers the start of the Russian roulette algorithm in order to end the recursion. If not specified it is set to 3.</summary>
     public int RussianRouletteLimit;
 
-    public PathTracer(World world) : base(world) 
+    public PathTracer(World world, PCG? pcg = null) : base(world) 
     {
-        Pcg = new PCG();
+        Pcg = pcg ?? new PCG();
         NumberOfRays = 10;
         MaxDepth = 2;
         RussianRouletteLimit = 3;
     }
 
-    public PathTracer(World world, Color backgroundColor, PCG pcg, int numberOfRays = 10, int maxDepth = 2, int russianRouletteLimit = 3) : base(world, backgroundColor) 
+    public PathTracer(World world, Color backgroundColor, PCG? pcg = null, int numberOfRays = 10, int maxDepth = 2, int russianRouletteLimit = 3) : base(world, backgroundColor) 
     {
-        Pcg = pcg;
+        Pcg = pcg ?? new PCG();
         NumberOfRays = numberOfRays;
         MaxDepth = maxDepth;
         RussianRouletteLimit = russianRouletteLimit;

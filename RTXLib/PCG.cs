@@ -22,7 +22,7 @@ public class PCG
 	public uint Random()
     {
 		ulong oldState = State;
-		State = (oldState * 6364136223846793005 + Inc);
+		State = oldState * 6364136223846793005 + Inc;
 		uint xorShifted = (uint) (((oldState >> 18) ^ oldState) >> 27);
 		uint rot = (uint)(oldState >> 59);
 		return (xorShifted >> (int) rot) | (xorShifted << (int)(-rot & 31));

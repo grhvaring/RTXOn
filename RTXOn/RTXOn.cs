@@ -66,11 +66,17 @@ class RTXOn
         [Option("background",  Default = "black",
             HelpText = "Background color, can be black or white.")]
         public static string BackgroundColor { get; set; }
-        
-        [Option('s', "subdivisions", Default = 0, HelpText = "Number of subdivisions for the pixels (s = 2 --> 9 rays per pixel.")]
-        public int subDivisions { get; set; }
 
+        [Option('s', "subdivisions", Default = 0, HelpText = "Number of subdivisions for the pixels (s = 2 --> 9 rays per pixel.")]
+        public int SubDivisions { get; set; }
+        
+        [Option("seed", HelpText = "Seed for the random number generator.", Default = (ulong)42)]
+        public ulong Seed { get; set; }
+        
+        [Option("sequence", HelpText = "Sequence of the random number generator.", Default = (ulong)54)]
+        public ulong Sequence { get; set; }
     }
+    
     public readonly struct IOFiles
     {
         public string InputPfmFileName { get; }
@@ -86,6 +92,31 @@ class RTXOn
             InputPfmFileName = args[0];
             OutputPngFileName = args[1];
         }
+    }
+    
+    public static List<string> ImagesToAverage(string[] args)
+    {
+        if (args.Length < 1)
+        {
+            throw new InvalidEnumArgumentException("Expected at least one argument.");
+        }
+
+        var files = new List<string>();
+
+        foreach (var a in args)
+        {
+            if (a.Contains(".pfm")) files.Add(a);
+        }
+
+        return files;
+    }
+
+    static private (int, int) ReadPfmDimensions(string fileName)
+    {
+        using var fileStream = File.OpenRead(fileName);
+        HdrImage.ReadPfmLine(fileStream); // skip first line
+        var dimensions = HdrImage.ReadPfmLine(fileStream);
+        return HdrImage.ParseImgSize(dimensions);
     }
 
     private static void Main(string[] args)
@@ -137,7 +168,6 @@ class RTXOn
                     Console.WriteLine("Something went wrong, see below for the details.");
                     Console.WriteLine(e.Message);
                 }
-
                 break;
 
             case "demo":
@@ -173,17 +203,38 @@ class RTXOn
                 }
                 break;
             }
+            case "average":
+                try
+                {
+                    var images = ImagesToAverage(arguments);
+                    if (options.Verbose)
+                    {
+                        // be verbose
+                    }
+
+                    var (width, height) = ReadPfmDimensions(images[0]);
+                    var image = new HdrImage(width, height);
+                    foreach (var im in images) image += new HdrImage(im);
+                    image /= images.Count;
+                    FinalizeImage(image, options);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Something went wrong, see below for the details.");
+                    Console.WriteLine(e.Message);
+                }
+                break;
         }
     }
 
-    private static Renderer SelectRenderer(World world)
+    private static Renderer SelectRenderer(World world, PCG? pcg = null)
     {
         var background = Options.BackgroundColor == "black" ? Color.BLACK : Color.WHITE;
         return Options.Renderer switch
         {
             "onoff" => new OnOffRenderer(world, background),
             "flat" => new FlatRenderer(world, background),
-            "pathtracer" => new PathTracer(world, background, Options.NumberOfRays, Options.MaxDepth),
+            "pathtracer" => new PathTracer(world, background, pcg, Options.NumberOfRays, Options.MaxDepth),
             _ => new OnOffRenderer(world, background)
         };
     }
@@ -264,10 +315,10 @@ class RTXOn
         var camera = scene.Camera ?? ChooseCamera(options);
         var image = new HdrImage(options.Width, options.Height);
         var tracer = new ImageTracer(image, camera);
-        var renderer = SelectRenderer(scene.World);
-        
-        tracer.FireAllRays(renderer.Run, options.subDivisions);
-
+        var pcg = new PCG(options.Seed, options.Sequence);
+        var renderer = SelectRenderer(scene.World, pcg);
+        Console.WriteLine($"seed: {options.Seed}, sequence: {options.Sequence}");
+        tracer.FireAllRays(renderer.Run, options.SubDivisions, pcg);
         return tracer;
     }
 
