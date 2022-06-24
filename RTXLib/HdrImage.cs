@@ -66,6 +66,30 @@ public class HdrImage
 		ReadPfmFile(fileStream);
 	}
 
+	static public HdrImage operator +(HdrImage a, HdrImage b) 
+	{
+		if (a.Width != b.Width || a.Height != b.Height) 
+			throw new InvalidPfmFileFormat("Cannot sum images with different sizes.");
+		var result = new HdrImage(a.Width, a.Height);
+		for (int i = 0; i < a.NPixels; ++i)
+		{
+			result.Pixels[i] = a.Pixels[i] + b.Pixels[i];
+		}
+
+		return result;
+	}
+	
+	static public HdrImage operator /(HdrImage image, float a)
+	{
+		var result = new HdrImage(image.Width, image.Height);
+		for (int i = 0; i < image.NPixels; ++i)
+		{
+			result.Pixels[i] = image.Pixels[i] / a;
+		}
+
+		return result;
+	}
+
 	public void ReadPfmFile(Stream stream)
 	{
 		var magic = ReadPfmLine(stream);

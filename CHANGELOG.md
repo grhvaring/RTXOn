@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Reading 3D scene from input file
+- Support parallel runs with different random sequences
 - 3D Box object
 
 ## [0.3.0] - 2022-05-25
