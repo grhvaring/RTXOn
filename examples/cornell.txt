@@ -1,0 +1,58 @@
+# Cornell Box demo
+
+# left wall
+
+material red_material(
+    diffuse(uniform([6.29, 0.11, 0.11])),
+    uniform([0, 0, 0])
+)
+
+plane (red_material, translation([0, 1, 0]) * rotation_x(90))
+
+# right wall
+
+material green_material(
+    diffuse(uniform([0.1, 1, 0.1])),
+    uniform([0, 0, 0])
+)
+plane (green_material, translation([0, -1, 0]) * rotation_x(90))
+
+# back wall
+
+material carton_material(
+    diffuse(uniform([1.97, 0.89, 0.46])),
+    uniform([0, 0, 0])
+)
+plane (carton_material, translation([2, 0, 0]) * rotation_y(90))
+
+# floor
+plane (carton_material, identity)
+
+# ceiling
+plane (carton_material, translation([0, 0, 2]))
+
+# light
+float edge(0.3)
+float minus_edge_half(-0.15)
+float one_minus_edge_half(0.85)
+material light_material(
+    diffuse(uniform([0, 0, 0])),
+    uniform([255, 255, 50])
+)
+box (light_material, translation([one_minus_edge_half, minus_edge_half, 1.99]) * scaling([edge, edge, edge]))
+
+# right box
+box (carton_material, translation([0.6, -0.33, 0.01]) * rotation_z(55) * scaling([0.3, -0.8, 0.85]))
+
+# left box
+box (carton_material, translation([1.3, 0.8, 0.01]) * rotation_z(-60) * scaling([0.3, -0.8, 0.85]))
+
+# back light
+material white_material(
+    diffuse(uniform([0, 0, 0])),
+    uniform([1, 1, 1])
+)
+plane (white_material, translation([-1, 0, 0]) * rotation_y(90))
+
+# observer
+camera (perspective, translation([0, 0, 1]), 3, 1)

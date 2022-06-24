@@ -34,18 +34,11 @@ public class OrthogonalCamera : ICamera
 
 public class PerspectiveCamera : ICamera
 {
-    public PerspectiveCamera(float distance = 1, float aspectRatio = 1)
+    public PerspectiveCamera(float distance = 1, float aspectRatio = 1, Transformation? transformation = null)
     {
         Distance = distance;
         AspectRatio = aspectRatio;
-        Transformation = new Transformation();
-    }
-    
-    public PerspectiveCamera(float distance, float aspectRatio, Transformation transformation)
-    {
-        Distance = distance;
-        AspectRatio = aspectRatio;
-        Transformation = transformation;
+        Transformation = transformation ?? Transformation.Identity;
     }
 
     public float Distance { get; set; }

@@ -99,7 +99,7 @@ public class InputStreamTests
 # This is another comment
 new material sky_material(
 diffuse(image(""my file.pfm"")),
-<5.0, 500.0, 300.0>
+        [5.0, 500.0, 300.0]
 ) # Comment at the end of the line";
         
         using var reader = new StringReader(s);
@@ -117,13 +117,13 @@ diffuse(image(""my file.pfm"")),
         AssertIsSymbol(stream.ReadToken(), ')');
         AssertIsSymbol(stream.ReadToken(), ')');
         AssertIsSymbol(stream.ReadToken(), ',');
-        AssertIsSymbol(stream.ReadToken(), '<');
+        AssertIsSymbol(stream.ReadToken(), '[');
         AssertIsNumber(stream.ReadToken(), 5.0f);
         AssertIsSymbol(stream.ReadToken(), ',');
         AssertIsNumber(stream.ReadToken(), 500);
         AssertIsSymbol(stream.ReadToken(), ',');
         AssertIsNumber(stream.ReadToken(), 300);
-        AssertIsSymbol(stream.ReadToken(), '>');
+        AssertIsSymbol(stream.ReadToken(), ']');
         AssertIsSymbol(stream.ReadToken(), ')');
     }
 }

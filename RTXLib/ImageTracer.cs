@@ -22,15 +22,8 @@ public class ImageTracer
     {
         using var progress = new ProgressBar();
         pcg ??= new PCG();
-        var numUpdates = Math.Min(10, Image.Height - 1);
-        var threshold = (Image.Height - 1) / numUpdates;
         for (int row = 0; row < Image.Height; ++row)
         {
-            if (row % threshold == 0)
-            {
-                // SaveSnapShotImage();
-                threshold += (Image.Height - 1) / numUpdates;
-            }
             progress.Report((double) row / Image.Height);
             for (int col = 0; col < Image.Width; ++col)
             {
