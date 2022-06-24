@@ -227,14 +227,14 @@ class RTXOn
         }
     }
 
-    private static Renderer SelectRenderer(World world)
+    private static Renderer SelectRenderer(World world, PCG? pcg = null)
     {
         var background = Options.BackgroundColor == "black" ? Color.BLACK : Color.WHITE;
         return Options.Renderer switch
         {
             "onoff" => new OnOffRenderer(world, background),
             "flat" => new FlatRenderer(world, background),
-            "pathtracer" => new PathTracer(world, background, Options.NumberOfRays, Options.MaxDepth),
+            "pathtracer" => new PathTracer(world, background, pcg, Options.NumberOfRays, Options.MaxDepth),
             _ => new OnOffRenderer(world, background)
         };
     }
@@ -315,9 +315,9 @@ class RTXOn
         var camera = scene.Camera ?? ChooseCamera(options);
         var image = new HdrImage(options.Width, options.Height);
         var tracer = new ImageTracer(image, camera);
-        var renderer = SelectRenderer(scene.World);
         var pcg = new PCG(options.Seed, options.Sequence);
-        
+        var renderer = SelectRenderer(scene.World, pcg);
+        Console.WriteLine($"seed: {options.Seed}, sequence: {options.Sequence}");
         tracer.FireAllRays(renderer.Run, options.SubDivisions, pcg);
         return tracer;
     }
