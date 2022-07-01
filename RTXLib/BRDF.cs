@@ -1,57 +1,62 @@
-﻿using RTXLib;
-
-
-// NOTE: is it really need to implement constructor and eval for the class Pigment ?
+﻿namespace RTXLib;
 
 ///<summary>
-///Abstract class <c>BRDF</c> models a generic BRDF (Bidirectional Reflectance Distribution Function).
+/// Abstract class that models a generic BRDF (Bidirectional Reflectance Distribution Function).
 ///</summary>
 public abstract class BRDF
 {
     public Pigment Pigment { get; }
     
-    // NOTE: to be changed in order to have pigment = BLACK as default
-
-    public BRDF()
+    /// <summary>
+    /// Initializes a <c>BRDF</c> object with a given <c>pigment</c> describing the surface behaviour
+    /// </summary>
+    public BRDF(Pigment? pigment = null)
     {
-        Pigment = new UniformPigment(Color.BLACK);
-    }
-    
-    public BRDF(Pigment pigment)
-    {
-        Pigment = pigment;
+        Pigment = pigment ?? new UniformPigment();
     }
 
     public virtual Color Eval(Normal normal, Vec directionIn, Vec directionOut, Vec2D coordinates)
     {
-        return new Color(0, 0, 0);
+        return Color.BLACK;
     }
 
+    /// <summary>
+    /// Abstract method to be implemented in child classes for the generation of a scattered <c>Ray</c>.
+    /// </summary>
     public abstract Ray ScatterRay(PCG pcg, Vec incomingDir, Point interactionPoint, Normal normal, int depth);
 }
 
 ///<summary>
-///Class <c>DiffuseBRDF</c> models an ideal diffuse BRDF (Lambertian BRDF).
+///Models an ideal diffusive BRDF (Lambertian BRDF).
 ///</summary>
 public class DiffuseBRDF : BRDF
 {
-    public float Reflectance { get; }
-
-    public DiffuseBRDF(float reflectance = 1.0f)
-    {      
-        Reflectance = reflectance;
-    }
+    /// <summary>
+    /// Initializes a <c>DiffuseBRDF</c> object with a given <c>pigment</c>
+    /// </summary>
+    public DiffuseBRDF(Pigment? pigment = null) : base(pigment) {}
     
-    public DiffuseBRDF(Pigment pigment, float reflectance = 1.0f) : base(pigment)
-    {      
-        Reflectance = reflectance;
-    }
-    
+    /// <summary>
+    /// Evaluates the BRDF at a specific point of the surface
+    /// </summary>
+    /// <param name="normal">Normal to the surface</param>
+    /// <param name="directionIn">Incoming direction</param>
+    /// <param name="directionOut">Outgoing direction</param>
+    /// <param name="coordinates">2D coordinates of the point of the surface</param>
+    /// <returns></returns>
     public override Color Eval(Normal normal, Vec directionIn, Vec directionOut, Vec2D coordinates)
     {
-        return Pigment.GetColor(coordinates) * (float)(Reflectance/Math.PI);
+        return Pigment.GetColor(coordinates) / (float)Math.PI;
     }
 
+    /// <summary>
+    /// Scatter a new <c>Ray</c> with uniform distribution in the solid angle
+    /// </summary>
+    /// <param name="normal">Normal to the surface</param>
+    /// <param name="directionIn">Incoming direction</param>
+    /// <param name="directionOut">Outgoing direction</param>
+    /// <param name="coordinates">2D coordinates of the point of the surface</param>
+    /// <returns></returns>
     public override Ray ScatterRay(PCG pcg, Vec incomingDir, Point interactionPoint, Normal normal, int depth)
     {
         var (e1, e2, e3) = MyLib.CreateONBFromZ(normal);
@@ -69,17 +74,11 @@ public class DiffuseBRDF : BRDF
 
 public class SpecularBRDF : BRDF
 {
-    public float Reflectance { get; set; }
-
-    public SpecularBRDF(float reflectance = 1.0f)
-    {      
-        Reflectance = reflectance;
-    }
-    
-    public SpecularBRDF(Pigment pigment, float reflectance = 1.0f) : base(pigment)
-    {      
-        Reflectance = reflectance;
-    }
+    /// <summary>
+    /// Initializes a new <c>SpecularBRDF</c> object, which models a reflective surface, with base color <c>pigment</c>
+    /// </summary>
+    /// <param name="pigment">Pigment emitted by the surface that adds to the reflections</param>
+    public SpecularBRDF(Pigment? pigment = null) : base(pigment) {}
     
     public override Color Eval(Normal normal, Vec directionIn, Vec directionOut, Vec2D coordinates)
     {
@@ -96,6 +95,9 @@ public class SpecularBRDF : BRDF
         return new Color();
     }
 
+    /// <summary>
+    /// Scatter a new <c>Ray</c> object according to the Law of Reflection
+    /// </summary>
     public override Ray ScatterRay(PCG pcg, Vec incomingDir, Point interactionPoint, Normal normal, int depth)
     {
         var rayDir = new Vec(incomingDir).Normalize();
