@@ -17,8 +17,8 @@ namespace RTXLib.Tests
 		[Fact]
 		public void TestSum()
 		{
-			Vec a = new Vec(1.0f, 2.0f, 3.0f);
-			Vec b = new Vec(4.0f, 6.0f, 8.0f);
+			var a = new Vec(1.0f, 2.0f, 3.0f);
+			var b = new Vec(4.0f, 6.0f, 8.0f);
 
 			Assert.True((a + b).IsClose(new Vec(5.0f, 8.0f, 11.0f)));
 			Assert.True((b + a).IsClose(new Vec(5.0f, 8.0f, 11.0f)));
@@ -48,23 +48,12 @@ namespace RTXLib.Tests
 		}
 
 		[Fact]
-		public void TestNegation()
-		{
-			Vec a = new Vec(1.0f, 2.0f, 3.0f);
-			Vec b = new Vec(-1.0f, 5.0f, -2.0f);
-
-			Assert.True(a.Negation().IsClose(new Vec(-1.0f, -2.0f, -3.0f)));
-			Assert.True(b.Negation().IsClose(new Vec(1.0f, -5.0f, 2.0f)));
-			Assert.False(a.Negation().IsClose(new Vec(1.0f, 2.0f, 3.0f)));
-		}
-
-		[Fact]
 		public void TestProductScalarVector()
 		{
-			Vec a = new Vec(1.0f, 2.0f, 3.0f);
-			float b = 2.0f;
-			float c = -3.0f;
-			float d = 0.0f;
+			var a = new Vec(1.0f, 2.0f, 3.0f);
+			var b = 2.0f;
+			var c = -3.0f;
+			var d = 0.0f;
 
 			Assert.True((a * b).IsClose(new Vec(2.0f, 4.0f, 6.0f)));
 			Assert.True((b * a).IsClose(new Vec(2.0f, 4.0f, 6.0f)));
@@ -80,9 +69,9 @@ namespace RTXLib.Tests
 		[Fact]
 		public void TestDivision()
 		{
-			Vec a = new Vec(20.0f, 10.0f, -10.0f);
-			float b = 2.0f;
-			float c = -5.0f;
+			var a = new Vec(20.0f, 10.0f, -10.0f);
+			var b = 2.0f;
+			var c = -5.0f;
 
 			Assert.True((a / b).IsClose(new Vec(10.0f, 5.0f, -5.0f)));
 			Assert.True((a / c).IsClose(new Vec(-4.0f, -2.0f, 2.0f)));
@@ -93,21 +82,21 @@ namespace RTXLib.Tests
 		[Fact]
 		public void TestScalarProduct()
 		{
-			Vec a = new Vec(1.0f, 2.0f, -1.0f);
-			Vec b = new Vec(2.0f, 3.0f, 5.0f);
+			var a = new Vec(1.0f, 2.0f, -1.0f);
+			var b = new Vec(2.0f, 3.0f, 5.0f);
 
-			Normal c = new Normal(1.0f, 2.0f, -1.0f);
-			Normal d = new Normal(2.0f, 3.0f, 5.0f);
+			var c = new Normal(1.0f, 2.0f, -1.0f);
+			var d = new Normal(2.0f, 3.0f, 5.0f);
 
-			Assert.True(AreClose(Vec.ScalarProduct(a, b),3.0f));
-			Assert.True(AreClose(Vec.ScalarProduct(b, a),3.0f));
-			Assert.True(AreClose(Vec.ScalarProduct(a, d), 3.0f));
-			Assert.True(AreClose(Vec.ScalarProduct(c, b), 3.0f));
-			Assert.True(AreClose(Vec.ScalarProduct(c, d), 3.0f));
-			Assert.True(AreClose(a*b, 3.0f));
-			Assert.True(AreClose(b*a, 3.0f));
-			Assert.True(AreClose(a*d, 3.0f));
-			Assert.True(AreClose(c*d, 3.0f));
+			Assert.True(Vec.ScalarProduct(a, b).IsClose(3.0f));
+			Assert.True(Vec.ScalarProduct(b, a).IsClose(3.0f));
+			Assert.True(Vec.ScalarProduct(a, d).IsClose(3.0f));
+			Assert.True(Vec.ScalarProduct(c, b).IsClose(3.0f));
+			Assert.True(Vec.ScalarProduct(c, d).IsClose(3.0f));
+			Assert.True((a*b).IsClose(3.0f));
+			Assert.True((b*a).IsClose(3.0f));
+			Assert.True((a*d).IsClose(3.0f));
+			Assert.True((c*d).IsClose(3.0f));
 
 			Assert.False(AreClose(Vec.ScalarProduct(a, b),2.0f));
 		}

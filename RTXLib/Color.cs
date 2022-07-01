@@ -91,7 +91,7 @@ public struct Color
     
     public bool IsClose(float r, float g, float b, double e = 1e-5)
     {
-        return MyLib.IsZero(R - r, e) && MyLib.IsZero(G - g, e) && MyLib.IsZero(B - b, e);
+        return (R - r, G - g, B - b).AreZero(e);
     }
 
     public bool IsClose(float rgb, double e = 1e-5)
@@ -107,6 +107,11 @@ public struct Color
     public bool IsClose(Color otherColor, double e = 1e-5)
     {
         return IsClose(otherColor.R, otherColor.G, otherColor.B, e);
+    }
+
+    public bool IsBiggerThan(double e)
+    {
+        return !IsZero(e);
     }
     
     public override string ToString()
