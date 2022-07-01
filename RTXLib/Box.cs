@@ -3,34 +3,29 @@ using Xunit;
 namespace RTXLib;
 
 /// <summary>
-/// A 3D Box defined by its <i>minimum</i> and <i>maximum</i> corners.
+/// A 3D Box defined by its <i>minimum</i> and <i>maximum</i> corners, default: (0,0,0) and (1,1,1).
+/// Can be changed by the <c>Transformation</c> passed to the constructor.
 /// </summary>
 public class Box : Shape
 {
     /// <summary>
-    /// Default constructor: Cube with <i>minimum</i> vertex in the origin and <i>maximum</i> in (1, 1, 1)
+    /// Creates a 3D Box with <i>minimum</i> vertex in (0,0,0) and <i>maximum</i> in (1, 1, 1), transformed
+    /// according to <c>transformation</c>
     /// </summary>
     public Box(Material? material = null, Transformation? transformation = null) : base(material, transformation)
     {}
-    
-    public Box(Material material, float xmin, float ymin, float zmin, float xmax, float ymax, float zmax) : base(material) {
-        Transformation = Transformation.Translation(xmin, ymin, zmin) * Transformation.Scaling(xmax, ymax, zmax);
-    }
 
-    public Box(Material material, Point pmin, Point pmax) :
-        this(material, pmin.X, pmin.Y, pmin.Z, pmax.X, pmax.Y, pmax.Z)
-    {
-        // nothing else to do here
-    }
-
+    /// <summary>
+    /// Checks if a given <c>Ray</c> hits the box
+    /// </summary>
+    /// <param name="ray"><c>Ray</c> to check</param>
+    /// <returns><c>HitRecord</c> containing the intersection information. If there is no intersection returns <c>null</c></returns>
     public override HitRecord? RayIntersection(Ray ray)
     {
         var invRay = ray.Transform(Transformation.Inverse());
 
         var t = FirstIntersectionTime(invRay);
-        // Console.WriteLine(t);
-        
-        if (!t.HasValue) return null; // if there is no intersection return null
+        if (t is null) return null;
         
         var time = t.Value;
         var hitPoint = invRay.At(time);
@@ -39,141 +34,120 @@ public class Box : Shape
         // Console.WriteLine(hitPoint);
         return hitRecord;
     }
-
-    private Vec2D PointToUV(Point point)
-    {
-        // this works, but does not differentiate between faces
-        var (x, y) = (0f, 0f);
-        if (MyLib.IsZero(point.X) || MyLib.IsZero(point.X - 1)) (x, y) = (point.Y, point.Z);
-        if (MyLib.IsZero(point.Y) || MyLib.IsZero(point.Y - 1)) (x, y) = (point.X, point.Z);
-        if (MyLib.IsZero(point.Z) || MyLib.IsZero(point.Z - 1)) (x, y) = (point.X, point.Y);
-        var u = x - (float)Math.Floor(x);
-        var v = y - (float)Math.Floor(y);
-        return new Vec2D(u, v);
-    }
-
-    public static bool OnTheBox(Point p)
-    {
-        // check it's not outside
-        const float e = 1e-3f;
-        if (p.X < -e || p.Y < -e || p.Z < -e) return false;
-        if (p.X > 1 || p.Y > 1 || p.Z > 1) return false;
-        
-        // check it's not on the interior
-        if (MyLib.IsZero(p.X) || MyLib.IsZero(p.Y) || MyLib.IsZero(p.Z)) return true;
-        return MyLib.IsZero(p.X - 1) || MyLib.IsZero(p.Y - 1) || MyLib.IsZero(p.Z - 1);
-    }
-
+    
+    /// <summary>
+    /// Calculates the time (t-parameter in <c>Ray</c>) of the first valid intersection between a given <c>Ray</c> and the box
+    /// </summary>
+    /// <param name="invRay"><c>Ray</c> transformed with the inverse of the Box's transformation</param>
+    /// <returns>The time of the first intersection if there is a valid one, <c>null</c> otherwise</returns>
     private static float? FirstIntersectionTime(Ray invRay)
     {
-        // Set quantities in the reference frame where the box is a cube with vertices in (0, 0, 0) and (1, 1, 1)
-        var O = invRay.Origin;
-        var d = invRay.Dir;
+        if (!QuickIntersection(ref invRay)) return null;
 
-        // Calculate intersections
-        // NOTE: The times are not necessarily sorted from small to big because the ray could hit either side of the box
-        // (depending on the transformation)
-        var (tx1, tx2) = Intersections(O.X, d.X);
-        var (ty1, ty2) = Intersections(O.Y, d.Y);
-        var (tz1, tz2) = Intersections(O.Z, d.Z);
-
-        // Correct time ordering
-        if (tx1 > tx2) Swap(ref tx1, ref tx2);
-        if (ty1 > ty2) Swap(ref ty1, ref ty2);
-        if (tz1 > tz2) Swap(ref tz1, ref tz2);
-
-        // Check if the time intervals [tx1, tx2], [ty1, ty2] and [tz1, tz2] intersect
-        var t1 = TimeIntersectionWithFace(tx1, tx2, ty1, ty2, invRay.TMin, invRay.TMax);
-        if (!t1.HasValue) return null;
-        var tmin = t1.Value;
-        var t2 = TimeIntersectionWithFace(tz1, tz2, ty1, ty2, invRay.TMin, invRay.TMax);
-        if (!t2.HasValue) return null;
-        var tmiddle = t2.Value;
-        if (tmin > tmiddle) Swap(ref tmin, ref tmiddle);
-        var t3 = TimeIntersectionWithFace(tx1, tx2, tz1, tz2, invRay.TMin, invRay.TMax);
-        if (!t3.HasValue) return null;
-        var tmax = t3.Value;
-        if (tmin > tmax) Swap(ref tmin, ref tmax);
-        if (tmiddle > tmax) Swap(ref tmiddle, ref tmax);
+        if (OnTheBox(invRay.At(invRay.TMin))) return invRay.TMin;
+        if (OnTheBox(invRay.At(invRay.TMax))) return invRay.TMax;
+        return null;
+    }
+    
+    
+    public static bool QuickIntersection(ref Ray invRay)
+    {
+        // limits for an acceptable intersection
+        (float? t0, float t1) = (invRay.TMin, invRay.TMax);
         
-        if (OnTheBox(invRay.At(tmin)))
-        {
-            return tmin > invRay.TMin && tmin < invRay.TMax ? tmin : null;
-        }
-        if (OnTheBox(invRay.At(tmiddle)))
-        {
-            return tmiddle > invRay.TMin && tmiddle < invRay.TMax ? tmiddle : null;
-        }
-        if (OnTheBox(invRay.At(tmax)))
-        {
-            return tmax > invRay.TMin && tmax < invRay.TMax ? tmax : null;
-        }
-        return null;
+        // faces orthogonal to ex
+        (t0, t1) = IntersectionTimes(invRay.Origin.X, 1 / invRay.Dir.X, t0.Value, t1);
+        if (t0 is null) return false;
+        
+        // faces orthogonal to ey
+        (t0, t1) = IntersectionTimes(invRay.Origin.Y, 1 / invRay.Dir.Y, t0.Value, t1);
+        if (t0 is null) return false;
+        
+        // faces orthogonal to ez
+        (t0, t1) = IntersectionTimes(invRay.Origin.Z, 1 / invRay.Dir.Z, t0.Value, t1);
+        if (t0 is null) return false;
+        
+        // change limits in invRay (passed by reference) in order to optimize subsequent comparisons
+        invRay.UpdateLimits(t0.Value, t1);
+        return true;
     }
 
-    private static float? TimeIntersectionWithFace(float a1, float a2, float b1, float b2 , float min, float max)
+    /// <summary>
+    /// Calculates the two intersection times between the projection of the ray and one of the axis-aligned faces of the box
+    /// </summary>
+    /// <param name="origin">Coordinate of the origin of the ray along the dimension considered</param>
+    /// <param name="invDir">Reciprocal of component of the direction of the ray along the dimension considered</param>
+    /// <returns><c>tuple(entryTime, exitTime)</c>, with <c>entryTime = null</c> if no intersection occurred</returns>
+    private static (float?, float) IntersectionTimes(float origin, float invDir, float tmin, float tmax)
     {
-        // ray parallel to direction a
-        if (a1 == float.MinValue)
-        {
-            if (min < b1 && b1 < max) return b1;
-            if (min < b2 && b2 < max) return b2;
-            return null;
-        }
-        // ray parallel to direction b
-        if (b1 == float.MinValue) 
-        {
-            if (min < a1 && a1 < max) return a1;
-            if (min < a2 && a2 < max) return a2;
-            return null;
-        }
-        // check intersection
-        if (IntervalsIntersect(a1, a2, b1, b2))
-        {
-            var firstHit = Math.Max(a1, b1);
-            if (min < firstHit && firstHit < max) return firstHit;
-            var secondHit = Math.Min(a2, b2);
-            if (min < secondHit && secondHit < max) return secondHit;
-        }
-        return null;
-    }
+        // NOTE: invDir = 1 / direction.ith_component -> can be infinity, but the algorithm works just as fine
+        var entryTime = -origin * invDir;
+        var exitTime = (1 - origin) * invDir;
+        // correct time ordering if flipped
+        if (entryTime > exitTime) Swap(ref entryTime, ref exitTime);
 
-    private static (float, float) Intersections(float origin, float direction)
-    {
-        return !MyLib.IsZero(direction) ? (-origin / direction, (1 - origin) / direction) : (float.MinValue, float.MaxValue);
+        entryTime = Math.Max(tmin, entryTime);
+        exitTime = Math.Min(tmax, exitTime);
+        
+        //  if entryTime > exitTime no intersection occurred -> in that case return null for the first value
+        return entryTime < exitTime ? (entryTime, exitTime) : (null, exitTime);
     }
 
     private static void Swap(ref float a, ref float b)
     {
         (a, b) = (b, a);
-    } 
-
-    public static bool IntervalsIntersect(float a1, float a2, float b1, float b2)
+    }
+    
+    /// <summary>
+    /// Checks if a 3D point is on the surface of the Box in the reference frame where <i>min</i> = (0,0,0) and
+    /// <i>max</i> = (1,1,1)
+    /// </summary>
+    /// <param name="p">3D world point to check</param>
+    /// <returns><c>true</c> if the point is on the surface of the box, <c>false</c> otherwise</returns>
+    public static bool OnTheBox(Point p)
     {
-        return b1 < a2 && a1 < b2;
+        // check it's not outside
+        if (!(p.X, p.Y, p.Z).AreBoundedBy(0, 1)) return false;
+        
+        // check it's not on the interior
+        return p.HasZeros() || p.HasOnes();
     }
 
-    public static float SmallestPositiveTime(float[] times)
+    /// <summary>
+    /// Converts a 3D Point into 2D coordinates describing the point on the parametrized surface.
+    /// </summary>
+    /// <param name="point">3D World Point (assumed on the surface of the Box)</param>
+    /// <returns>2D Coordinates (u, v) in [0,1] x [0,1]</returns>
+    private static Vec2D PointToUV(Point point)
     {
-        var t = float.MaxValue;
-        foreach (var ti in times)
-        {
-            if (ti > 0 && ti < t) t = ti;
-        }
-        return t;
-    } 
+        // this works, but does not differentiate between faces
+        var (x, y) = (0f, 0f);
+        if (point.X.IsZeroOrOne()) (x, y) = (point.Y, point.Z);
+        if (point.Y.IsZeroOrOne()) (x, y) = (point.X, point.Z);
+        if (point.Z.IsZeroOrOne()) (x, y) = (point.X, point.Y);
+        var u = x - (float)Math.Floor(x);
+        var v = y - (float)Math.Floor(y);
+        return new Vec2D(u, v);
+    }
 
+    /// <summary>
+    /// Returns the normal to the surface of the box at a point, given a direction of incidence.
+    /// In the reference frame where the box is a cube with one vertex in the origin and another in the point (1,1,1)
+    /// </summary>
+    /// <param name="p">3D point on the surface</param>
+    /// <param name="dir">Direction of incidence</param>
+    /// <returns></returns>
     private static Normal NormalAt(Point p, Vec dir)
     {
-        if (MyLib.IsZero(p.X) || MyLib.AreClose(p.X, 1))
+        if (p.X.IsZeroOrOne())
         {
             return dir.X > 0 ? new Normal(-1, 0, 0) : new Normal(1, 0, 0);
         }
-        if (MyLib.IsZero(p.Y) || MyLib.AreClose(p.Y, 1))
+        if (p.Y.IsZeroOrOne())
         {
             return dir.Y > 0 ? new Normal(0, -1, 0) : new Normal(0, 1, 0);
         }
-        if (MyLib.IsZero(p.Z) || MyLib.AreClose(p.Z, 1))
+        if (p.Z.IsZeroOrOne())
         {
             return dir.Z > 0 ? new Normal(0, 0, -1) : new Normal(0, 0, 1);
         }
