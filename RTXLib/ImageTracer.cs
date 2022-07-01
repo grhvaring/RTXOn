@@ -25,29 +25,43 @@ public class ImageTracer
         for (int row = 0; row < Image.Height; ++row)
         {
             progress.Report((double) row / Image.Height);
-            for (int col = 0; col < Image.Width; ++col)
+            for (int col = 0; col < Image.Width; col += 2)
             {
-                var color = new Color();
-                if (numSubDivisions == 0)
-                {
-                    var ray = FireRay(col, row);
-                    color = function(ray);
-                }
-                else
-                {
-                    var numSubRays = (int) Math.Pow(numSubDivisions + 1, 2);
-                    for (var i = 0; i < numSubRays; ++i)
-                    {
-                        // (uPixel, vPixel) specifies a uniformly distributed random point inside the sub square
-                        var (u, v) = (pcg.RandomFloat(), pcg.RandomFloat());
-                        var ray = FireRay(col, row, u, v);
-                        color += function(ray);
-                    }
-                    color /= numSubRays;
-                }
+                var color = CalculateColor(col, row, numSubDivisions, pcg, function);
                 Image.SetPixel(col, row, color);
+
+                if (col <= 1) continue;
+                var prevColor = Image.GetPixel(col - 2, row);
+                var inBetweenColor = (prevColor + color) / 2;
+                if (((prevColor - color) / 255).IsBiggerThan(0.1))
+                    inBetweenColor = CalculateColor(col - 1, row, numSubDivisions, pcg, function);
+                Image.SetPixel(col - 1, row, inBetweenColor);
             }
         }
+    }
+
+    private Color CalculateColor(int col, int row, int numSubDivisions, PCG pcg, Func<Ray, Color> function)
+    {
+        var color = new Color();
+        if (numSubDivisions == 0)
+        {
+            var ray = FireRay(col, row);
+            color = function(ray);
+        }
+        else
+        {
+            var numSubRays = (int) Math.Pow(numSubDivisions + 1, 2);
+            for (var i = 0; i < numSubRays; ++i)
+            {
+                // (uPixel, vPixel) specifies a uniformly distributed random point inside the sub square
+                var (u, v) = (pcg.RandomFloat(), pcg.RandomFloat());
+                var ray = FireRay(col, row, u, v);
+                color += function(ray);
+            }
+            color /= numSubRays;
+        }
+
+        return color;
     }
 
     private void SaveSnapShotImage()
