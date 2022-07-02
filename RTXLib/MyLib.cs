@@ -3,6 +3,7 @@ namespace RTXLib;
 public static class MyLib
 {
     // Extension methods for comparison checks with floats
+    
     /// <summary>
     /// Checks if the float's absolute value is less than a given error (default 1e-5)
     /// </summary>

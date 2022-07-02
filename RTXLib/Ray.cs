@@ -28,7 +28,7 @@ public struct Ray
 
 	public bool IsClose(Ray otherRay, double epsilon = 1e-5)
     {
-		return (Origin.IsClose(otherRay.Origin, epsilon) && Dir.IsClose(otherRay.Dir, epsilon));
+		return Origin.IsClose(otherRay.Origin, epsilon) && Dir.IsClose(otherRay.Dir, epsilon);
     }
 
 	/// <summary>

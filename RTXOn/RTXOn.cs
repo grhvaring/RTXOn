@@ -317,7 +317,6 @@ class RTXOn
         var tracer = new ImageTracer(image, camera);
         var pcg = new PCG(options.Seed, options.Sequence);
         var renderer = SelectRenderer(scene.World, pcg);
-        Console.WriteLine($"seed: {options.Seed}, sequence: {options.Sequence}");
         tracer.FireAllRays(renderer.Run, options.SubDivisions, pcg);
         return tracer;
     }
@@ -340,6 +339,6 @@ class RTXOn
         image.WritePfm(Options.PfmOutput);
         image.NormalizeImage(options.Normalization, Options.Luminosity);
         image.ClampImage();
-        image.SaveAsPng(options.PngOutput, options.Gamma);   
+        image.SaveAsPng(options.PngOutput, options.Gamma);
     }
 }
