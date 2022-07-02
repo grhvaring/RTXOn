@@ -89,7 +89,9 @@ public static class Parser
         ExpectSymbol(stream, ',');
         var b = ExpectNumber(stream, scene);
         ExpectSymbol(stream, ']');
-        return new Color(r, g, b);
+        var color = new Color(r, g, b);
+        color.UnClamp();
+        return color;
     }
     
     public static Vec ParseVector(InputStream stream, Scene scene)

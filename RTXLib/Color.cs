@@ -130,12 +130,24 @@ public struct Color
     {
         return x / (1 + x);
     }
-    
+
     public void Clamp()
     {
         R = Clamp(R);
         G = Clamp(G);
         B = Clamp(B);
+    }
+    
+    private static float UnClamp(float x)
+    {
+        return x / (256 - x);
+    }
+    
+    public void UnClamp()
+    {
+        R = UnClamp(R);
+        G = UnClamp(G);
+        B = UnClamp(B);
     }
 
     private static int AdjustPowerLaw(float rgbComponent, float gamma)
