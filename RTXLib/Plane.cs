@@ -8,7 +8,7 @@ public class Plane : Shape
     {
         var invRay = ray.Transform(Transformation.Inverse());
 
-        var firstHitTime = CalculateFirstIntersectionTime(invRay);
+        var firstHitTime = CalculateFirstIntersectionTime(ref invRay);
         if (!firstHitTime.HasValue) return null;
 
         var time = firstHitTime.Value;
@@ -18,12 +18,13 @@ public class Plane : Shape
                 PointToUV(hitPoint), time, ray, this);
     }
 
-    private static float? CalculateFirstIntersectionTime(Ray invRay)
+    private static float? CalculateFirstIntersectionTime(ref Ray invRay)
     {
-        if (MyLib.IsZero(invRay.Dir.Z)) return null;  // ray parallel to plane
+        if (invRay.Dir.Z.IsZero()) return null;  // ray parallel to plane
         
         var t = -invRay.Origin.Z / invRay.Dir.Z;
-        return t > invRay.TMin && t < invRay.TMax ? t : null; // check this one
+        if (t < invRay.TMax) invRay.UpdateLimits(invRay.TMin, t);
+        return t > invRay.TMin ? t : null; // check this one
     }
 
     private static Normal NormalAt(Vec dir)

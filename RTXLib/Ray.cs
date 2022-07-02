@@ -4,8 +4,8 @@ public struct Ray
 {
 	public Point Origin;
 	public Vec Dir;
-	public readonly float TMin;
-	public readonly float TMax;
+	public float TMin;
+	public float TMax;
 	public int Depth;
 
 	public Ray()
@@ -45,5 +45,11 @@ public struct Ray
 	{
 		// QUESTION: Why don't we just change the current ray?
 		return new Ray(transformation * Origin, transformation * Dir, TMin, TMax, Depth);
+	}
+
+	public void UpdateLimits(float tmin, float tmax)
+	{
+		TMin = tmin;
+		TMax = tmax;
 	}
 }
