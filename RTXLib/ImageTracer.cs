@@ -18,12 +18,19 @@ public class ImageTracer
         return Camera.FireRay(u, v);
     }
 
-    public void FireAllRays(Func<Ray, Color> function, int numSubDivisions = 0, PCG? pcg = null)
+    public void FireAllRays(Func<Ray, Color> function, int numSubDivisions = 0, PCG? pcg = null, bool saveSnapshots = false)
     {
         using var progress = new ProgressBar();
         pcg ??= new PCG();
+        var numUpdates = 10;
+        var threshold = Math.Max(Image.Height / numUpdates, 1);
         for (int row = 0; row < Image.Height; ++row)
         {
+            if (saveSnapshots && row % threshold == 0)
+            {
+                SaveSnapShotImage();
+                threshold += Math.Max(Image.Height / numUpdates, 1);
+            }
             progress.Report((float) row / Image.Height);
             for (int col = 0; col < Image.Width; col++)
             {
