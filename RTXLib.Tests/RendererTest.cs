@@ -35,7 +35,7 @@ namespace RTXLib.Tests
 				var sphere = new Sphere(enclosureMaterial, 0, 0, 0);
 				world.Add(sphere);
 
-				var pathTracer = new PathTracer(world, Color.BLACK, pcg, 1, 100, 101);
+				var pathTracer = new PathTracer(world, pcg, 1, 100, 101);
 
 				var origin = new Point(0.0f, 0.0f, 0.0f);
 				var dir = new Vec(1.0f, 0.0f, 0.0f);
