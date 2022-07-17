@@ -287,8 +287,8 @@ public static class Parser
         ExpectSymbol(stream, ')');
 
         return type is KeywordEnum.Orthogonal
-            ? new OrthogonalCamera(aspectRatio, transformation)
-            : new PerspectiveCamera(distance, aspectRatio, transformation);
+            ? new OrthogonalCamera(transformation, aspectRatio)
+            : new PerspectiveCamera(transformation, distance, aspectRatio);
 }
 
     /// <summary>

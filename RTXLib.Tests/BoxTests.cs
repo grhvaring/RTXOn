@@ -210,7 +210,7 @@ public class BoxTests
         
         // setup camera
         var transformation = Transformation.Translation(0, 0, 1);
-        var camera = new PerspectiveCamera(2, 1, transformation);
+        var camera = new PerspectiveCamera(transformation, 2, 1);
         var ray = camera.FireRay(0.5f, 0.6f);
         
         // check ray equals the one intended
