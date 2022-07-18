@@ -16,12 +16,12 @@ If you are still reading, we've got a prize for you: a beautiful image rendered 
 
 With `RTXOn` you can generate an image similar to this one:
 
-<!-- ![pyramid](/Users/giacomo/cs/RTXOn/images/pyramid/50-average.png)-->
+<!-- ![cornell](https://github.com/grhvaring/RTXOn/tree/document/images/demo.png)-->
 
 using the following command:
 
 ```
-$ ./render pyramid
+$ ./render demo
 ```
 
 Do not worry if the syntax is not crystal clear: there's a more [detailed explanation](#usage) on how to use `RTXOn` further down.
