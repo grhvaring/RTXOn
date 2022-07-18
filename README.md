@@ -16,7 +16,7 @@ If you are still reading, we've got a prize for you: a beautiful image rendered 
 
 With `RTXOn` you can generate an image similar to this one:
 
-<!-- ![demo](https://github.com/grhvaring/RTXOn/tree/document/images/demo.png?raw=true)-->
+![demo](https://github.com/grhvaring/RTXOn/blob/document/images/demo.png?raw=true)
 
 using the following command:
 
@@ -24,7 +24,7 @@ using the following command:
 $ ./render demo
 ```
 
-Do not worry if the syntax is not crystal clear: there's a more [detailed explanation](#usage) on how to use `RTXOn` further down.
+The syntax is explained on how to use `RTXOn` [further down](#usage).
 
 The next section explains how to get `RTXOn` up and running on your machine.
 
@@ -184,12 +184,11 @@ We thank also all the contributors to [CommandLineParser], for allowing us to in
 
 And of course, we thank our parents for sponsoring us while we learned how to make CG balls for 6 months.
 
-[license]: https://github.com/grhvaring/RTXOn/tree/master/LICENSE.txt
-[project-link]: https://github.com/grhvaring/RTXOn
 [raytracing_course]: https://ziotom78.github.io/raytracing_course
 [pytracer]: https://github.com/ziotom78/pytracer
 [examples]: https://github.com/grhvaring/RTXOn/tree/master/examples
 [slides]: https://ziotom78.github.io/raytracing_course
+[license]: https://github.com/grhvaring/RTXOn/tree/master/LICENSE.txt
 [sixlabors]: https://sixlabors.com
 [imagesharp]: https://sixlabors.com/products/imagesharp/
 [commandlineparser]: https://github.com/commandlineparser
