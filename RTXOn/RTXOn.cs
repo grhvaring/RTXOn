@@ -192,7 +192,7 @@ class RTXOn
         image.NormalizeImage(options.Normalization, Options.Luminosity);
         image.ClampImage();
         image.SaveAsPng(options.PngOutput, options.Gamma);
-        Console.WriteLine($"Saved image {options.PngOutput}");
+        Console.WriteLine($"Rendering saved in image {options.PngOutput}");
     }
     
     private class Options
