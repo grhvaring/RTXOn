@@ -16,7 +16,7 @@ If you are still reading, we've got a prize for you: a beautiful image rendered 
 
 With `RTXOn` you can generate an image similar to this one:
 
-<!-- ![cornell](https://github.com/grhvaring/RTXOn/tree/document/images/demo.png)-->
+<!-- ![demo](https://github.com/grhvaring/RTXOn/tree/document/images/demo.png?raw=true)-->
 
 using the following command:
 
