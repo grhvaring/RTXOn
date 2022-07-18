@@ -17,16 +17,18 @@ material blue_material(
 
 material yellow_material(
     diffuse(uniform([0, 0, 0])),
-    uniform([255, 255, 6.9])
+    uniform([255, 255, 69])
 )
+
+float grey(130)
 
 material sky_material(
     diffuse(uniform([0, 0, 0])),
-    uniform([1, 1, 1])
+    uniform([50, 50, 50])
 )
 
 material ground_material(
-    diffuse(uniform([1, 1, 1])),
+    diffuse(uniform([grey, grey, grey])),
     uniform([0, 0, 0])
 )
 

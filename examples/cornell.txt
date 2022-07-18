@@ -3,27 +3,31 @@
 # left wall
 
 material red_material(
-    diffuse(uniform([6.29, 0.11, 0.11])),
+    diffuse(uniform([220, 35, 35])),
     uniform([0, 0, 0])
 )
+# 6.29, 0.11, 0.11
 
 plane (red_material, translation([0, 1.1, 0]) * rotation_x(90))
 
 # right wall
 
 material green_material(
-    diffuse(uniform([0.1, 1, 0.1])),
+    diffuse(uniform([0, 220, 70])),
     uniform([0, 0, 0])
 )
+# 0.1, 1, 0.1
 
 plane (green_material, translation([0, -1.1, 0]) * rotation_x(90))
 
 # back wall
 
 material carton_material(
-    diffuse(uniform([1.97, 0.89, 0.46])),
+    diffuse(uniform([180, 120, 80])),
     uniform([0, 0, 0])
 )
+# 1.97, 0.89, 0.46
+
 plane (carton_material, translation([2, 0, 0]) * rotation_y(90))
 
 # floor
@@ -42,7 +46,7 @@ material light_material(
     uniform([255, 255, 255])
 )
 
-box (light_material, translation([one_minus_edge_half, minus_edge_half, 1.995]) * scaling([edge, edge, edge]))
+box (light_material, translation([one_minus_edge_half, minus_edge_half, 1.999]) * scaling([edge, edge, edge]))
 
 # right box
 box (carton_material, translation([0.6, -0.33, 0.01]) * rotation_z(55) * scaling([0.3, -0.8, 0.8]))

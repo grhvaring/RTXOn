@@ -1,26 +1,27 @@
-float clock(150)
-
 material sky_material(
     diffuse(uniform([0, 0, 0])),
-    uniform([0.7, 0.5, 1])
+    uniform([113, 188, 225])
 )
 
-# Here is a comment
-
 material ground_material(
-    diffuse(checkered([0.3, 0.5, 0.1],
-                      [0.1, 0.2, 0.5], 4)),
+    diffuse(uniform([0, 150, 70])),
     uniform([0, 0, 0])
 )
 
 material sphere_material(
-    specular(uniform([0.5, 0.5, 0.5])),
+    specular(uniform([100, 100, 100])),
     uniform([0, 0, 0])
 )
 
-plane (sky_material, translation([0, 0, 100]) * rotation_y(clock))
+material light_material(
+	diffuse(uniform([0, 0, 0])),
+	uniform([255, 255, 255])
+)
+
+sphere (sky_material, scaling([100, 100, 100]))
 plane (ground_material, identity)
 
 sphere(sphere_material, translation([0, 0, 1]))
+sphere (light_material, translation([-3, -2, 3]) * scaling([1.5, 1.5, 1.5]))
 
-camera(perspective, rotation_z(30) * translation([-4, 0, 1]), 1.0, 1.0)
+camera(perspective, translation([-2, 0, 1]), 1.0, 1.0)
