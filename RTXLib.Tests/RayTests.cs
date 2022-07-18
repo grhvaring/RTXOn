@@ -33,4 +33,12 @@ public class RayTests
         Assert.True(transformed.Origin.IsClose(new Point(11, 8, 14)));
         Assert.True(transformed.Dir.IsClose(new Vec(6, -4, 5)));
     }
+
+    [Fact]
+    public void TestUpdateLimits()
+    {
+        var ray = new Ray(new Point(), new Vec(), 1f, 2f);
+        ray.UpdateLimits(3, 4);
+        Assert.True(ray.TMin.IsClose(3) && ray.TMax.IsClose(4));
+    }
 }

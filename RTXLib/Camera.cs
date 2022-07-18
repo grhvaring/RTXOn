@@ -9,16 +9,10 @@ public interface ICamera
 
 public class OrthogonalCamera : ICamera
 {
-    public OrthogonalCamera(float aspectRatio = 1)
+    public OrthogonalCamera(Transformation? transformation = null, float aspectRatio = 1)
     {
+        Transformation = transformation ?? Transformation.Identity;
         AspectRatio = aspectRatio;
-        Transformation = new Transformation();
-    }
-    
-    public OrthogonalCamera(float aspectRatio, Transformation transformation)
-    {
-        AspectRatio = aspectRatio;
-        Transformation = transformation;
     }
     
     public float AspectRatio { get; set; }
@@ -34,11 +28,11 @@ public class OrthogonalCamera : ICamera
 
 public class PerspectiveCamera : ICamera
 {
-    public PerspectiveCamera(float distance = 1, float aspectRatio = 1, Transformation? transformation = null)
+    public PerspectiveCamera(Transformation? transformation = null, float distance = 1, float aspectRatio = 1)
     {
+        Transformation = transformation ?? Transformation.Identity;
         Distance = distance;
         AspectRatio = aspectRatio;
-        Transformation = transformation ?? Transformation.Identity;
     }
 
     public float Distance { get; set; }

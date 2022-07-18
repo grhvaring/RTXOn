@@ -17,11 +17,11 @@ namespace RTXLib.Tests
 		[Fact]
 		public void TestFurnace()
 		{
-			PCG pcg = new PCG();
+			var pcg = new PCG();
 
 			for(int i = 0; i < 5; i++)
 			{
-				World world = new World();
+				var world = new World();
 
 				var emittedRadiance = pcg.RandomFloat();
 				var reflectance = pcg.RandomFloat();
@@ -35,7 +35,7 @@ namespace RTXLib.Tests
 				var sphere = new Sphere(enclosureMaterial, 0, 0, 0);
 				world.Add(sphere);
 
-				var pathTracer = new PathTracer(world, Color.BLACK, pcg, 1, 100, 101);
+				var pathTracer = new PathTracer(world, pcg, 1, 100, 101);
 
 				var origin = new Point(0.0f, 0.0f, 0.0f);
 				var dir = new Vec(1.0f, 0.0f, 0.0f);
@@ -50,9 +50,9 @@ namespace RTXLib.Tests
 				Output.WriteLine(color2.B.ToString());
 				Output.WriteLine("");
 
-				Assert.True(MyLib.AreClose(expected, color2.R, 1e-3));
-				Assert.True(MyLib.AreClose(expected, color2.G, 1e-3));
-				Assert.True(MyLib.AreClose(expected, color2.B, 1e-3));
+				Assert.True(expected.IsClose(color2.R, 1e-3));
+				Assert.True(expected.IsClose(color2.G, 1e-3));
+				Assert.True(expected.IsClose(color2.B, 1e-3));
 			}
 		}
 	}

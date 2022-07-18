@@ -6,15 +6,204 @@ namespace RTXOn;
 
 class RTXOn
 {
+    private static void Main(string[] args)
+    {
+        CommandLine.Parser.Default.ParseArguments<Options>(args)
+            .WithParsed(RunOptions);
+    }
+
+    private static void RunOptions(Options options)
+    {
+        if (options.Verbose)
+        {
+            Console.WriteLine("Verbose output enabled.");
+            Console.WriteLine($"Program mode: {options.Mode}");
+            Console.WriteLine("Current arguments:");
+            Console.WriteLine($"\tAspect ratio\t-r {options.AspectRatio}");
+            Console.WriteLine($"\tNormalization\t-a {options.Normalization}");
+            Console.WriteLine($"\tFlux correction\t-g {options.Gamma}");
+        }
+        
+        ImageTracer? tracer;
+        
+        // arguments is an array of strings, used in two places
+        // pfm2png:    arguments = [input.pfm, output.png]
+        // average:    arguments = [image1.png, ... , imageN.png]
+        var arguments = options.Arguments.ToArray();
+        
+        try
+        {
+            switch (options.Mode)
+            {
+                case "pfm2png":
+                    var files = new IOFiles(arguments);
+                    if (options.Verbose)
+                    {
+                        Console.WriteLine($"\tInput file\t{files.InputPfmFileName}");
+                        Console.WriteLine($"\tOutput file\t{files.OutputPngFileName}");
+                    }
+
+                    var image = new HdrImage(files.InputPfmFileName);
+                    image.NormalizeImage(options.Normalization, Options.Luminosity);
+                    image.ClampImage();
+                    image.SaveAsPng(files.OutputPngFileName, options.Gamma);
+                    break;
+
+                case "render":
+                {
+                    using var reader = new StreamReader(options.InputSceneFile);
+                    var inputStream = new InputStream(reader, options.InputSceneFile);
+                    try
+                    {
+                        var scene = RTXLib.Parser.ParseScene(inputStream);
+                        tracer = RenderImageFromScene(scene, options);
+                        FinalizeImage(tracer.Image, options);
+                    }
+                    catch (GrammarError e)
+                    {
+                        var loc = e.Location;
+                        var message =
+                            $"In file \"{loc.FileName}\", line {loc.LineNumber}, col {loc.ColumnNumber - 1}: {e.Message}";
+                        throw new GrammarError(loc, message);
+                    }
+
+                    break;
+                }
+                case "average":
+
+                    var images = ImagesToAverage(arguments);
+                    if (options.Verbose)
+                    {
+                        // BE VERBOSE
+                    }
+
+                    var (width, height) = ReadPfmDimensions(images[0]);
+                    image = new HdrImage(width, height);
+                    foreach (var im in images) image += new HdrImage(im);
+                    image /= images.Count;
+                    FinalizeImage(image, options);
+                    break;
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Something went wrong, see below for more details.");
+            Console.WriteLine(e.Message);
+        }
+    }
+    
+    /// <summary>
+    /// A container for input/output file names
+    /// </summary>
+    public readonly struct IOFiles
+    {
+        public string InputPfmFileName { get; }
+        public string OutputPngFileName { get; }
+
+        /// <summary>
+        /// Initializes the input and output file names (respectively) from an array containing exactly 2 strings.
+        /// </summary>
+        /// <exception cref="InvalidEnumArgumentException">Thrown if the number of elements in args is not 2.</exception>
+        public IOFiles(string[] args)
+        {
+            if (args.Length is not 2)
+            {
+                throw new InvalidEnumArgumentException("Expected arguments: <input-pfm-file> <output-png-file>");
+            }
+
+            InputPfmFileName = args[0];
+            OutputPngFileName = args[1];
+        }
+    }
+    
+    /// <summary>
+    /// Returns only the filenames ending with ".pfm".
+    /// </summary>
+    /// <exception cref="InvalidEnumArgumentException">Thrown when the list of images is empty</exception>
+    private static List<string> ImagesToAverage(string[] args)
+    {
+        if (args.Length < 1)
+        {
+            throw new InvalidEnumArgumentException("Expected at least one argument.");
+        }
+        
+        return args.Where(a => a.Contains(".pfm")).ToList();
+    }
+    
+    private static (int, int) ReadPfmDimensions(string fileName)
+    {
+        using var fileStream = File.OpenRead(fileName);
+        HdrImage.ReadPfmLine(fileStream); // skip the first line
+        var dimensions = HdrImage.ReadPfmLine(fileStream);
+        return HdrImage.ParseImgSize(dimensions);
+    }
+
+    private static Renderer SelectRenderer(World world, PCG? pcg = null)
+    {
+        return Options.Renderer switch
+        {
+            "pathtracer" => new PathTracer(world, pcg, Options.NumberOfRays, Options.MaxDepth),
+            "flat" => new FlatRenderer(world),
+            "onoff" => new OnOffRenderer(world),
+            _ => new PathTracer(world, pcg, Options.NumberOfRays, Options.MaxDepth)
+        };
+    }
+    
+    private static ImageTracer RenderImage(World world, Options options, ICamera? camera = null)
+    {
+        camera ??= ChooseCamera(options);
+        var image = new HdrImage(options.Width, options.Height);
+        var tracer = new ImageTracer(image, camera);
+        var renderer = SelectRenderer(world);
+        
+        tracer.FireAllRays(renderer.Run);
+
+        return tracer;
+    }
+    
+    private static ImageTracer RenderImageFromScene(Scene scene, Options options)
+    {
+        // var transformation = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(15) * Transformation.Translation(-options.Distance);
+        var camera = scene.Camera ?? ChooseCamera(options);
+        var image = new HdrImage(options.Width, options.Height);
+        var tracer = new ImageTracer(image, camera);
+        var pcg = new PCG(options.Seed, options.Sequence);
+        var renderer = SelectRenderer(scene.World, pcg);
+        tracer.FireAllRays(renderer.Run, options.SubDivisions, pcg, options.SaveSnapshots);
+        return tracer;
+    }
+
+    private static ICamera ChooseCamera(Options options, Transformation? transformation = null)
+    {
+        var aspectRatio = options.AspectRatio ?? options.Width / options.Height;
+        if (options.Orthogonal)
+        {
+            var T = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(5) * Transformation.Translation(-options.Distance);
+            return new OrthogonalCamera(T, aspectRatio);
+        }
+
+        transformation ??= Transformation.RotationZ(options.AngleDegZ) * Transformation.Translation(-1,0,1);
+        return new PerspectiveCamera(transformation.Value, options.Distance, aspectRatio);
+    }
+    
+    private static void FinalizeImage(HdrImage image, Options options)
+    {
+        image.WritePfm(Options.PfmOutput);
+        image.NormalizeImage(options.Normalization, Options.Luminosity);
+        image.ClampImage();
+        image.SaveAsPng(options.PngOutput, options.Gamma);
+        Console.WriteLine($"Rendering saved in image {options.PngOutput}");
+    }
+    
     private class Options
     {
         [Option('v', "verbose", Required = false, HelpText = "Set output to verbose messages.")]
         public bool Verbose { get; set; }
 
-        [Value(0, Required = true, MetaName = "mode", HelpText = "Mode to execute.")]
+        [Value(0, Required = true, MetaName = "mode", HelpText = "Execution mode. Choices: pfm2png, render, demo, average.")]
         public string Mode { get; set; }
 
-        [Value(1, MetaName = "args", HelpText = "Parameters")]
+        [Value(1, Required = false, MetaName = "args", HelpText = "Arguments for the conversion from PFM to PNG.")]
         public IEnumerable<string> Arguments { get; set; }
         
         [Option('w',"width", HelpText = "Width of the image.", Default = 1080)]
@@ -41,13 +230,13 @@ class RTXOn
         [Option( "png-output", HelpText = "Output PNG filename.", Default = "out.png")]
         public string PngOutput { get; set; }
         
-        [Option( "pfm-output", HelpText = "Output PNG filename.", Default = "out.pfm")]
+        [Option( "pfm-output", HelpText = "Output PFM filename.", Default = "out.pfm")]
         public static string PfmOutput { get; set; }
         
         [Option( "angle-deg", HelpText = "Camera rotation angle about Z axis.", Default = 0)]
         public float AngleDegZ { get; set; }
 
-        [Option("renderer", HelpText = "Renderer to use for the demo: onoff/flat.", Default = "flat")]
+        [Option("renderer", HelpText = "Renderer to use for the demo. Options: pathtracer, flat, onoff.", Default = "pathtracer")]
         public static string Renderer { get; set; }
 
         [Option("luminosity", HelpText = "Override average luminosity of the image.")]
@@ -63,11 +252,20 @@ class RTXOn
             HelpText = "Input file containing the 3D scene to render.")]
         public string InputSceneFile { get; set; }
         
-        [Option("background",  Default = "black",
-            HelpText = "Background color, can be black or white.")]
-        public static string BackgroundColor { get; set; }
 
-        [Option('s', "subdivisions", Default = 0, HelpText = "Number of subdivisions for the pixels (s = 2 --> 9 rays per pixel.")]
+        [Option('s', "subdivisions", Default = 0, HelpText = @"Antialiasing subdivisions of each pixel.
+
+    s = 0:                     s = 1:                     s = 2:                      ...
+
+            0                          1                       1     2
+   ┌─────────────────┐        ┌────────┬────────┐        ┌─────┬─────┬─────┐
+   │                 │        │        │        │        │     │     │     │
+   │                 │        │        │        │      1 ├─────┼─────┼─────┤
+ 0 │                 │      1 ├────────┼────────┤        │     │     │     │
+   │                 │        │        │        │      2 ├─────┼─────┼─────┤
+   │                 │        │        │        │        │     │     │     │
+   └─────────────────┘        └────────┴────────┘        └─────┴─────┴─────┘")]
+            
         public int SubDivisions { get; set; }
         
         [Option("seed", HelpText = "Seed for the random number generator.", Default = (ulong)42)]
@@ -75,271 +273,8 @@ class RTXOn
         
         [Option("sequence", HelpText = "Sequence of the random number generator.", Default = (ulong)54)]
         public ulong Sequence { get; set; }
-    }
-    
-    public readonly struct IOFiles
-    {
-        public string InputPfmFileName { get; }
-        public string OutputPngFileName { get; }
-
-        public IOFiles(string[] args)
-        {
-            if (args.Length is not 2)
-            {
-                throw new InvalidEnumArgumentException("Expected arguments: <input-pfm-file> <output-png-file>");
-            }
-
-            InputPfmFileName = args[0];
-            OutputPngFileName = args[1];
-        }
-    }
-    
-    public static List<string> ImagesToAverage(string[] args)
-    {
-        if (args.Length < 1)
-        {
-            throw new InvalidEnumArgumentException("Expected at least one argument.");
-        }
-
-        var files = new List<string>();
-
-        foreach (var a in args)
-        {
-            if (a.Contains(".pfm")) files.Add(a);
-        }
-
-        return files;
-    }
-
-    static private (int, int) ReadPfmDimensions(string fileName)
-    {
-        using var fileStream = File.OpenRead(fileName);
-        HdrImage.ReadPfmLine(fileStream); // skip first line
-        var dimensions = HdrImage.ReadPfmLine(fileStream);
-        return HdrImage.ParseImgSize(dimensions);
-    }
-
-    private static void Main(string[] args)
-    {
-        CommandLine.Parser.Default.ParseArguments<Options>(args)
-            .WithParsed(RunOptions);
-    }
-
-    static readonly Color YELLOW = new(1, 1, 0.2F);
-    static readonly Color GREEN = new(0, 1,0 );
-    static readonly Color RED = new (1, 0, 0);
-    static readonly Color BROWN = new (1.2f, 0.27f,0.2f);
-    static readonly Color VIOLET = new (0.9F, 0.2F,1.1F);
-
-    private static void RunOptions(Options options)
-    {
-        if (options.Verbose)
-        {
-            Console.WriteLine("Verbose output enabled.");
-            Console.WriteLine($"Program mode: {options.Mode}");
-            Console.WriteLine("Current arguments:");
-            Console.WriteLine($"\tAspect ratio\t-r {options.AspectRatio}");
-            Console.WriteLine($"\tNormalization\t-a {options.Normalization}");
-            Console.WriteLine($"\tFlux correction\t-g {options.Gamma}");   
-        }
         
-        var arguments = options.Arguments.ToArray();
-
-        ImageTracer? tracer;
-      
-        switch (options.Mode)
-        {
-            case "pfm2png":
-                try
-                {
-                    var files = new IOFiles(arguments);
-                    if (options.Verbose)
-                    {
-                        Console.WriteLine($"\tInput file\t{files.InputPfmFileName}");
-                        Console.WriteLine($"\tOutput file\t{files.OutputPngFileName}");
-                    }
-                    var image = new HdrImage(files.InputPfmFileName);
-                    image.NormalizeImage(options.Normalization, Options.Luminosity);
-                    image.ClampImage();
-                    image.SaveAsPng(files.OutputPngFileName, options.Gamma);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Something went wrong, see below for the details.");
-                    Console.WriteLine(e.Message);
-                }
-                break;
-
-            case "demo":
-                if (options.Verbose)
-                {
-                    Console.WriteLine($"\tScreen distance\t-d {options.Distance}");
-                }
-                
-                var world = new World();
-
-                // originalDemo(world);
-
-                RedReflectingDemo(world);
-
-                tracer = RenderImage(world, options);
-                FinalizeImage(tracer.Image, options);
-                break;
-            
-            case "render":
-            {
-                using var reader = new StreamReader(options.InputSceneFile);
-                var inputStream = new InputStream(reader, options.InputSceneFile);
-                try
-                {
-                    var scene = RTXLib.Parser.ParseScene(inputStream);
-                    tracer = RenderImageFromScene(scene, options);
-                    FinalizeImage(tracer.Image, options);
-                }
-                catch (GrammarError e)
-                {
-                    var loc = e.Location;
-                    Console.WriteLine($"In file \"{loc.FileName}\", line {loc.LineNumber}, col {loc.ColumnNumber-1}: {e.Message}");
-                }
-                break;
-            }
-            case "average":
-                try
-                {
-                    var images = ImagesToAverage(arguments);
-                    if (options.Verbose)
-                    {
-                        // be verbose
-                    }
-
-                    var (width, height) = ReadPfmDimensions(images[0]);
-                    var image = new HdrImage(width, height);
-                    foreach (var im in images) image += new HdrImage(im);
-                    image /= images.Count;
-                    FinalizeImage(image, options);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Something went wrong, see below for the details.");
-                    Console.WriteLine(e.Message);
-                }
-                break;
-        }
-    }
-
-    private static Renderer SelectRenderer(World world, PCG? pcg = null)
-    {
-        var background = Options.BackgroundColor == "black" ? Color.BLACK : Color.WHITE;
-        return Options.Renderer switch
-        {
-            "onoff" => new OnOffRenderer(world, background),
-            "flat" => new FlatRenderer(world, background),
-            "pathtracer" => new PathTracer(world, background, pcg, Options.NumberOfRays, Options.MaxDepth),
-            _ => new OnOffRenderer(world, background)
-        };
-    }
-
-    private static void OriginalDemo(World world)
-    {
-        var r = 1.0f / 10.0f; // spheres radius
-        var edge = 1.0f;
-        float[] limits = {-0.5f * edge, 0.5f * edge}; // edges of the cube
-        var material = new Material(new UniformPigment(RED));
-        foreach (var x in limits)
-        {
-            foreach (var y in limits)
-            {
-                foreach (var z in limits)
-                {
-                    world.Add(new Sphere(material, x, y, z, r));
-                }
-            }
-        }
-
-        var firstMaterial = new Material(new CheckeredPigment(VIOLET, YELLOW, 2));
-        var checkPigment = new CheckeredPigment(VIOLET, GREEN, 4);
-        var checkMaterial = new Material(checkPigment);
-        world.Add(new Sphere(checkMaterial, 0, 0, -0.5f * edge, r));
-    }
-
-    private static void RedReflectingDemo(World world)
-    {
-        // reflecting red sphere
-
-        var red = new Color(1.1f, 0.2f, 0.2f);
-        var spherePigment = new UniformPigment(red);
-        var sphereMaterial = new Material(new SpecularBRDF(spherePigment));
-        var sphere = new Sphere(sphereMaterial,0,0,0.5f, 0.5f);
-        world.Add(sphere);
-
-        // emitting blue sky dome
-
-        var skyColor = new Color(0.37f, 0.9f, 1);
-        var skyMaterial = new Material(new UniformPigment(skyColor));
-        var sky = new Sphere(skyMaterial, 0, 0, 0, 100);
-
-        world.Add(sky);
-
-        // optional sun
-
-        var sunMaterial = new Material(new UniformPigment(new Color(1, 1, 1)));
-        var sun = new Sphere(sunMaterial, 0, 0, 1.5f, 0.5f);
-    
-        // world.Add(sun);
-                
-        // floor
-                
-        Pigment floorPigment = new CheckeredPigment(GREEN, red);
-        //floorPigment = new UniformPigment(new Color(0, 0, 1));
-        var floorMaterial = new Material(new DiffuseBRDF(floorPigment));
-        var floor = new Plane(floorMaterial);
-        world.Add(floor);
-    }
-
-    private static ImageTracer RenderImage(World world, Options options, ICamera? camera = null)
-    {
-        // var transformation = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(15) * Transformation.Translation(-options.Distance);
-        camera ??= ChooseCamera(options);
-        var image = new HdrImage(options.Width, options.Height);
-        var tracer = new ImageTracer(image, camera);
-        var renderer = SelectRenderer(world);
-        
-        tracer.FireAllRays(renderer.Run);
-
-        return tracer;
-    }
-    
-    private static ImageTracer RenderImageFromScene(Scene scene, Options options)
-    {
-        // var transformation = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(15) * Transformation.Translation(-options.Distance);
-        var camera = scene.Camera ?? ChooseCamera(options);
-        var image = new HdrImage(options.Width, options.Height);
-        var tracer = new ImageTracer(image, camera);
-        var pcg = new PCG(options.Seed, options.Sequence);
-        var renderer = SelectRenderer(scene.World, pcg);
-        Console.WriteLine($"seed: {options.Seed}, sequence: {options.Sequence}");
-        tracer.FireAllRays(renderer.Run, options.SubDivisions, pcg);
-        return tracer;
-    }
-
-    private static ICamera ChooseCamera(Options options, Transformation? transformation = null)
-    {
-        var aspectRatio = options.AspectRatio ?? options.Width / options.Height;
-        if (options.Orthogonal)
-        {
-            var T = Transformation.RotationZ(options.AngleDegZ) * Transformation.RotationY(5) * Transformation.Translation(-options.Distance);
-            return new OrthogonalCamera(aspectRatio, T);
-        }
-
-        transformation ??= Transformation.RotationZ(options.AngleDegZ) * Transformation.Translation(0,0,1);
-        return new PerspectiveCamera(options.Distance, aspectRatio, transformation.Value);
-    }
-    
-    private static void FinalizeImage(HdrImage image, Options options)
-    {
-        image.WritePfm(Options.PfmOutput);
-        image.NormalizeImage(options.Normalization, Options.Luminosity);
-        image.ClampImage();
-        image.SaveAsPng(options.PngOutput, options.Gamma);   
+        [Option("snapshots", HelpText = "Save temporary snapshot images", Default = false)]
+        public bool SaveSnapshots { get; set; }
     }
 }

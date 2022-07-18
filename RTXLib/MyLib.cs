@@ -2,19 +2,24 @@ namespace RTXLib;
 
 public static class MyLib
 {
-    public static bool AreClose(float a, float b, double e = 1e-5)
-    {
-        return IsZero(a - b, e);
-    }
-
-    public static bool AreZero(float dx, float dy, float dz, double e = 1e-5)
-    {
-        return IsZero(dx, e) && IsZero(dy, e) && IsZero(dz, e);
-    }
-
-    public static bool IsZero(float x, double e = 1e-5)
+    // Extension methods for comparison checks with floats
+    
+    /// <summary>
+    /// Checks if the float's absolute value is less than a given error (default 1e-5)
+    /// </summary>
+    public static bool IsZero(this float x, double e = 1e-5)
     {
         return Math.Abs(x) < e;
+    }
+    
+    public static bool IsClose(this float a, float b, double e = 1e-5)
+    {
+        return (a - b).IsZero(e);
+    }
+
+    public static bool AreZero(this (float, float, float) triple, double e = 1e-5)
+    {
+        return triple.Item1.IsZero(e) && triple.Item2.IsZero(e) && triple.Item3.IsZero(e);
     }
 
     ///<summary>
@@ -87,4 +92,30 @@ public static class MyLib
 	    {"perspective", KeywordEnum.Perspective},
 	    {"float", KeywordEnum.Float}
     };
+    
+    /// <summary>
+    /// Extension method that checks whether a given float x is in the interval [a,b]
+    /// </summary>
+    public static bool IsBoundedBy(this float x, float a, float b, float e = 1e-7f)
+    {
+        // add error to x and not to the edges because a and b can be float.MaxValue/MinValue and cause overflows
+        return a <= x + e && x - e <= b;
+    }
+
+    public static bool AreBoundedBy(this (float, float, float) values, float a, float b, float e = 1e-7f)
+    {
+        return values.Item1.IsBoundedBy(a, b, e) && 
+               values.Item2.IsBoundedBy(a, b, e) && 
+               values.Item3.IsBoundedBy(a, b, e);
+    }
+    
+    public static bool Intersects(this (float , float) I, float a, float b)
+    {
+        return a < I.Item2 && I.Item1 < b;
+    }
+
+    public static bool IsZeroOrOne(this float x, double e = 1e-5)
+    {
+        return x.IsZero(e) || x.IsClose(1, e);
+    }
 }

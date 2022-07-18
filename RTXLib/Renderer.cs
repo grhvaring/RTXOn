@@ -26,7 +26,7 @@ public class OnOffRenderer : Renderer
 {
     public Color Color;
     /// <summary>Instance variable <c>Color</c> represents the color used to color the shapes in the scene. If not specified it is set to white.</summary>
-    public OnOffRenderer(World world, Color? color = null, Color? backgroundColor = null) : base(world, backgroundColor)
+    public OnOffRenderer(World world, Color? color = null) : base(world)
     {
         Color = color ?? Color.WHITE;
     }
@@ -41,9 +41,7 @@ public class OnOffRenderer : Renderer
 /// <summary>Class <c>FlatRenderer</c> models a renderer that solves the rendering equation by neglecting any contribution of the light and taking in account only the pigment of each surface in order to compute the final radiance.</summary>
 public class FlatRenderer : Renderer
 {
-    public FlatRenderer(World world) :  base(world) {}
-
-    public FlatRenderer(World world, Color backgroundColor) : base(world, backgroundColor) {}
+    public FlatRenderer(World world, Color? backgroundColor = null) :  base(world, backgroundColor) {}
 
     /// <summary>Method <c>Run</c> runs the renderer for a specified ray.</summary>
     public override Color Run(Ray ray)
@@ -70,45 +68,13 @@ public class PathTracer : Renderer
     public int MaxDepth;
     ///<summary>Instance variable <c>RussianRouletteLimit</c> represents the depth of a ray that triggers the start of the Russian roulette algorithm in order to end the recursion. If not specified it is set to 3.</summary>
     public int RussianRouletteLimit;
-
-    public PathTracer(World world, PCG? pcg = null) : base(world) 
-    {
-        Pcg = pcg ?? new PCG();
-        NumberOfRays = 10;
-        MaxDepth = 2;
-        RussianRouletteLimit = 3;
-    }
-
-    public PathTracer(World world, Color backgroundColor, PCG? pcg = null, int numberOfRays = 10, int maxDepth = 2, int russianRouletteLimit = 3) : base(world, backgroundColor) 
+    
+    public PathTracer(World world, PCG? pcg = null, int numberOfRays = 10, int maxDepth = 2, int russianRouletteLimit = 3, Color? backgroundColor = null) : base(world, backgroundColor) 
     {
         Pcg = pcg ?? new PCG();
         NumberOfRays = numberOfRays;
         MaxDepth = maxDepth;
         RussianRouletteLimit = russianRouletteLimit;
-    }
-    
-    public PathTracer(World world, int numberOfRays = 10, int maxDepth = 2) : base(world) 
-    {
-        Pcg = new PCG();
-        NumberOfRays = numberOfRays;
-        MaxDepth = maxDepth;
-        RussianRouletteLimit = 3;
-    }
-    
-    public PathTracer(World world, Color background, int numberOfRays = 10, int maxDepth = 2) : base(world, background) 
-    {
-        Pcg = new PCG();
-        NumberOfRays = numberOfRays;
-        MaxDepth = maxDepth;
-        RussianRouletteLimit = 3;
-    }
-    
-    public PathTracer(World world, int maxDepth = 2) : base(world) 
-    {
-        Pcg = new PCG();
-        NumberOfRays = 10;
-        MaxDepth = maxDepth;
-        RussianRouletteLimit = 3;
     }
 
     /// <summary>Method <c>Run</c> runs the renderer for a specified ray.</summary>
@@ -126,7 +92,7 @@ public class PathTracer : Renderer
         Color hitColor = hitMaterial.BRDF.Pigment.GetColor(hitRecord.Value.SurfacePoint);
         Color emittedRadiance = hitMaterial.EmittedRadiance.GetColor(hitRecord.Value.SurfacePoint);
 
-        float hitColorLum = Math.Max(Math.Max(hitColor.R, hitColor.G), hitColor.B);
+        var hitColorLum = Math.Max(Math.Max(hitColor.R, hitColor.G), hitColor.B);
 
         // If the depth of the ray equals a certain limit, start the Russian roulette algorithm
         if (hitColorLum > 0 && ray.Depth >= RussianRouletteLimit)
@@ -144,7 +110,7 @@ public class PathTracer : Renderer
 
         // Monte Carlo integration section
 
-        Color cumulativeRadiance = new Color();
+        var cumulativeRadiance = new Color();
 
         // Start recursion only if necessary
         if (MyLib.IsZero(hitColorLum, 1e-3)) return emittedRadiance + cumulativeRadiance * 1.0f / NumberOfRays;

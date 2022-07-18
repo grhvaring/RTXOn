@@ -17,16 +17,6 @@ namespace RTXLib.Tests
 		}
 
 		[Fact]
-		public void TestNegation()
-		{
-			Normal a = new Normal(1.0f, 2.0f, -3.0f);
-			Normal b = new Normal(-1.0f, -2.0f, 3.0f);
-
-			Assert.True((a.Negation()).IsClose(b));
-
-		}
-
-		[Fact]
 		public void TestProductScalarVector()
 		{
 			var a = new Normal(1.0f, 2.0f, 3.0f);
@@ -62,7 +52,7 @@ namespace RTXLib.Tests
 		public void TestNorm()
 		{
 			var a = new Vec(1.0f, 2.0f, 3.0f);
-			Assert.True(MyLib.IsZero(a.Norm() * a.Norm() - 14.0f));
+			Assert.True((a.Norm() * a.Norm() - 14.0f).IsZero());
 
 		}
 
@@ -70,7 +60,7 @@ namespace RTXLib.Tests
 		public void TestSquaredNorm()
 		{
 			var a = new Normal(1.0f, 2.0f, 3.0f);
-			Assert.True(MyLib.IsZero(a.SquaredNorm - 14.0f));
+			Assert.True((a.SquaredNorm - 14.0f).IsZero());
 		}
 
 		[Fact]

@@ -226,7 +226,7 @@ public struct Transformation
 
         var newPoint = new Point(newX, newY, newZ);
         
-        if (w != 0 && Math.Abs(w - 1) > 1e-5) newPoint /= w;
+        if (!w.IsZeroOrOne()) newPoint /= w;
         
         return newPoint;
     }
@@ -265,9 +265,9 @@ public struct Transformation
     public static bool AreMatricesClose(Matrix4x4 M1, Matrix4x4 M2, double e = 1e-5)
     {
         Matrix4x4 diff = M1 - M2;
-        return MyLib.IsZero(diff.M11, e) && MyLib.IsZero(diff.M12, e) && MyLib.IsZero(diff.M13, e) && MyLib.IsZero(diff.M14, e) && 
-               MyLib.IsZero(diff.M21, e) && MyLib.IsZero(diff.M22, e) && MyLib.IsZero(diff.M23, e) && MyLib.IsZero(diff.M24, e) && 
-               MyLib.IsZero(diff.M31, e) && MyLib.IsZero(diff.M32, e) && MyLib.IsZero(diff.M33, e) && MyLib.IsZero(diff.M34, e) && 
-               MyLib.IsZero(diff.M41, e) && MyLib.IsZero(diff.M42, e) && MyLib.IsZero(diff.M43, e) && MyLib.IsZero(diff.M44, e);
+        return diff.M11.IsZero(e) && diff.M12.IsZero(e) && diff.M13.IsZero(e) && diff.M14.IsZero(e) && 
+               diff.M21.IsZero(e) && diff.M22.IsZero(e) && diff.M23.IsZero(e) && diff.M24.IsZero(e) && 
+               diff.M31.IsZero(e) && diff.M32.IsZero(e) && diff.M33.IsZero(e) && diff.M34.IsZero(e) && 
+               diff.M41.IsZero(e) && diff.M42.IsZero(e) && diff.M43.IsZero(e) && diff.M44.IsZero(e);
     }
 }

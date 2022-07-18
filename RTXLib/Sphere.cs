@@ -2,6 +2,9 @@ namespace RTXLib;
 
 public class Sphere : Shape
 {
+    /// <summary>
+    /// Creates a <c>Sphere</c> object, with a specific <c>material</c>, center in <c>(x, y, z)</c> and radius <c>r</c>
+    /// </summary>
     public Sphere(Material material, float x, float y, float z, float r = 1) : base(material)
     {
         Transformation = Transformation.Translation(x, y, z) * Transformation.Scaling(r);
@@ -13,7 +16,7 @@ public class Sphere : Shape
     public override HitRecord? RayIntersection(Ray ray)
     {
         var invRay = ray.Transform(Transformation.Inverse());
-        var firstHitTime= CalculateFirstIntersectionTime(invRay);
+        var firstHitTime= CalculateFirstIntersectionTime(ref invRay);
         
         if (!firstHitTime.HasValue) return null; // if there is no intersection return null
         
@@ -24,7 +27,7 @@ public class Sphere : Shape
         return hitRecord;
     }
 
-    private static float? CalculateFirstIntersectionTime(Ray invRay)
+    private static float? CalculateFirstIntersectionTime(ref Ray invRay)
     {
         var O = invRay.Origin.ToVec();
         var d = invRay.Dir;
@@ -37,13 +40,20 @@ public class Sphere : Shape
         if (delta4 < 0) return null; // null = no hit
         
         var sqrtDelta4 = (float) Math.Sqrt(delta4);
-        var t1 = (-b2 - sqrtDelta4) / a;
-        var t2 = (-b2 + sqrtDelta4) / a;
+        var invA = 1 / a;
+        var t1 = (-b2 - sqrtDelta4) * invA;
+        var t2 = (-b2 + sqrtDelta4) * invA;
         
-        if (t1 > invRay.TMin && t1 < invRay.TMax) return t1;
-        if (t2 > invRay.TMin && t2 < invRay.TMax) return t2;
+        if (t1.IsBoundedBy(invRay.TMin, invRay.TMax))
+        {
+            invRay.UpdateLimits(invRay.TMin, t1);
+            return t1;
+        }
 
-        return null; // null -> no hit
+        if (!t2.IsBoundedBy(invRay.TMin, invRay.TMax)) return null; // null -> no hit
+        invRay.UpdateLimits(invRay.TMin, t2);
+        return t2;
+
     }
 
     private static Normal NormalAt(Point point, Vec rayDir)
