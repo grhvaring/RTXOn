@@ -1,4 +1,4 @@
-## About the Project
+# About the Project
 
 `RTXOn` is an open source C# solution for the generation of photorealistic images using raytracing.
 
@@ -12,11 +12,11 @@ If you are still reading, we've got a prize for you: a beautiful image rendered 
 
 [^1]: It is basically a rewriting of the Professor's GitHub repository [pytracer].
 
-<h2 id="sneak-peak">Sneak Peak</h2>
+<h1 id="sneak-peak">Sneak Peak</h1>
 
 With `RTXOn` you can generate an image similar to this one:
 
-![demo](https://github.com/grhvaring/RTXOn/blob/document/images/demo.png?raw=true)
+![demo](https://github.com/grhvaring/RTXOn/blob/master/images/demo.png?raw=true)
 
 using the following command:
 
@@ -28,7 +28,7 @@ The syntax is explained on how to use `RTXOn` [further down](#usage).
 
 The next section explains how to get `RTXOn` up and running on your machine.
 
-## Get Started
+# Get Started
 
 What follows is a step-by-step guide to install `RTXOn` and its dependencies.
 
@@ -84,7 +84,7 @@ If you arrived here in one piece, congratulations ! You succesfully installed an
 The next section explains how to use it.
 
 
-<h2 id="usage">Usage</h2>
+<h1 id="usage">Usage</h1>
 
 ### Easy route
 
@@ -158,7 +158,7 @@ $ ./path-to-exe/RTXOn --help
 
 That's it, have fun !
 
-## Contributing
+# Contributing
 
 In case this project turns out to be useful to someone other than us, [we](#contact)'d be (first of all surprised, but also) very happy to know more about it !
 
@@ -166,17 +166,17 @@ If you have a suggestion that would make the project better, please fork the rep
 
 Any contribution you make is **greatly appreciated**.
 
-## License
+# License
 
 `RTXOn` is distributed under the Apache 2.0 License. See [LICENSE.txt][license] for more information.
 
-<h2 id="contact">Contact the Developers</h2>
+<h1 id="contact">Contact the Developers</h1>
 
 Andrea Mastropasqua: [andrea.mastropasqua@studenti.unimi.it](mailto:andrea.mastropasqua@studenti.unimi.it)
 
 Giacomo Riccardo Hvaring: [giacomoriccardo.hvaring@studenti.unimi.it](mailto:giacomoriccardo.hvaring@studenti.unimi.it)
 
-## Acknowledgments
+# Acknowledgments
 
 We thank [SixLabors] for releasing [ImageSharp] free of charge: it took care of the conversion to PNG for us !
 
