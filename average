@@ -1,0 +1,15 @@
+exe=./RTXOn/bin/Release/net6.0/RTXOn
+
+if [ $1 ]
+then
+    folder=$1
+else
+	echo "Usage: $0 [folder]"
+	exit 1
+fi
+
+# animate different outputs into a gif
+convert -delay 50 $folder/*.png $folder/runs.gif
+
+# average over the runs
+$exe average $folder/*.pfm --png-output $folder/average.png
