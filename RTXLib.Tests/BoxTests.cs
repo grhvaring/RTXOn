@@ -16,16 +16,15 @@ public class BoxTests
     {
         var (a, b) = (0f, 2f);
         var (c, d) = (1f, 3f);
-        Assert.True(Box.IntervalsIntersect(a, b, c, d));
+        Assert.True((a, b).Intersects(c, d));
         
         (a, b) = (0, 1);
         (c, d) = (2, 3);
-        Assert.False(Box.IntervalsIntersect(a, b, c, d));
+        Assert.False((a, b).Intersects(c, d));
         
         var (min, max) = (float.MinValue, float.MaxValue);
-        Assert.True(Box.IntervalsIntersect(min, max, c, d));
-        
-        Assert.False(Box.IntervalsIntersect(max, max, c, d));
+        Assert.True((min, max).Intersects(c, d));
+        Assert.True((min, max).Intersects(min, max));
     }
 
     [Fact]
@@ -54,7 +53,7 @@ public class BoxTests
         Assert.True(hitRecord.WorldPoint.IsClose(new Point(0, 0.5f, 0.5f)));
         Assert.True(hitRecord.Normal.IsClose(new Normal(-1, 0, 0)));
         Assert.True(hitRecord.SurfacePoint.IsClose(0.5f, 0.5f));
-        Assert.True(MyLib.IsZero(hitRecord.T - 1));
+        Assert.True((hitRecord.T - 1).IsZero());
     }
     
     [Fact]
@@ -78,7 +77,7 @@ public class BoxTests
         Assert.True(hitRecord.WorldPoint.IsClose(new Point(0.5f, 1, 0.5f)));
         Assert.True(hitRecord.Normal.IsClose(new Normal(0, 1, 0)));
         Assert.True(hitRecord.SurfacePoint.IsClose(0.5f,0.5f));
-        Assert.True(MyLib.IsZero(hitRecord.T - 1));
+        Assert.True((hitRecord.T - 1).IsZero());
     }
     
     [Fact]
@@ -93,7 +92,7 @@ public class BoxTests
         Assert.True(hitRecord.WorldPoint.IsClose(new Point(0.5f, 0.5f, 1)));
         Assert.True(hitRecord.Normal.IsClose(new Normal(0, 0, -1)));
         Assert.True(hitRecord.SurfacePoint.IsClose(0.5f,0.5f));
-        Assert.True(MyLib.IsZero(hitRecord.T - 0.5f));
+        Assert.True(hitRecord.T.IsClose(0.5f));
     }
 
     [Fact]
@@ -109,7 +108,7 @@ public class BoxTests
         Assert.True(hitRecord.WorldPoint.IsClose(new Point(0, 0.2f, 0.7f)));
         Assert.True(hitRecord.Normal.IsClose(new Normal(-1, 0, 0)));
         Assert.True(hitRecord.SurfacePoint.IsClose(0.2f,0.7f));
-        Assert.True(MyLib.IsZero(hitRecord.T - 1));
+        Assert.True((hitRecord.T - 1).IsZero());
     }
 
     [Fact]
@@ -127,7 +126,7 @@ public class BoxTests
         var normal = hitRecord.Normal.Normalize();
         Assert.True(normal.IsClose(new Normal(-1, 0, 0)));
         Assert.True(hitRecord.SurfacePoint.IsClose(0.5f,0.5f));
-        Assert.True(MyLib.IsZero(hitRecord.T - 1));
+        Assert.True((hitRecord.T - 1).IsZero());
     }
 
     [Fact]
@@ -143,7 +142,7 @@ public class BoxTests
         var normal = hitRecord.Normal.Normalize();
         Assert.True(normal.IsClose(new Normal(0, -1, 0)));
         Assert.True(hitRecord.SurfacePoint.IsClose(0.1f,0.75f));
-        Assert.True(MyLib.IsZero(hitRecord.T - 1));
+        Assert.True((hitRecord.T - 1).IsZero());
         
         // not hitting
         ray = new Ray(new Point(0.2f, -1, 1.5f), -Vec.Ey);
@@ -165,7 +164,7 @@ public class BoxTests
         var normal = hitRecord.Normal.Normalize();
         Assert.True(normal.IsClose(new Normal(0, 0, -1)));
         Assert.True(hitRecord.SurfacePoint.IsClose(0.7f,0.8f));
-        Assert.True(MyLib.IsZero(hitRecord.T - 1));
+        Assert.True((hitRecord.T - 1).IsZero());
     }
     
     [Fact]
@@ -182,7 +181,7 @@ public class BoxTests
         Assert.True(hitRecord.WorldPoint.IsClose(new Point(1, 1.5f, 1.5f)));
         Assert.True(hitRecord.Normal.IsClose(new Normal(-1, 0, 0)));
         Assert.True(hitRecord.SurfacePoint.IsClose(0.5f,0.5f));
-        Assert.True(MyLib.IsZero(hitRecord.T - 1));
+        Assert.True((hitRecord.T - 1).IsZero());
     }
     
     [Fact]
@@ -199,7 +198,7 @@ public class BoxTests
         Assert.True(hitRecord.WorldPoint.IsClose(new Point(1, 1.5f, 1.5f)));
         Assert.True(hitRecord.Normal.Normalize().IsClose(new Normal(-1, 0, 0)));
         Assert.True(hitRecord.SurfacePoint.IsClose(0.25f,0.25f));
-        Assert.True(MyLib.IsZero(hitRecord.T - 1));
+        Assert.True((hitRecord.T - 1).IsZero());
     }
 
     [Fact]
@@ -211,7 +210,7 @@ public class BoxTests
         
         // setup camera
         var transformation = Transformation.Translation(0, 0, 1);
-        var camera = new PerspectiveCamera(2, 1, transformation);
+        var camera = new PerspectiveCamera(transformation, 2, 1);
         var ray = camera.FireRay(0.5f, 0.6f);
         
         // check ray equals the one intended
@@ -225,7 +224,7 @@ public class BoxTests
         Assert.True(hitRecord.WorldPoint.IsClose(new Point(0.5f, 0, 1.25f)));
         Assert.True(hitRecord.Normal.Normalize().IsClose(new Normal(-1, 0, 0)));
         Assert.True(hitRecord.SurfacePoint.IsClose(0.5f, 0.5f));
-        Assert.True(MyLib.IsZero(hitRecord.T - 1.25f));
+        Assert.True((hitRecord.T - 1.25f).IsZero());
 
         var missingRay = new Ray(new Point(-2, 0, 1), new Vec(2.5f, -edge, 0.25f) * 0.8f);
         record = box.RayIntersection(missingRay);

@@ -1,0 +1,47 @@
+material sky_material(
+    diffuse(uniform([0, 0, 0])),
+    uniform([113, 188, 225])
+)
+
+material ground_material(
+    diffuse(checkered([69, 69, 69],
+                      [220, 220, 220], 4)),
+    uniform([0, 0, 0])
+)
+
+material sphere_material(
+    specular(uniform([100, 100, 100])),
+    uniform([0, 0, 0])
+)
+
+material red_material(
+    diffuse(uniform([220, 35, 35])),
+    uniform([0, 0, 0])
+)
+
+material green_material(
+    diffuse(uniform([0, 150, 70])),
+    uniform([0, 0, 0])
+)
+
+material sun_material(
+    diffuse(uniform([0, 0, 0])),
+    uniform([255, 255, 69])
+)
+
+material crown_material(
+    diffuse(uniform([0, 0, 0])),
+    uniform([150, 150, 20])
+)
+
+# sphere (crown_material, translation([65, 32.3, 43]) * scaling([1, 6, 6]))
+
+sphere (sun_material, translation([60, 30, 40]) * scaling([1, 4, 4]))
+sphere (sky_material, scaling([100, 100, 100]))
+plane (ground_material, identity)
+
+sphere (sphere_material, translation([0, 0, 1]))
+sphere (red_material, translation([0, 2, 0.5]) * scaling([0.5, 0.5, 0.5]))
+sphere (green_material, translation([0, -2, 0.5]) * scaling([0.5, 0.5, 0.5]))
+
+camera(perspective, translation([-3, 0, 1]), 1.0, 1.0)

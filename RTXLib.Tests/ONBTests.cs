@@ -29,16 +29,16 @@ namespace RTXLib.Tests
                 Assert.True(e3.IsClose(normal));
 
                 // Verify that the base is orthogonal
-                Assert.True(MyLib.AreClose(e1 * e2, 0.0f));
-                Assert.True(MyLib.AreClose(e2 * e3, 0.0f));
-                Assert.True(MyLib.AreClose(e3 * e1, 0.0f));
+                Assert.True((e1 * e2).IsZero());
+                Assert.True((e2 * e3).IsZero());
+                Assert.True((e3 * e1).IsZero());
 
                 // Verify that each component is normalized
-                Assert.True(MyLib.AreClose(e1.SquaredNorm(), 1.0f));
-                Assert.True(MyLib.AreClose(e2.SquaredNorm(), 1.0f));
-                Assert.True(MyLib.AreClose(e3.SquaredNorm(), 1.0f));
+                Assert.True(e1.SquaredNorm().IsClose(1));
+                Assert.True(e2.SquaredNorm().IsClose(1));
+                Assert.True(e3.SquaredNorm().IsClose(1));
 
-                // Verify that the base has right handness
+                // Verify that the base has right handedness
                 var v = Vec.CrossProduct(e1, e2);
                 Assert.True(v * e3 > 0);
             }

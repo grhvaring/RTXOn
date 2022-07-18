@@ -4,8 +4,8 @@ public struct Ray
 {
 	public Point Origin;
 	public Vec Dir;
-	public readonly float TMin;
-	public readonly float TMax;
+	public float TMin;
+	public float TMax;
 	public int Depth;
 
 	public Ray()
@@ -28,7 +28,7 @@ public struct Ray
 
 	public bool IsClose(Ray otherRay, double epsilon = 1e-5)
     {
-		return (Origin.IsClose(otherRay.Origin, epsilon) && Dir.IsClose(otherRay.Dir, epsilon));
+		return Origin.IsClose(otherRay.Origin, epsilon) && Dir.IsClose(otherRay.Dir, epsilon);
     }
 
 	/// <summary>
@@ -45,5 +45,11 @@ public struct Ray
 	{
 		// QUESTION: Why don't we just change the current ray?
 		return new Ray(transformation * Origin, transformation * Dir, TMin, TMax, Depth);
+	}
+
+	public void UpdateLimits(float tmin, float tmax)
+	{
+		TMin = tmin;
+		TMax = tmax;
 	}
 }

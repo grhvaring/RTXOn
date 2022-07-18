@@ -3,6 +3,9 @@ using System.Numerics;
 
 namespace RTXLib;
 
+/// <summary>
+/// 3D object that transforms like a Normal
+/// </summary>
 public struct Normal
 {
 	private Vector3 normal;
@@ -28,41 +31,18 @@ public struct Normal
 		normal = new Vector3(0);
 	}
 
-	// Creating a new normal with all componenents set to assigned values
 	public Normal(float x, float y, float z)
 	{
 		normal = new Vector3(x, y, z);
 	}
 
-	// Creating a new normal equal to a C# vector
-	public Normal(Vector3 vector)
-	{
-		normal = new Vector3(vector.X, vector.Y, vector.Z);
-	}
-
-	// Creating a new normal equal to another normal
-	public Normal(Normal other)
-	{
-		normal = new Vector3(other.X, other.Y, other.Z);
-	}
-
-	// *** Norms and squared norm *** //
-
 	public float Norm => normal.Length();
 	public float SquaredNorm => normal.LengthSquared();
-
-	// *** Operations *** //
 
 	// Unary minus operator
 	public static Normal operator -(Normal vector)
 	{
 		return new Normal(-vector.X, -vector.Y, -vector.Z);
-	}
-
-	// Negation operator ... an alternative form of unary - operator
-	public Normal Negation()
-	{
-		return new Normal(-X, -Y, -Z);
 	}
 
 	// Product of normal * scalar
@@ -94,6 +74,10 @@ public struct Normal
 
 	// *** Normalization and conversion *** //
 	
+	/// <summary>
+	/// Returns a new <c>Normal</c> with the same direction and orientation, but with lenght = 1
+	/// </summary>
+	/// <returns></returns>
 	public Normal Normalize()
 	{
 		var norm = Norm;
@@ -108,14 +92,9 @@ public struct Normal
 	
 	public bool IsClose(float x, float y, float z, double e = 1e-5)
 	{
-		return MyLib.AreZero(X - x, Y - y, Z - z, e);
+		return (X - x, Y - y, Z - z).AreZero(e);
 	}
 
-	public bool IsClose(float xyz, double e = 1e-5)
-	{
-		return IsClose(xyz, xyz, xyz, e);
-	}
-	
 	public Vec ToVec()
 	{
 		return new Vec(X, Y, Z);
@@ -123,6 +102,6 @@ public struct Normal
 
 	public override string ToString()
 	{
-		return $"(x= {X}, y= {Y}, z= {Z})";
+		return $"Normal(x = {X}, y = {Y}, z = {Z})";
 	}
 }

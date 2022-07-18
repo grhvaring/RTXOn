@@ -17,7 +17,7 @@ public class CameraTests
     public void TestOrthogonalCamera()
     {
         var aspectRatio = 2;
-        var camera = new OrthogonalCamera(aspectRatio, new Transformation());
+        var camera = new OrthogonalCamera(new Transformation(), aspectRatio);
         var ray1 = camera.FireRay(0, 0);
         var ray2 = camera.FireRay(1, 0);
         var ray3 = camera.FireRay(0, 1);
@@ -39,7 +39,7 @@ public class CameraTests
     public void TestOrthogonalCameraTransform()
     {
         var transformation = Transformation.Translation(-2 * Vec.Ey) * Transformation.RotationZ(90);
-        var camera = new OrthogonalCamera(1, transformation);
+        var camera = new OrthogonalCamera(transformation, 1);
         var ray = camera.FireRay(0.5f, 0.5f);
         //_testOutputHelper.WriteLine(ray.At(1).ToString());
         Assert.True(ray.At(1).IsClose(new Point(0, -2, 0)));
@@ -49,7 +49,7 @@ public class CameraTests
     public void TestPerspectiveCamera()
     {
         var aspectRatio = 2;
-        var camera = new PerspectiveCamera(1, aspectRatio);
+        var camera = new PerspectiveCamera(distance: 1, aspectRatio: aspectRatio);
 
         var ray1 = camera.FireRay(0, 0);
         var ray2 = camera.FireRay(1, 0);
@@ -72,7 +72,7 @@ public class CameraTests
     public void TestPerspectiveCameraTransform()
     {
         var transformation = Transformation.Translation(-2 * Vec.Ey) * Transformation.RotationZ(90);
-        var camera = new PerspectiveCamera(1, 2, transformation);
+        var camera = new PerspectiveCamera(transformation, 1, 2);
         var ray = camera.FireRay(0.5f, 0.5f);
         //_testOutputHelper.WriteLine(ray.At(1).ToString());
         Assert.True(ray.At(1).IsClose(new Point(0, -2, 0)));

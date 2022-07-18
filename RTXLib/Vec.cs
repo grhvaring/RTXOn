@@ -24,9 +24,9 @@ public struct Vec
 		set => vec.Z = value;
 	}
 
-	public static Vec Ex => new Vec(1, 0, 0);
-	public static Vec Ey => new Vec(0, 1, 0);
-	public static Vec Ez => new Vec(0, 0, 1);
+	public static Vec Ex => new (1, 0, 0);
+	public static Vec Ey => new (0, 1, 0);
+	public static Vec Ez => new (0, 0, 1);
 
 	// *** Constructors *** //
 
@@ -41,12 +41,6 @@ public struct Vec
     {
 		vec = new Vector3(x, y, z);
     }
-
-	// Creating a new 3d vector equal to a C# vector
-	public Vec(Vector3 vector)
-	{
-		vec = new Vector3(vector.X, vector.Y, vector.Z);
-	}
 
 	// Creating a new 3d vector equal to another 3D vector
 	public Vec(Vec vector)
@@ -87,18 +81,11 @@ public struct Vec
 	{
 		return new Vec(-vector.X, -vector.Y, -vector.Z);
 	}
-
-	// Negation operator ... an alternative form of unary - operator
-
-	public Vec Negation()
-	{
-		return new Vec(-X, -Y, -Z);
-	}
-
+	
 	// Product of vector * scalar
 	public static Vec operator *(Vec vector, float scalar)
     {
-		return new Vec(scalar * vector.X, scalar * vector.Y, scalar * vector.Z);
+		return scalar * vector;
 	}
 
 	// Product of scalar * vector
@@ -110,13 +97,19 @@ public struct Vec
 	// Division of vector by a scalar
 	public static Vec operator /(Vec vector, float scalar)
 	{
-		if (scalar == 0) throw new DivideByZeroException();
-		return new Vec(vector.X /scalar, vector.Y / scalar, vector.Z / scalar);
+		if (scalar == 0) throw new DivideByZeroException("You divided by zero!");
+		return vector * (1 / scalar);
+	}
+	
+	// "Reciprocal" of vector component-wise
+	public static Vec operator /(float a, Vec vector)
+	{
+		return a * new Vec(1 / vector.X, 1 / vector.Y, 1 / vector.Z);
 	}
 
 	// Scalar products
-	// Here are definied the combination of scalar product between a vector and a normal (all possible combination)
-	// The scalar product are definied also using the * operator (except the normal * normal case that it is definied in the Normal struct)
+	// Here are defined the combination of scalar product between a vector and a normal (all possible combination)
+	// The scalar product are defined also using the * operator (except the normal * normal case that it is definied in the Normal struct)
 
 	public static float ScalarProduct(Vec vector1, Vec vector2)
     {
@@ -125,7 +118,7 @@ public struct Vec
 
 	public static float ScalarProduct(Vec vector1, Normal normal)
 	{
-		Vec vector2 = normal.ToVec();
+		var vector2 = normal.ToVec();
 		return ScalarProduct(vector1, vector2);
 	}
 
@@ -196,26 +189,25 @@ public struct Vec
 	public Vec Normalize()
 	{
 		var norm = Norm();
-		return new Vec(X / norm, Y / norm, Z / norm);
+		return new Vec(X, Y, Z) / norm;
 	}
 	
-	// Trasformation in a normal struct
-	public Normal ConversionToNormal()
-    {
-		return new Normal(X, Y, Z);
-	}
-
 	// *** Other functions *** //
 
 	// IsClose checks if a vector can be considered equal to another vector
-	public bool IsClose(Vec otherVector, double epsilon = 1e-5)
+	public bool IsClose(Vec otherVector, double e = 1e-5)
 	{
-		return (Math.Abs(X - otherVector.X) < epsilon) && (Math.Abs(Y - otherVector.Y) < epsilon) && (Math.Abs(Z - otherVector.Z) < epsilon);
+		return (X - otherVector.X, Y - otherVector.Y, Z - otherVector.Z).AreZero(e);
 	}
 
+	public bool IsZero(double e = 1e-5)
+	{
+		return (X, Y, Z).AreZero(e);
+	}
+	
 	// ToString shows the coordinates of a vector in string format
 	public override string ToString()
 	{
-		return $"(x= {X}, y= {Y}, z= {Z})";
+		return $"(x = {X}, y = {Y}, z = {Z})";
 	}
 }

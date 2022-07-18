@@ -1,0 +1,82 @@
+#############################################################################################
+# This Bash script helps you set up the rendering of a 3D scene with RTXOn.     		    #
+# Most of the options that can be passed to the program have been set up somewhere in this  #
+# script, so we encourage you to get comfortable with them by tweaking their values !       #
+#############################################################################################
+
+# path to the executable relative to the root directory of the project
+exe="./RTXOn/bin/Release/net6.0/RTXOn"
+
+# image dimensions (in pixels)
+width=540
+height=540
+
+if [ $1 == "" ]
+then
+	echo "Usage: ./render <filename-without-extension> <seed> <sequence>."
+	echo "Example: ./render demo 42 54"
+	echo "<filename> is required, <seed> and <sequence> are optional."
+fi
+
+# first argument --> input file name (without extension)
+input=$1
+
+# create the folder named as the input file (without extension) for the outputs
+if [ ! -d $input ]
+then
+    mkdir $input
+fi
+
+# RTXOn uses a pseudo-random number generator which requires a "seed" and a "sequence number" to be initialized
+seed=42
+seq=54
+
+# if a second parameter is passed, use it as seed for the random number generator
+if [ $2 ]
+then
+	seed=$2
+fi
+
+# if a third parameter is passed, use it as sequence number for the random number generator
+if [ $3 ]
+then
+	seq=$3
+fi
+
+# at each hit with a surface, RTXOn generates secondary rays in different directions, how many?
+# this many:
+rays=20
+
+# max number of reflections before interrupting the calculation
+depth=3
+
+# Antialiasing subdivisions of each pixel
+#
+#    s = 0:                     s = 1:                     s = 2:                      ...
+#
+#            0                          1                       1     2
+#   ┌─────────────────┐        ┌────────┬────────┐        ┌─────┬─────┬─────┐
+#   │                 │        │        │        │        │     │     │     │
+#   │                 │        │        │        │      1 ├─────┼─────┼─────┤
+# 0 │                 │      1 ├────────┼────────┤        │     │     │     │
+#   │                 │        │        │        │      2 ├─────┼─────┼─────┤
+#   │                 │        │        │        │        │     │     │     │
+#   └─────────────────┘        └────────┴────────┘        └─────┴─────┴─────┘
+#
+#
+# NOTE: The outer square represents a single pixel, subdivided by 'sub' lines EQUALLY spaced
+# --> Result: (sub + 1)^2 smaller squares
+sub=2
+
+# cryptic, but information-dense output image name, that contains the values of the parameters used in the rendering
+name="$rays.$depth.$sub.$seed.$seq"
+
+# NOTE: if you want to override the average luminosity of the PNG image generated, add this option:
+# --luminosity $lum
+# average luminosity of the image
+lum=1
+
+# Finally, the rendering
+
+$exe render --width $width --height $height --input-file examples/$input.txt --png-output $input/$name.png \
+--pfm-output $input/$name.pfm --rays $rays --depth $depth -s $sub --seed $seed --sequence $seq
